@@ -1,0 +1,31 @@
+<classpath>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="src" path="src/main/resources"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
+  <classpathentry kind="src" path="src/test/resources" output="target/test-classes"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="var" path="M2_REPO/mockobjects/mockobjects-alt-jdk1.3/0.09/mockobjects-alt-jdk1.3-0.09.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/struts/struts2-api/2.0.3-SNAPSHOT/struts2-api-2.0.3-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mockobjects/mockobjects-core/0.09/mockobjects-core-0.09.jar"/>
+  <classpathentry kind="var" path="M2_REPO/freemarker/freemarker/2.3.4/freemarker-2.3.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/cglib/cglib-full/2.0/cglib-full-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/struts/struts2-core/2.0.3-SNAPSHOT/struts2-core-2.0.3-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/easymock/easymock/2.0/easymock-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/opensymphony/xwork/2.0.0/xwork-2.0.0.jar" sourcepath="M2_REPO/opensymphony/xwork/2.0.0/xwork-2.0.0-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mockobjects/mockobjects-jdk1.3/0.09/mockobjects-jdk1.3-0.09.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/struts/struts-annotations/1.0-SNAPSHOT/struts-annotations-1.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jmock/jmock-cglib/1.0.1/jmock-cglib-1.0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mockobjects/mockobjects-alt-jdk1.3-j2ee1.3/0.09/mockobjects-alt-jdk1.3-j2ee1.3-0.09.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mockobjects/mockobjects-jdk1.3-j2ee1.3/0.09/mockobjects-jdk1.3-j2ee1.3-0.09.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/1.2.8/spring-mock-1.2.8.jar"/>
+  <classpathentry kind="lib" path="C:/Program Files/Java/jdk1.5.0_09/lib/tools.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/servlet/jsp-api/2.0/jsp-api-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/1.2.8/spring-core-1.2.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/ognl/ognl/2.6.9/ognl-2.6.9.jar"/>
+</classpath>
