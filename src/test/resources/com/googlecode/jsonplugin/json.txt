@@ -1,0 +1,32 @@
+{
+	"array": ["a", "a", "\"", "\\", "\/", "\b", "\f", "\n", "\r", "\t"],
+	"collection": ["b", 1, [10, 12]],
+	"collection2": [{
+						"booleanField": true,
+						"charField": "s",
+						"doubleField": 10.1,
+						"floatField": 1.5,
+						"intField": 10,
+						"longField":100,
+						"objectField": {
+											"booleanField": false,
+											"charField": "\u0000",
+											"doubleField": 0.0,
+											"floatField": 0.0,
+											"intField": 0,
+											"longField": 0,
+											"objectField": null,
+											"stringField": ""
+										},
+						"stringField": "str"
+					}],
+	"foo": "foo",
+	"list": null,
+	"list2": null,
+	"list3": null,
+	"map": {
+				"a": 1,
+				"c": [1.0, 2.0]
+		   },
+    "result": null
+}
