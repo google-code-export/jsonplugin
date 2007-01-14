@@ -20,13 +20,13 @@
  */
 package com.googlecode.jsonplugin;
 
+import com.mockobjects.servlet.MockHttpServletResponse;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import java.util.Locale;
-
-import com.mockobjects.servlet.MockHttpServletResponse;
-
 
 /**
  * StrutsMockHttpServletResponse
@@ -47,14 +47,16 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
     }
 
     public String getContentType() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null; //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public PrintWriter getWriter() throws IOException {
-        if (writer == null)
+    public PrintWriter getWriter()
+        throws IOException {
+        if(writer == null) {
             return new PrintWriter(new ByteArrayOutputStream());
-        else
+        } else {
             return writer;
+        }
     }
 
     public void setCharacterEncoding(String string) {
@@ -86,12 +88,12 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
         return status;
     }
 
-
     public String getRedirectURL() {
         return redirectURL;
     }
 
-    public void sendRedirect(String redirectURL) throws IOException {
+    public void sendRedirect(String redirectURL)
+        throws IOException {
         this.redirectURL = redirectURL;
         super.sendRedirect(redirectURL);
     }

@@ -20,7 +20,9 @@
  */
 package com.googlecode.jsonplugin;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 
 /**
@@ -50,5 +52,44 @@ public class JSONUtil {
     public static void serialize(Writer writer, Object object)
         throws IOException, JSONExeption {
         writer.write(serialize(object));
+    }
+
+    /**
+     * Deserilizes a object from JSON
+     * @param json string in JSON
+     * @return desrialized object
+     * @throws JSONExeption
+     * @throws JSONExeption
+     */
+    public static Object deserialize(String json)
+        throws JSONExeption {
+        JSONReader reader = new JSONReader();
+
+        return reader.read(json);
+    }
+
+    /**
+     * Deserilizes a object from JSON
+     * @param json string in JSON
+     * @return desrialized object
+     * @throws JSONExeption
+     * @throws JSONExeption
+     */
+    public static Object deserialize(Reader reader)
+        throws JSONExeption {
+        //read content
+        BufferedReader bufferReader = new BufferedReader(reader);
+        String line = null;
+        StringBuilder buffer = new StringBuilder();
+
+        try {
+            while((line = bufferReader.readLine()) != null) {
+                buffer.append(line);
+            }
+        } catch(IOException e) {
+            throw new JSONExeption(e);
+        }
+
+        return deserialize(buffer.toString());
     }
 }
