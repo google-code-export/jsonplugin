@@ -62,12 +62,12 @@ public class JSONResultTest extends StrutsTestCase {
                 "a", "a", "\"", "\\", "/", "\b", "\f", "\n", "\r", "\t"
             });
 
-        Collection collection = new ArrayList();
+        List list = new ArrayList();
 
-        collection.add("b");
-        collection.add(1);
-        collection.add(new int[] { 10, 12 });
-        action.setCollection(collection);
+        list.add("b");
+        list.add(1);
+        list.add(new int[] { 10, 12 });
+        action.setCollection(list);
 
         //beans
         List collection2 = new ArrayList();
@@ -85,6 +85,8 @@ public class JSONResultTest extends StrutsTestCase {
 
         bean2.setStringField("  ");
         bean2.setBooleanField(false);
+        bean2.setFloatField(1.1f);
+        bean2.setDoubleField(2.2);
 
         //circular reference
         bean1.setObjectField(bean2);
@@ -107,8 +109,10 @@ public class JSONResultTest extends StrutsTestCase {
         invocation.setAction(action);
         result.execute(invocation);
 
+        String json = stringWriter.toString();
+
         assertTrue(TestUtils.compare(JSONResultTest.class.getResource(
-                    "json.txt"), stringWriter.toString()));
+                    "json.txt"), json));
     }
 
     protected void setUp() throws Exception {
@@ -120,84 +124,9 @@ public class JSONResultTest extends StrutsTestCase {
         stack = ValueStackFactory.getFactory().createValueStack();
         context = new ActionContext(stack.getContext());
         context.put(StrutsStatics.HTTP_RESPONSE, response);
-        context.put(StrutsStatics.SERVLET_CONTEXT, servletContext);
         servletContext = new StrutsMockServletContext();
+        context.put(StrutsStatics.SERVLET_CONTEXT, servletContext);
         invocation = new MockActionInvocation();
         invocation.setInvocationContext(context);
-    }
-
-    public class Bean {
-        private String stringField;
-        private int intField;
-        private boolean booleanField;
-        private char charField;
-        private long longField;
-        private float floatField;
-        private double doubleField;
-        private Object objectField;
-
-        public boolean isBooleanField() {
-            return booleanField;
-        }
-
-        public void setBooleanField(boolean booleanField) {
-            this.booleanField = booleanField;
-        }
-
-        public char getCharField() {
-            return charField;
-        }
-
-        public void setCharField(char charField) {
-            this.charField = charField;
-        }
-
-        public double getDoubleField() {
-            return doubleField;
-        }
-
-        public void setDoubleField(double doubleField) {
-            this.doubleField = doubleField;
-        }
-
-        public float getFloatField() {
-            return floatField;
-        }
-
-        public void setFloatField(float floatField) {
-            this.floatField = floatField;
-        }
-
-        public int getIntField() {
-            return intField;
-        }
-
-        public void setIntField(int intField) {
-            this.intField = intField;
-        }
-
-        public long getLongField() {
-            return longField;
-        }
-
-        public void setLongField(long longField) {
-            this.longField = longField;
-        }
-
-        public Object getObjectField() {
-            return objectField;
-        }
-
-        public void setObjectField(Object objectField) {
-            this.objectField = objectField;
-        }
-
-        public String getStringField() {
-            return stringField;
-        }
-
-        public void setStringField(String stringField) {
-            this.stringField = stringField;
-        }
     }
 }

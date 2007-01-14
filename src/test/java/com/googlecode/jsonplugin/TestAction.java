@@ -20,37 +20,70 @@
  */
 package com.googlecode.jsonplugin;
 
+import com.opensymphony.xwork2.Action;
+import com.opensymphony.xwork2.ActionSupport;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.opensymphony.xwork2.Action;
-import com.opensymphony.xwork2.ActionSupport;
-
 /**
  */
 public class TestAction extends ActionSupport {
-
     private static final long serialVersionUID = -8891365561914451494L;
-
-    private Collection collection;
-    private Collection collection2;
+    private List collection;
+    private List collection2;
     private Map map;
     private String foo;
     private String result;
     private String[] array;
-    private String[][] list;
-    private List list2;
-    private List list3;
+    private transient Bean[] beanArray;
+    private transient int[] intArray;
+    private List list;
     private transient String bar;
     private String nogetter;
+    private Bean bean;
 
-    public Collection getCollection() {
+    /**
+     * @return the bean
+     */
+    public Bean getBean() {
+        return bean;
+    }
+
+    /**
+     * @param bean the bean to set
+     */
+    public void setBean(Bean bean) {
+        this.bean = bean;
+    }
+
+    /**
+     * @return the collection
+     */
+    public List getCollection() {
         return collection;
     }
 
-    public void setCollection(Collection collection) {
+    /**
+     * @param collection the collection to set
+     */
+    public void setCollection(List collection) {
         this.collection = collection;
+    }
+
+    /**
+     * @return the collection2
+     */
+    public List getCollection2() {
+        return collection2;
+    }
+
+    /**
+     * @param collection2 the collection2 to set
+     */
+    public void setCollection2(List collection2) {
+        this.collection2 = collection2;
     }
 
     public Map getMap() {
@@ -85,36 +118,18 @@ public class TestAction extends ActionSupport {
         this.array = array;
     }
 
-    public String[][] getList() {
+    /**
+     * @return the list
+     */
+    public List getList() {
         return list;
     }
 
-    public void setList(String[][] list) {
+    /**
+     * @param list the list to set
+     */
+    public void setList(List list) {
         this.list = list;
-    }
-
-    public List getList2() {
-        return list2;
-    }
-
-    public void setList2(List list2) {
-        this.list2 = list2;
-    }
-
-    public void setList3(List list) {
-        this.list3 = list;
-    }
-
-    public List getList3() {
-        return this.list3;
-    }
-
-    public Collection getCollection2() {
-        return this.collection2;
-    }
-
-    public void setCollection2(Collection collection) {
-        this.collection2 = collection;
     }
 
     public String execute() throws Exception {
@@ -130,7 +145,7 @@ public class TestAction extends ActionSupport {
     }
 
     public void setBar(String bar) {
-       this.bar = bar;
+        this.bar = bar;
     }
 
     public String getBar() {
@@ -141,4 +156,31 @@ public class TestAction extends ActionSupport {
         this.nogetter = nogetter;
     }
 
+    /**
+     * @return the intArray
+     */
+    public int[] getIntArray() {
+        return intArray;
+    }
+
+    /**
+     * @param intArray the intArray to set
+     */
+    public void setIntArray(int[] intArray) {
+        this.intArray = intArray;
+    }
+
+    /**
+     * @return the beanArray
+     */
+    public Bean[] getBeanArray() {
+        return beanArray;
+    }
+
+    /**
+     * @param beanArray the beanArray to set
+     */
+    public void setBeanArray(Bean[] beanArray) {
+        this.beanArray = beanArray;
+    }
 }

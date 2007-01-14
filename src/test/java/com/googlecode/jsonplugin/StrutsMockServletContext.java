@@ -20,27 +20,27 @@
  */
 package com.googlecode.jsonplugin;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import java.io.InputStream;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
-
 /**
  * StrutsMockServletContext
  *
  */
 public class StrutsMockServletContext implements ServletContext {
-
     String realPath;
     String servletInfo;
     Map initParams = new HashMap();
@@ -79,14 +79,16 @@ public class StrutsMockServletContext implements ServletContext {
         return null;
     }
 
-    public URL getResource(String s) throws MalformedURLException {
+    public URL getResource(String s)
+        throws MalformedURLException {
         return null;
     }
 
     public InputStream getResourceAsStream(String s) {
-        if (resourceAsStream != null) {
+        if(resourceAsStream != null) {
             return resourceAsStream;
         }
+
         return null;
     }
 
@@ -102,7 +104,8 @@ public class StrutsMockServletContext implements ServletContext {
         return null;
     }
 
-    public Servlet getServlet(String s) throws ServletException {
+    public Servlet getServlet(String s)
+        throws ServletException {
         return null;
     }
 

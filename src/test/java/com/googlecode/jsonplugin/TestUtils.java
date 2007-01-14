@@ -21,7 +21,9 @@
 package com.googlecode.jsonplugin;
 
 import java.io.InputStream;
+
 import java.net.URL;
+
 import java.util.StringTokenizer;
 
 /**
@@ -29,8 +31,6 @@ import java.util.StringTokenizer;
  *
  */
 public class TestUtils {
-
-
     /**
      * normalizes a string so that strings generated on different platforms can be compared.  any group of one or more
      * space, tab, \r, and \n characters are converted to a single space character
@@ -40,8 +40,8 @@ public class TestUtils {
      * @return the normalized string
      */
     public static String normalize(Object obj, boolean appendSpace) {
-        StringTokenizer st = new StringTokenizer(obj.toString().trim(),
-            " \t\r\n");
+        StringTokenizer st =
+            new StringTokenizer(obj.toString().trim(), " \t\r\n");
         StringBuffer buffer = new StringBuffer(128);
 
         while(st.hasMoreTokens()) {
@@ -58,8 +58,21 @@ public class TestUtils {
      * @param url the HTML snippet that we want to validate against
      * @throws Exception if the validation failed
      */
-    public static boolean compare(URL url, String text) throws Exception {
-        if (url == null) {
+    public static boolean compare(URL url, String text)
+        throws Exception {
+        /**
+         * compare the trimmed values of each buffer and make sure they're equivalent.  however, let's make sure to
+         * normalize the strings first to account for line termination differences between platforms.
+         */
+        String writerString = TestUtils.normalize(text, true);
+        String bufferString = TestUtils.normalize(readContent(url), true);
+
+        return bufferString.equals(writerString);
+    }
+
+    public static String readContent(URL url)
+        throws Exception {
+        if(url == null) {
             throw new Exception("unable to verify a null URL");
         }
 
@@ -68,20 +81,12 @@ public class TestUtils {
         byte[] buf = new byte[4096];
         int nbytes;
 
-        while ((nbytes = in.read(buf)) > 0) {
+        while((nbytes = in.read(buf)) > 0) {
             buffer.append(new String(buf, 0, nbytes));
         }
 
         in.close();
 
-        /**
-         * compare the trimmed values of each buffer and make sure they're equivalent.  however, let's make sure to
-         * normalize the strings first to account for line termination differences between platforms.
-         */
-        String writerString = TestUtils.normalize(text, true);
-        String bufferString = TestUtils.normalize(buffer.toString(), true);
-
-       return bufferString.equals(writerString);
+        return buffer.toString();
     }
-
 }
