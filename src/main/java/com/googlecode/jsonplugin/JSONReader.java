@@ -22,7 +22,6 @@ package com.googlecode.jsonplugin;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +31,7 @@ import java.util.Map;
  * <p>Deserializes and object from a JSON string</p>
  *
  */
-public class JSONReader {
+class JSONReader {
     private static final Object OBJECT_END = new Object();
     private static final Object ARRAY_END = new Object();
     private static final Object COLON = new Object();
