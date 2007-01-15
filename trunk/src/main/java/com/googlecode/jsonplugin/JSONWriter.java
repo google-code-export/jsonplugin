@@ -20,24 +20,21 @@
  */
 package com.googlecode.jsonplugin;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>Serializes an object into JavaScript Object Notation (JSON). If cyclic references are detected

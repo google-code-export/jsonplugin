@@ -9,5 +9,8 @@
         <result-types>
             <result-type name="json" class="com.googlecode.jsonplugin.JSONResult"/>
         </result-types>
+        <interceptors>
+            <interceptor name="json" class="com.googlecode.jsonplugin.JSONInterceptor"/>
+        </interceptors>
     </package>
 </struts>
