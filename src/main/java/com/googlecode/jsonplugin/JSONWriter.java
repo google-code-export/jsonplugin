@@ -24,17 +24,21 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.text.CharacterIterator;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.googlecode.jsonplugin.annotations.JSON;
 
 /**
  * <p>Serializes an object into JavaScript Object Notation (JSON). If cyclic references are detected
@@ -53,11 +57,10 @@ class JSONWriter {
      * @return JSON string for object
      * @throws JSONExeption
      */
-    public String write(Object object)
-        throws JSONExeption {
+    public String write(Object object) throws JSONExeption {
         buf.setLength(0);
         this.root = object;
-        value(object);
+        value(object, null);
 
         return buf.toString();
     }
@@ -65,8 +68,7 @@ class JSONWriter {
     /**
      * Detect yclic references
      */
-    private void value(Object object)
-        throws JSONExeption {
+    private void value(Object object, Method method) throws JSONExeption {
         if(object == null) {
             add("null");
 
@@ -78,7 +80,7 @@ class JSONWriter {
 
             //cyclic reference
             if(clazz.isPrimitive() || clazz.equals(String.class)) {
-                process(object);
+                process(object, method);
             } else {
                 if(log.isDebugEnabled()) {
                     log.debug("Cyclic reference detected on " + object);
@@ -90,14 +92,13 @@ class JSONWriter {
             return;
         }
 
-        process(object);
+        process(object, method);
     }
 
     /**
      * Serialize object into json
      */
-    private void process(Object object)
-        throws JSONExeption {
+    private void process(Object object, Method method) throws JSONExeption {
         stack.push(object);
 
         if(object instanceof Class) {
@@ -111,11 +112,15 @@ class JSONWriter {
         } else if(object instanceof Character) {
             string(object);
         } else if(object instanceof Map) {
-            map((Map) object);
+            map((Map) object, method);
         } else if(object.getClass().isArray()) {
-            array(object);
+            array(object, method);
         } else if(object instanceof Iterable) {
-            array(((Iterable) object).iterator());
+            array(((Iterable) object).iterator(), method);
+        } else if(object instanceof Date) {
+            date((Date) object, method);
+        } else if(object instanceof Calendar) {
+            date(((Calendar) object).getTime(), method);
         } else {
             bean(object);
         }
@@ -127,8 +132,7 @@ class JSONWriter {
      * Instrospect bean and serialize its properties, ignore the ones
      * who wrap a field marked as transient
      */
-    private void bean(Object object)
-        throws JSONExeption {
+    private void bean(Object object) throws JSONExeption {
         add("{");
 
         BeanInfo info;
@@ -136,9 +140,9 @@ class JSONWriter {
         try {
             Class clazz = object.getClass();
 
-            info = ((object == root) && ignoreRootParents)
-                ? Introspector.getBeanInfo(clazz, clazz.getSuperclass())
-                : Introspector.getBeanInfo(clazz);
+            info = ((object == root) && ignoreRootParents) ? Introspector
+                .getBeanInfo(clazz, clazz.getSuperclass()) : Introspector
+                .getBeanInfo(clazz);
 
             PropertyDescriptor[] props = info.getPropertyDescriptors();
 
@@ -148,14 +152,22 @@ class JSONWriter {
                 Method accessor = prop.getReadMethod();
 
                 if(accessor != null) {
-                    Object value = accessor.invoke(object, null);
+                    Object value = accessor.invoke(object, new Object[0]);
+
+                    JSON json = prop.getReadMethod().getAnnotation(JSON.class);
+                    if(json != null) {
+                        if(!json.serialize())
+                            continue;
+                        else if(json.name().length() > 0)
+                            name = json.name();
+                    }
 
                     //ignore "class" and others
                     if(shouldIgnoreProperty(clazz, prop)) {
                         continue;
                     }
 
-                    add(name, value);
+                    add(name, value, accessor);
 
                     if(i < (props.length - 1)) {
                         add(',');
@@ -170,18 +182,11 @@ class JSONWriter {
     }
 
     /**
-     * Ignore "class" field, and "transient" fields
+     * Ignore "class" field
      */
     private boolean shouldIgnoreProperty(Class clazz, PropertyDescriptor prop)
         throws SecurityException, NoSuchFieldException {
         if(prop.getName().equals("class")) {
-            return true;
-        }
-
-        //is it transient
-        Field field = clazz.getDeclaredField(prop.getName());
-
-        if(Modifier.isTransient(field.getModifiers())) {
             return true;
         }
 
@@ -191,19 +196,17 @@ class JSONWriter {
     /**
      * Add name/value pair to buffer
      */
-    private void add(String name, Object value)
-        throws JSONExeption {
+    private void add(String name, Object value, Method method) throws JSONExeption {
         add('"');
         add(name);
         add("\":");
-        value(value);
+        value(value, method);
     }
 
     /**
      * Add map to buffer
      */
-    private void map(Map map)
-        throws JSONExeption {
+    private void map(Map map, Method method) throws JSONExeption {
         add("{");
 
         Iterator it = map.keySet().iterator();
@@ -211,9 +214,9 @@ class JSONWriter {
         while(it.hasNext()) {
             Object key = it.next();
 
-            value(key);
+            value(key, method);
             add(":");
-            value(map.get(key));
+            value(map.get(key), method);
 
             if(it.hasNext()) {
                 add(",");
@@ -224,14 +227,22 @@ class JSONWriter {
     }
 
     /**
+     * Add date to buffer
+     */
+    private void date(Date date, Method method) {
+        JSON json = method.getAnnotation(JSON.class);
+        DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(json.format()) : JSONUtil.RFC3399_FORMAT;
+        string(formatter.format(date));
+    }
+
+    /**
      * Add array to buffer
      */
-    private void array(Iterator it)
-        throws JSONExeption {
+    private void array(Iterator it, Method method) throws JSONExeption {
         add("[");
 
         while(it.hasNext()) {
-            value(it.next());
+            value(it.next(), method);
 
             if(it.hasNext()) {
                 add(",");
@@ -244,14 +255,13 @@ class JSONWriter {
     /**
      * Add array to buffer
      */
-    private void array(Object object)
-        throws JSONExeption {
+    private void array(Object object, Method method) throws JSONExeption {
         add("[");
 
         int length = Array.getLength(object);
 
         for(int i = 0; i < length; ++i) {
-            value(Array.get(object, i));
+            value(Array.get(object, i), method);
 
             if(i < (length - 1)) {
                 add(',');

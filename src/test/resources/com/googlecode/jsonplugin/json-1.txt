@@ -1,4 +1,6 @@
 {
+    "date": "1999-12-31T23:59:59",
+    "date2": "31\/12\/99",
   	"array": ["str0", "str1"],
   	"intArray": [1, 2],
   	"beanArray": [ {

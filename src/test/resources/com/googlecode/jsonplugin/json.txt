@@ -23,6 +23,8 @@
 					    },
 					    "stringField": "str"
 	}],
+	"date": "1999-12-31T23:59:59",
+	"date2": "31\/12\/99",
 	"foo": "foo",
 	"list": null,
 	"map": {

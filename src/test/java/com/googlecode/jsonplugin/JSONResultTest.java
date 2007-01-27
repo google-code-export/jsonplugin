@@ -20,23 +20,22 @@
  */
 package com.googlecode.jsonplugin;
 
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.mock.MockActionInvocation;
-import com.opensymphony.xwork2.util.ValueStack;
-import com.opensymphony.xwork2.util.ValueStackFactory;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.StrutsTestCase;
 import org.jmock.Mock;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.mock.MockActionInvocation;
+import com.opensymphony.xwork2.util.ValueStack;
+import com.opensymphony.xwork2.util.ValueStackFactory;
 
 /**
  * JSONResultTest
@@ -105,6 +104,17 @@ public class JSONResultTest extends StrutsTestCase {
         action.setFoo("foo");
         //should be ignored, marked 'transient'
         action.setBar("bar");
+
+        //date
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, 1999);
+        calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 31);
+        calendar.set(Calendar.HOUR, 11);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        action.setDate(calendar.getTime());
+        action.setDate2(calendar.getTime());
 
         invocation.setAction(action);
         result.execute(invocation);
