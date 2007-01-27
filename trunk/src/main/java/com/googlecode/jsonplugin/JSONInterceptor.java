@@ -8,6 +8,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts2.ServletActionContext;
 
+import com.googlecode.jsonplugin.annotations.JSON;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.interceptor.Interceptor;
 
@@ -33,8 +38,7 @@ public class JSONInterceptor implements Interceptor {
     public void init() {
     }
 
-    public String intercept(ActionInvocation invocation)
-        throws Exception {
+    public String intercept(ActionInvocation invocation) throws Exception {
         HttpServletRequest request = ServletActionContext.getRequest();
         String contentType = request.getHeader("content-type");
 
@@ -54,9 +58,9 @@ public class JSONInterceptor implements Interceptor {
             }
         } else {
             if(log.isDebugEnabled()) {
-                log.debug(
-                    "Content type must be 'application/json'. Ignoring request with content type "
-                    + contentType);
+                log
+                    .debug("Content type must be 'application/json'. Ignoring request with content type "
+                        + contentType);
             }
         }
 
@@ -65,8 +69,8 @@ public class JSONInterceptor implements Interceptor {
 
     public void populateObject(final Object object, final Map elements)
         throws IllegalAccessException, InvocationTargetException,
-            NoSuchMethodException, IntrospectionException,
-            IllegalArgumentException, JSONExeption, InstantiationException {
+        NoSuchMethodException, IntrospectionException,
+        IllegalArgumentException, JSONExeption, InstantiationException {
         Class clazz = object.getClass();
 
         BeanInfo info = Introspector.getBeanInfo(clazz);
@@ -81,6 +85,11 @@ public class JSONInterceptor implements Interceptor {
                 Object value = elements.get(name);
                 Method accessor = prop.getWriteMethod();
 
+                JSON json = prop.getReadMethod().getAnnotation(JSON.class);
+                if(json != null && !json.deserialize()) {
+                    continue;
+                }
+
                 //use only public setters
                 if((accessor != null)
                     && Modifier.isPublic(accessor.getModifiers())) {
@@ -90,7 +99,8 @@ public class JSONInterceptor implements Interceptor {
                         Class paramType = paramTypes[0];
 
                         if(paramType.isPrimitive()
-                            || paramType.equals(String.class)) {
+                            || paramType.equals(String.class)
+                            || paramType.equals(Date.class)) {
                             setPrimitive(object, accessor, paramType, value);
                         } else if(List.class.equals(paramType)
                             || Map.class.equals(paramType)) {
@@ -102,7 +112,8 @@ public class JSONInterceptor implements Interceptor {
                             Object newInstance = paramType.newInstance();
 
                             populateObject(newInstance, (Map) value);
-                            accessor.invoke(object, new Object[] { newInstance });
+                            accessor.invoke(object,
+                                new Object[] { newInstance });
                         } else {
                             throw new JSONExeption(
                                 "Incompatible types for property " + name);
@@ -114,9 +125,9 @@ public class JSONInterceptor implements Interceptor {
     }
 
     private void setArray(Object target, Method accessor, Object value)
-        throws JSONExeption, IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException, InstantiationException,
-            NoSuchMethodException, IntrospectionException {
+        throws JSONExeption, IllegalArgumentException,
+        IllegalAccessException, InvocationTargetException,
+        InstantiationException, NoSuchMethodException, IntrospectionException {
         Class arrayType = accessor.getParameterTypes()[0].getComponentType();
 
         if(value instanceof List) {
@@ -132,10 +143,11 @@ public class JSONInterceptor implements Interceptor {
                     //Object[]
                     Array.set(newArray, j, listValue);
                 } else if(arrayType.isPrimitive()
-                    || arrayType.equals(String.class)) {
+                    || arrayType.equals(String.class)
+                    || arrayType.equals(Date.class)) {
                     //primitive array
-                    Array.set(newArray, j,
-                        convertPrimitive(arrayType, listValue));
+                    Array.set(newArray, j, convertPrimitive(arrayType,
+                        listValue, accessor));
                 } else {
                     //array of other class
                     Object newObject = arrayType.newInstance();
@@ -146,7 +158,7 @@ public class JSONInterceptor implements Interceptor {
                     } else {
                         throw new JSONExeption(
                             "Incompatible types for property "
-                            + accessor.getName());
+                                + accessor.getName());
                     }
                 }
             }
@@ -159,19 +171,20 @@ public class JSONInterceptor implements Interceptor {
     }
 
     private void setPrimitive(Object object, Method accessor, Class clazz,
-        Object value)
-        throws IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException, JSONExeption {
+        Object value) throws IllegalArgumentException,
+        IllegalAccessException, InvocationTargetException, JSONExeption {
         if(value != null) {
-            accessor.invoke(object,
-                new Object[] { convertPrimitive(clazz, value) });
+            accessor.invoke(object, new Object[] { convertPrimitive(clazz,
+                value, accessor) });
         }
     }
 
     /**
      * Converts numbers to the desired class, if possible
+     * @throws JSONExeption
      */
-    private Object convertPrimitive(Class clazz, Object value) {
+    private Object convertPrimitive(Class clazz, Object value, Method method)
+        throws JSONExeption {
         if(value instanceof Number) {
             Number number = (Number) value;
 
@@ -187,6 +200,17 @@ public class JSONInterceptor implements Interceptor {
                 return number.floatValue();
             } else if(Double.TYPE.equals(clazz)) {
                 return number.doubleValue();
+            }
+        } else if(clazz.equals(Date.class)) {
+            try {
+                JSON json = method.getAnnotation(JSON.class);
+                DateFormat formatter = json != null
+                    && json.format().length() > 0 ? new SimpleDateFormat(json
+                    .format()) : JSONUtil.RFC3399_FORMAT;
+                return formatter.parse((String) value);
+            } catch(ParseException e) {
+                log.error(e);
+                throw new JSONExeption("Unable to parse date from: " + value);
             }
         } else if(value instanceof String) {
             if(Boolean.TYPE.equals(clazz)) {

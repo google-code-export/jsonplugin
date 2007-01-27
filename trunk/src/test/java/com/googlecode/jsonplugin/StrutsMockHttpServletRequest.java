@@ -20,19 +20,19 @@
  */
 package com.googlecode.jsonplugin;
 
-import com.mockobjects.servlet.MockHttpServletRequest;
-
-import junit.framework.AssertionFailedError;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpSession;
-
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpSession;
+
+import junit.framework.AssertionFailedError;
+
+import com.mockobjects.servlet.MockHttpServletRequest;
 
 /**
  * StrutsMockHttpServletRequest

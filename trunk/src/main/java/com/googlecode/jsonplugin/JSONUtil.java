@@ -24,11 +24,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 
 /**
  *  Wrapper for JSONWriter with some utility methods.
  */
 public class JSONUtil {
+    final static SimpleDateFormat RFC3399_FORMAT = new SimpleDateFormat(
+    "yyyy-MM-dd'T'HH:mm:ss");
     /**
      * Serilizes a object into JSON
      * @param object to be serialized

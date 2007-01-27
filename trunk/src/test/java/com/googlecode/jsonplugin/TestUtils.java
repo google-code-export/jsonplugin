@@ -21,9 +21,7 @@
 package com.googlecode.jsonplugin;
 
 import java.io.InputStream;
-
 import java.net.URL;
-
 import java.util.StringTokenizer;
 
 /**

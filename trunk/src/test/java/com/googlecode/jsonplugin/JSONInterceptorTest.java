@@ -1,18 +1,18 @@
 package com.googlecode.jsonplugin;
 
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.mock.MockActionInvocation;
-import com.opensymphony.xwork2.util.ValueStack;
-import com.opensymphony.xwork2.util.ValueStackFactory;
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.StrutsTestCase;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-
-import java.util.List;
-import java.util.Map;
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.mock.MockActionInvocation;
+import com.opensymphony.xwork2.util.ValueStack;
+import com.opensymphony.xwork2.util.ValueStackFactory;
 
 public class JSONInterceptorTest extends StrutsTestCase {
     private MockActionInvocation invocation;
@@ -114,6 +114,21 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertEquals(beanArray[0].getStringField(), "bean1");
         assertNotNull(beanArray[1]);
         assertEquals(beanArray[1].getStringField(), "bean2");
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(action.getDate());
+
+        assertEquals(calendar.get(Calendar.YEAR), 1999);
+        assertEquals(calendar.get(Calendar.MONTH), Calendar.DECEMBER);
+        assertEquals(calendar.get(Calendar.DAY_OF_MONTH), 31);
+        assertEquals(calendar.get(Calendar.HOUR), 11);
+        assertEquals(calendar.get(Calendar.MINUTE), 59);
+        assertEquals(calendar.get(Calendar.SECOND), 59);
+
+        calendar.setTime(action.getDate2());
+        assertEquals(calendar.get(Calendar.YEAR), 1999);
+        assertEquals(calendar.get(Calendar.MONTH), Calendar.DECEMBER);
+        assertEquals(calendar.get(Calendar.DAY_OF_MONTH), 31);
     }
 
     protected void setUp() throws Exception {

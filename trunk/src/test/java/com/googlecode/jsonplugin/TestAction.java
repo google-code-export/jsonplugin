@@ -20,12 +20,13 @@
  */
 package com.googlecode.jsonplugin;
 
-import com.opensymphony.xwork2.Action;
-import com.opensymphony.xwork2.ActionSupport;
-
-import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import com.googlecode.jsonplugin.annotations.JSON;
+import com.opensymphony.xwork2.Action;
+import com.opensymphony.xwork2.ActionSupport;
 
 /**
  */
@@ -37,51 +38,35 @@ public class TestAction extends ActionSupport {
     private String foo;
     private String result;
     private String[] array;
-    private transient Bean[] beanArray;
-    private transient int[] intArray;
+    private Bean[] beanArray;
+    private int[] intArray;
     private List list;
-    private transient String bar;
+    private String bar;
     private String nogetter;
+    private Date date2;
     private Bean bean;
+    private Date date;
 
-    /**
-     * @return the bean
-     */
     public Bean getBean() {
         return bean;
     }
 
-    /**
-     * @param bean the bean to set
-     */
     public void setBean(Bean bean) {
         this.bean = bean;
     }
 
-    /**
-     * @return the collection
-     */
     public List getCollection() {
         return collection;
     }
 
-    /**
-     * @param collection the collection to set
-     */
     public void setCollection(List collection) {
         this.collection = collection;
     }
 
-    /**
-     * @return the collection2
-     */
     public List getCollection2() {
         return collection2;
     }
 
-    /**
-     * @param collection2 the collection2 to set
-     */
     public void setCollection2(List collection2) {
         this.collection2 = collection2;
     }
@@ -118,16 +103,10 @@ public class TestAction extends ActionSupport {
         this.array = array;
     }
 
-    /**
-     * @return the list
-     */
     public List getList() {
         return list;
     }
 
-    /**
-     * @param list the list to set
-     */
     public void setList(List list) {
         this.list = list;
     }
@@ -148,6 +127,7 @@ public class TestAction extends ActionSupport {
         this.bar = bar;
     }
 
+    @JSON(serialize=false)
     public String getBar() {
         return bar;
     }
@@ -156,31 +136,39 @@ public class TestAction extends ActionSupport {
         this.nogetter = nogetter;
     }
 
-    /**
-     * @return the intArray
-     */
+    @JSON(serialize=false)
     public int[] getIntArray() {
         return intArray;
     }
 
-    /**
-     * @param intArray the intArray to set
-     */
     public void setIntArray(int[] intArray) {
         this.intArray = intArray;
     }
 
-    /**
-     * @return the beanArray
-     */
+    @JSON(serialize=false)
     public Bean[] getBeanArray() {
         return beanArray;
     }
 
-    /**
-     * @param beanArray the beanArray to set
-     */
     public void setBeanArray(Bean[] beanArray) {
         this.beanArray = beanArray;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    @JSON(format="dd/MM/yy")
+    public Date getDate2() {
+        return date2;
+    }
+
+    @JSON(format="dd/MM/yy")
+    public void setDate2(Date date2) {
+        this.date2 = date2;
     }
 }
