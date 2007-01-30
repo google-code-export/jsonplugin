@@ -44,5 +44,6 @@
 		"charField": "s",
 		"doubleField": 10.1,
 		"byteField": 3
-	}
+	},
+	"foo2" : "ignoreme"
 }

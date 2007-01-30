@@ -139,7 +139,7 @@ class JSONReader {
                         key = (String) name;
                     } else {
                         throw new JSONExeption(
-                            "Inpput string is not well formed JSON");
+                            "Input string is not well formed JSON");
                     }
                 }
             }
