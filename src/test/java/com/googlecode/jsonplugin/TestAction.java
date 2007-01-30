@@ -46,6 +46,7 @@ public class TestAction extends ActionSupport {
     private Date date2;
     private Bean bean;
     private Date date;
+    private String foo2 = null;
 
     public Bean getBean() {
         return bean;
@@ -170,5 +171,15 @@ public class TestAction extends ActionSupport {
     @JSON(format="dd/MM/yy")
     public void setDate2(Date date2) {
         this.date2 = date2;
+    }
+
+    @JSON(serialize=false)
+    public String getFoo2() {
+        return foo2;
+    }
+
+    @JSON(deserialize=false)
+    public void setFoo2(String foo2) {
+        this.foo2 = foo2;
     }
 }

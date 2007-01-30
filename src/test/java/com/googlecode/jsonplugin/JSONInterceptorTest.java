@@ -129,6 +129,9 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertEquals(calendar.get(Calendar.YEAR), 1999);
         assertEquals(calendar.get(Calendar.MONTH), Calendar.DECEMBER);
         assertEquals(calendar.get(Calendar.DAY_OF_MONTH), 31);
+
+        //test desrialize=false
+        assertNull(action.getFoo2());
     }
 
     protected void setUp() throws Exception {

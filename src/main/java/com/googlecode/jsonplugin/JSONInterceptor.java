@@ -85,7 +85,7 @@ public class JSONInterceptor implements Interceptor {
                 Object value = elements.get(name);
                 Method accessor = prop.getWriteMethod();
 
-                JSON json = prop.getReadMethod().getAnnotation(JSON.class);
+                JSON json = prop.getWriteMethod().getAnnotation(JSON.class);
                 if(json != null && !json.deserialize()) {
                     continue;
                 }
