@@ -146,6 +146,7 @@ class JSONWriter {
 
             PropertyDescriptor[] props = info.getPropertyDescriptors();
 
+            boolean hasData = false;
             for(int i = 0; i < props.length; ++i) {
                 PropertyDescriptor prop = props[i];
                 String name = prop.getName();
@@ -167,11 +168,12 @@ class JSONWriter {
                         continue;
                     }
 
-                    add(name, value, accessor);
-
-                    if(i < (props.length - 1)) {
+                    if (hasData) {
                         add(',');
                     }
+                    hasData = true;
+                    add(name, value, accessor);
+
                 }
             }
         } catch(Exception e) {
