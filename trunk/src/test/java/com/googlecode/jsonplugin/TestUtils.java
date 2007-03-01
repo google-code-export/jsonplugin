@@ -49,6 +49,10 @@ public class TestUtils {
         return buffer.toString();
     }
 
+    
+    public static String normalize(URL url) throws Exception {
+    	return normalize(readContent(url), true);
+    }
     /**
      * Attempt to verify the contents of text against the contents of the URL specified. Performs a
      * trim on both ends
@@ -67,6 +71,8 @@ public class TestUtils {
 
         return bufferString.equals(writerString);
     }
+    
+    
 
     public static String readContent(URL url)
         throws Exception {

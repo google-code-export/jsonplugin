@@ -121,8 +121,10 @@ public class JSONResultTest extends StrutsTestCase {
 
         String json = stringWriter.toString();
 
-        assertTrue(TestUtils.compare(JSONResultTest.class.getResource(
-                    "json.txt"), json));
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class.getResource(
+        "json.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
     }
 
     protected void setUp() throws Exception {
