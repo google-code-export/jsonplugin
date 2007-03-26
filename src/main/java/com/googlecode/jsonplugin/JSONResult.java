@@ -54,7 +54,7 @@ public class JSONResult implements Result {
                 log.debug("[JSON]" + json);
             }
 
-            response.setContentLength(json.length());
+            response.setContentLength(json.getBytes().length);
             response.setContentType("application/json;charset=" + getEncoding());
 
             PrintWriter out = response.getWriter();
