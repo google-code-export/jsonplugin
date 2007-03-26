@@ -20,7 +20,6 @@
  */
 package com.googlecode.jsonplugin;
 
-
 /**
  * Wrap exceptions throwed by the JSON serializer
  */

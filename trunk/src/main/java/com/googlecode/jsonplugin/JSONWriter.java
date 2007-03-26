@@ -30,10 +30,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +53,9 @@ class JSONWriter {
     private Stack stack = new Stack();
     private boolean ignoreRootParents = true;
     private Object root;
+    private boolean buildExpr = true;
+    private String exprStack = "";
+    private Collection<Pattern> ignoreProperties;
 
     /**
      * @param object Object to be serialized into JSON
@@ -58,8 +63,21 @@ class JSONWriter {
      * @throws JSONExeption
      */
     public String write(Object object) throws JSONExeption {
+        return write(object, null);
+    }
+
+    /**
+     * @param object Object to be serialized into JSON
+     * @return JSON string for object
+     * @throws JSONExeption
+     */
+    public String write(Object object, Collection<Pattern> ignoreProperties)
+        throws JSONExeption {
         buf.setLength(0);
         this.root = object;
+        this.exprStack = "";
+        this.buildExpr = ignoreProperties != null && !ignoreProperties.isEmpty();
+        this.ignoreProperties = ignoreProperties;
         value(object, null);
 
         return buf.toString();
@@ -140,9 +158,8 @@ class JSONWriter {
         try {
             Class clazz = object.getClass();
 
-            info = ((object == root) && ignoreRootParents) ? Introspector
-                .getBeanInfo(clazz, clazz.getSuperclass()) : Introspector
-                .getBeanInfo(clazz);
+            info = ((object == root) && ignoreRootParents) ? Introspector.getBeanInfo(
+                clazz, clazz.getSuperclass()) : Introspector.getBeanInfo(clazz);
 
             PropertyDescriptor[] props = info.getPropertyDescriptors();
 
@@ -167,13 +184,22 @@ class JSONWriter {
                     if(shouldIgnoreProperty(clazz, prop)) {
                         continue;
                     }
-
-                    if (hasData) {
+                    String expr = null;
+                    if(buildExpr) {
+                        expr = expandExpr(name);
+                        if(shouldIgnoreProperty(expr)) {
+                            continue;
+                        }
+                        expr = setExprStack(expr);
+                    }
+                    if(hasData) {
                         add(',');
                     }
                     hasData = true;
                     add(name, value, accessor);
-
+                    if(buildExpr) {
+                        setExprStack(expr);
+                    }
                 }
             }
         } catch(Exception e) {
@@ -195,6 +221,33 @@ class JSONWriter {
         return false;
     }
 
+    private String expandExpr(int i) {
+        return this.exprStack + "[" + i + "]";
+    }
+
+    private String expandExpr(String property) {
+        if(exprStack.length() == 0) {
+            return property;
+        }
+        return this.exprStack + "." + property;
+    }
+
+    private String setExprStack(String expr) {
+        String s = this.exprStack;
+        this.exprStack = expr;
+        return s;
+    }
+
+    private boolean shouldIgnoreProperty(String expr) {
+        for(Pattern pattern : ignoreProperties) {
+            if(pattern.matcher(expr).matches()) {
+                log.debug("Ignoring property " + expr);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Add name/value pair to buffer
      */
@@ -211,17 +264,34 @@ class JSONWriter {
     private void map(Map map, Method method) throws JSONExeption {
         add("{");
 
-        Iterator it = map.keySet().iterator();
+        Iterator it = map.entrySet().iterator();
 
+        boolean hasData = false;
         while(it.hasNext()) {
-            Object key = it.next();
-
+            Map.Entry entry = (Map.Entry) it.next();
+            Object key = entry.getKey();
+            String expr = null;
+            if(buildExpr) {
+                if(key == null) {
+                    log.error("Cannot build expression for null key in " + exprStack);
+                    continue;
+                } else {
+                    expr = expandExpr(key.toString());
+                    if(shouldIgnoreProperty(expr)) {
+                        continue;
+                    }
+                    expr = setExprStack(expr);
+                }
+            }
+            if(hasData) {
+                add(',');
+            }
+            hasData = true;
             value(key, method);
             add(":");
-            value(map.get(key), method);
-
-            if(it.hasNext()) {
-                add(",");
+            value(entry.getValue(), method);
+            if(buildExpr) {
+                setExprStack(expr);
             }
         }
 
@@ -233,7 +303,9 @@ class JSONWriter {
      */
     private void date(Date date, Method method) {
         JSON json = method.getAnnotation(JSON.class);
-        DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(json.format()) : JSONUtil.RFC3399_FORMAT;
+        DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(
+            json.format())
+            : JSONUtil.RFC3399_FORMAT;
         string(formatter.format(date));
     }
 
@@ -243,11 +315,23 @@ class JSONWriter {
     private void array(Iterator it, Method method) throws JSONExeption {
         add("[");
 
-        while(it.hasNext()) {
+        boolean hasData = false;
+        for(int i = 0; it.hasNext(); i++) {
+            String expr = null;
+            if(buildExpr) {
+                expr = expandExpr(i);
+                if(shouldIgnoreProperty(expr)) {
+                    continue;
+                }
+                expr = setExprStack(expr);
+            }
+            if(hasData) {
+                add(',');
+            }
+            hasData = true;
             value(it.next(), method);
-
-            if(it.hasNext()) {
-                add(",");
+            if(buildExpr) {
+                setExprStack(expr);
             }
         }
 
@@ -262,11 +346,23 @@ class JSONWriter {
 
         int length = Array.getLength(object);
 
+        boolean hasData = false;
         for(int i = 0; i < length; ++i) {
-            value(Array.get(object, i), method);
-
-            if(i < (length - 1)) {
+            String expr = null;
+            if(buildExpr) {
+                expr = expandExpr(i);
+                if(shouldIgnoreProperty(expr)) {
+                    continue;
+                }
+                expr = setExprStack(expr);
+            }
+            if(hasData) {
                 add(',');
+            }
+            hasData = true;
+            value(Array.get(object, i), method);
+            if(buildExpr) {
+                setExprStack(expr);
             }
         }
 

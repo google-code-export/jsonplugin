@@ -36,8 +36,7 @@ class JSONReader {
     private static final Object ARRAY_END = new Object();
     private static final Object COLON = new Object();
     private static final Object COMMA = new Object();
-    private static Map<Character, Character> escapes =
-        new HashMap<Character, Character>();
+    private static Map<Character, Character> escapes = new HashMap<Character, Character>();
 
     static {
         escapes.put(new Character('"'), new Character('"'));
@@ -67,8 +66,7 @@ class JSONReader {
         }
     }
 
-    public Object read(String string)
-        throws JSONExeption {
+    public Object read(String string) throws JSONExeption {
         it = new StringCharacterIterator(string);
         c = it.first();
 
@@ -101,16 +99,14 @@ class JSONReader {
         } else if(c == ':') {
             ret = COLON;
             next();
-        } else if((c == 't') && (next() == 'r') && (next() == 'u')
-            && (next() == 'e')) {
+        } else if((c == 't') && (next() == 'r') && (next() == 'u') && (next() == 'e')) {
             ret = Boolean.TRUE;
             next();
-        } else if((c == 'f') && (next() == 'a') && (next() == 'l')
-            && (next() == 's') && (next() == 'e')) {
+        } else if((c == 'f') && (next() == 'a') && (next() == 'l') && (next() == 's')
+            && (next() == 'e')) {
             ret = Boolean.FALSE;
             next();
-        } else if((c == 'n') && (next() == 'u') && (next() == 'l')
-            && (next() == 'l')) {
+        } else if((c == 'n') && (next() == 'u') && (next() == 'l') && (next() == 'l')) {
             ret = null;
             next();
         } else if(Character.isDigit(c) || (c == '-')) {
@@ -138,8 +134,7 @@ class JSONReader {
                     if(name instanceof String) {
                         key = (String) name;
                     } else {
-                        throw new JSONExeption(
-                            "Input string is not well formed JSON");
+                        throw new JSONExeption("Input string is not well formed JSON");
                     }
                 }
             }
@@ -187,9 +182,8 @@ class JSONReader {
             addDigits();
         }
 
-        return (buf.indexOf(".") >= 0)
-        ? (Object) Double.parseDouble(buf.toString())
-        : (Object) Long.parseLong(buf.toString());
+        return (buf.indexOf(".") >= 0) ? (Object) Double.parseDouble(buf.toString())
+            : (Object) Long.parseLong(buf.toString());
     }
 
     private Object string() {
