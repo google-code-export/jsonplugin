@@ -25,36 +25,68 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.regex.Pattern;
 
 /**
  *  Wrapper for JSONWriter with some utility methods.
  */
 public class JSONUtil {
     final static SimpleDateFormat RFC3399_FORMAT = new SimpleDateFormat(
-    "yyyy-MM-dd'T'HH:mm:ss");
+        "yyyy-MM-dd'T'HH:mm:ss");
+
     /**
-     * Serilizes a object into JSON
+     * Serilizes an object into JSON.
      * @param object to be serialized
      * @return JSON string
      * @throws JSONExeption
      */
-    public static String serialize(Object object)
-        throws JSONExeption {
+    public static String serialize(Object object) throws JSONExeption {
         JSONWriter writer = new JSONWriter();
 
         return writer.write(object);
     }
 
     /**
-     * Serilizes a object into JSON to the writer
+     * Serilizes an object into JSON, excluding any properties matching
+     * any of the regular expressions in the given collection.
+     * @param object to be serialized
+     * @param Patterns matching properties to ignore
+     * @return JSON string
+     * @throws JSONExeption
+     */
+    public static String serialize(Object object, Collection<Pattern> ignoreProperties)
+        throws JSONExeption {
+        JSONWriter writer = new JSONWriter();
+
+        return writer.write(object, ignoreProperties);
+    }
+
+    /**
+     * Serilizes an object into JSON to the given writer.
      * @param writer Writer to serialize the object to
      * @param object object to be serialized
+     * @param Patterns matching properties to ignore
      * @throws IOException
      * @throws JSONExeption
      */
-    public static void serialize(Writer writer, Object object)
-        throws IOException, JSONExeption {
+    public static void serialize(Writer writer, Object object) throws IOException,
+        JSONExeption {
         writer.write(serialize(object));
+    }
+
+    /**
+     * Serilizes an object into JSON to the given writer, excluding any properties matching
+     * any of the regular expressions in the given collection.
+     * @param writer Writer to serialize the object to
+     * @param object object to be serialized
+     * @param Patterns matching properties to ignore
+     * @throws IOException
+     * @throws JSONExeption
+     */
+    public static void serialize(Writer writer, Object object,
+        Collection<Pattern> ignoreProperties) throws IOException, JSONExeption {
+        writer.write(serialize(object, ignoreProperties));
     }
 
     /**
@@ -64,8 +96,7 @@ public class JSONUtil {
      * @throws JSONExeption
      * @throws JSONExeption
      */
-    public static Object deserialize(String json)
-        throws JSONExeption {
+    public static Object deserialize(String json) throws JSONExeption {
         JSONReader reader = new JSONReader();
 
         return reader.read(json);
@@ -78,8 +109,7 @@ public class JSONUtil {
      * @throws JSONExeption
      * @throws JSONExeption
      */
-    public static Object deserialize(Reader reader)
-        throws JSONExeption {
+    public static Object deserialize(Reader reader) throws JSONExeption {
         //read content
         BufferedReader bufferReader = new BufferedReader(reader);
         String line = null;

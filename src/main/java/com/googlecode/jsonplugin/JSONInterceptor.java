@@ -53,8 +53,7 @@ public class JSONInterceptor implements Interceptor {
                 populateObject(invocation.getAction(), json);
             } else {
                 log.error("Unable to derialize JSON object from request");
-                throw new JSONExeption(
-                    "Unable to derialize JSON object from request");
+                throw new JSONExeption("Unable to derialize JSON object from request");
             }
         } else {
             if(log.isDebugEnabled()) {
@@ -68,9 +67,9 @@ public class JSONInterceptor implements Interceptor {
     }
 
     public void populateObject(final Object object, final Map elements)
-        throws IllegalAccessException, InvocationTargetException,
-        NoSuchMethodException, IntrospectionException,
-        IllegalArgumentException, JSONExeption, InstantiationException {
+        throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
+        IntrospectionException, IllegalArgumentException, JSONExeption,
+        InstantiationException {
         Class clazz = object.getClass();
 
         BeanInfo info = Introspector.getBeanInfo(clazz);
@@ -91,15 +90,13 @@ public class JSONInterceptor implements Interceptor {
                 }
 
                 //use only public setters
-                if((accessor != null)
-                    && Modifier.isPublic(accessor.getModifiers())) {
+                if((accessor != null) && Modifier.isPublic(accessor.getModifiers())) {
                     Class[] paramTypes = accessor.getParameterTypes();
 
                     if(paramTypes.length == 1) {
                         Class paramType = paramTypes[0];
 
-                        if(paramType.isPrimitive()
-                            || paramType.equals(String.class)
+                        if(paramType.isPrimitive() || paramType.equals(String.class)
                             || paramType.equals(Date.class)) {
                             setPrimitive(object, accessor, paramType, value);
                         } else if(List.class.equals(paramType)
@@ -112,11 +109,10 @@ public class JSONInterceptor implements Interceptor {
                             Object newInstance = paramType.newInstance();
 
                             populateObject(newInstance, (Map) value);
-                            accessor.invoke(object,
-                                new Object[] { newInstance });
+                            accessor.invoke(object, new Object[] { newInstance });
                         } else {
-                            throw new JSONExeption(
-                                "Incompatible types for property " + name);
+                            throw new JSONExeption("Incompatible types for property "
+                                + name);
                         }
                     }
                 }
@@ -125,9 +121,9 @@ public class JSONInterceptor implements Interceptor {
     }
 
     private void setArray(Object target, Method accessor, Object value)
-        throws JSONExeption, IllegalArgumentException,
-        IllegalAccessException, InvocationTargetException,
-        InstantiationException, NoSuchMethodException, IntrospectionException {
+        throws JSONExeption, IllegalArgumentException, IllegalAccessException,
+        InvocationTargetException, InstantiationException, NoSuchMethodException,
+        IntrospectionException {
         Class arrayType = accessor.getParameterTypes()[0].getComponentType();
 
         if(value instanceof List) {
@@ -142,12 +138,11 @@ public class JSONInterceptor implements Interceptor {
                 if(arrayType.equals(Object.class)) {
                     //Object[]
                     Array.set(newArray, j, listValue);
-                } else if(arrayType.isPrimitive()
-                    || arrayType.equals(String.class)
+                } else if(arrayType.isPrimitive() || arrayType.equals(String.class)
                     || arrayType.equals(Date.class)) {
                     //primitive array
-                    Array.set(newArray, j, convertPrimitive(arrayType,
-                        listValue, accessor));
+                    Array.set(newArray, j, convertPrimitive(arrayType, listValue,
+                        accessor));
                 } else {
                     //array of other class
                     Object newObject = arrayType.newInstance();
@@ -156,9 +151,8 @@ public class JSONInterceptor implements Interceptor {
                         populateObject(newObject, (Map) listValue);
                         Array.set(newArray, j, newObject);
                     } else {
-                        throw new JSONExeption(
-                            "Incompatible types for property "
-                                + accessor.getName());
+                        throw new JSONExeption("Incompatible types for property "
+                            + accessor.getName());
                     }
                 }
             }
@@ -170,12 +164,12 @@ public class JSONInterceptor implements Interceptor {
         }
     }
 
-    private void setPrimitive(Object object, Method accessor, Class clazz,
-        Object value) throws IllegalArgumentException,
-        IllegalAccessException, InvocationTargetException, JSONExeption {
+    private void setPrimitive(Object object, Method accessor, Class clazz, Object value)
+        throws IllegalArgumentException, IllegalAccessException,
+        InvocationTargetException, JSONExeption {
         if(value != null) {
-            accessor.invoke(object, new Object[] { convertPrimitive(clazz,
-                value, accessor) });
+            accessor.invoke(object, new Object[] { convertPrimitive(clazz, value,
+                accessor) });
         }
     }
 
@@ -204,9 +198,9 @@ public class JSONInterceptor implements Interceptor {
         } else if(clazz.equals(Date.class)) {
             try {
                 JSON json = method.getAnnotation(JSON.class);
-                DateFormat formatter = json != null
-                    && json.format().length() > 0 ? new SimpleDateFormat(json
-                    .format()) : JSONUtil.RFC3399_FORMAT;
+                DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(
+                    json.format())
+                    : JSONUtil.RFC3399_FORMAT;
                 return formatter.parse((String) value);
             } catch(ParseException e) {
                 log.error(e);
