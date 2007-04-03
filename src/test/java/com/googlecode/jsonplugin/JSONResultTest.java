@@ -126,6 +126,42 @@ public class JSONResultTest extends StrutsTestCase {
         "json.txt"));
         assertEquals(normalizedExpected, normalizedActual);
     }
+    
+    public void test2() throws Exception {
+        JSONResult result = new JSONResult();
+
+        TestAction action = new TestAction();
+
+        //beans
+        Bean bean1 = new Bean();
+
+        bean1.setStringField("str");
+        bean1.setBooleanField(true);
+        bean1.setCharField('s');
+        bean1.setDoubleField(10.1);
+        bean1.setFloatField(1.5f);
+        bean1.setIntField(10);
+        bean1.setLongField(100);
+
+        //set root
+        action.setBean(bean1);
+        result.setRoot("bean");
+        
+        ValueStack stack = ValueStackFactory.getFactory().createValueStack();
+        stack.push(action);
+        invocation.setStack(stack);
+        invocation.setAction(action);
+        
+        
+        result.execute(invocation);
+
+        String json = stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class.getResource(
+        "json-2.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+    }
 
     protected void setUp() throws Exception {
         super.setUp();

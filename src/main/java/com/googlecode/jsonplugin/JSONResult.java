@@ -17,6 +17,7 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.Result;
 import com.opensymphony.xwork2.inject.Inject;
+import com.opensymphony.xwork2.util.ValueStack;
 
 /**
  * <!-- START SNIPPET: description -->
@@ -50,7 +51,8 @@ public class JSONResult implements Result {
     private static final Log log = LogFactory.getLog(JSONResult.class);
     private String defaultEncoding;
     private List<Pattern> excludeProperties = null;
-
+    private String root;
+    
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
         defaultEncoding = val;
@@ -104,7 +106,15 @@ public class JSONResult implements Result {
 
         // Write JSON to response.
         try {
-            String json = JSONUtil.serialize((invocation.getAction()), excludeProperties);
+            Object rootObject = null;
+            if(this.root != null) {
+                ValueStack stack = invocation.getStack();
+                rootObject = stack.findValue(this.root);
+            } else {
+                rootObject = invocation.getAction();
+            }
+           
+            String json = JSONUtil.serialize(rootObject, excludeProperties);
 
             if(log.isDebugEnabled()) {
                 log.debug("[JSON]" + json);
@@ -140,5 +150,21 @@ public class JSONResult implements Result {
         }
 
         return encoding;
+    }
+
+    /**
+     * @return  OGNL expression of root object to be serialized
+     */
+    public String getRoot() {
+        return root;
+    }
+
+    /**
+     * Sets the root object to be serialized, defaults to the Action
+     * 
+     * @param root OGNL expression of root object to be serialized
+     */
+    public void setRoot(String root) {
+        this.root = root;
     }
 }

@@ -1,0 +1,11 @@
+{
+	"booleanField": true,
+	"byteField": 0,
+	"charField": "s",
+	"doubleField": 10.1,
+	"floatField": 1.5,
+	"intField": 10,
+	"longField": 100,
+	"objectField": null,
+	"stringField": "str"
+}
