@@ -52,6 +52,7 @@ public class JSONResult implements Result {
     private String defaultEncoding;
     private List<Pattern> excludeProperties = null;
     private String root;
+    private boolean wrapWithComments;
     
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -115,7 +116,12 @@ public class JSONResult implements Result {
             }
            
             String json = JSONUtil.serialize(rootObject, excludeProperties);
-
+            if(wrapWithComments) {
+                StringBuilder sb = new StringBuilder("/* ");
+                sb.append(json);
+                sb.append(" */");
+                json = sb.toString();
+            }
             if(log.isDebugEnabled()) {
                 log.debug("[JSON]" + json);
             }
@@ -166,5 +172,20 @@ public class JSONResult implements Result {
      */
     public void setRoot(String root) {
         this.root = root;
+    }
+
+    /**
+     * @return Generated JSON must be enclosed in comments
+     */
+    public boolean isWrapWithComments() {
+        return wrapWithComments;
+    }
+
+    /**
+     * Wrap generated JSON with comments
+     * @param wrapWithComments
+     */
+    public void setWrapWithComments(boolean wrapWithComments) {
+        this.wrapWithComments = wrapWithComments;
     }
 }
