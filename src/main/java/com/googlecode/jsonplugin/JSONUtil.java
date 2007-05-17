@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
@@ -32,8 +31,7 @@ import java.util.regex.Pattern;
  *  Wrapper for JSONWriter with some utility methods.
  */
 public class JSONUtil {
-    final static SimpleDateFormat RFC3399_FORMAT = new SimpleDateFormat(
-        "yyyy-MM-dd'T'HH:mm:ss");
+    final static String RFC3339_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     /**
      * Serilizes an object into JSON.
