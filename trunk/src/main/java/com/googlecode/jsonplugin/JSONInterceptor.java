@@ -31,6 +31,7 @@ import com.opensymphony.xwork2.interceptor.Interceptor;
  */
 public class JSONInterceptor implements Interceptor {
     private static final Log log = LogFactory.getLog(JSONInterceptor.class);
+    private DateFormat formatter;
 
     public void destroy() {
     }
@@ -198,9 +199,13 @@ public class JSONInterceptor implements Interceptor {
         } else if(clazz.equals(Date.class)) {
             try {
                 JSON json = method.getAnnotation(JSON.class);
+                
+                if(this.formatter == null) 
+                    this.formatter = new SimpleDateFormat(JSONUtil.RFC3339_FORMAT);
+                
                 DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(
                     json.format())
-                    : JSONUtil.RFC3399_FORMAT;
+                    : this.formatter;
                 return formatter.parse((String) value);
             } catch(ParseException e) {
                 log.error(e);

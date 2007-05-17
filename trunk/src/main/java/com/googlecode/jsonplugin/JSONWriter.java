@@ -56,6 +56,7 @@ class JSONWriter {
     private boolean buildExpr = true;
     private String exprStack = "";
     private Collection<Pattern> ignoreProperties;
+    private DateFormat formatter;
 
     /**
      * @param object Object to be serialized into JSON
@@ -303,9 +304,12 @@ class JSONWriter {
      */
     private void date(Date date, Method method) {
         JSON json = method.getAnnotation(JSON.class);
+        if(this.formatter == null) 
+            this.formatter = new SimpleDateFormat(JSONUtil.RFC3339_FORMAT);
+        
         DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(
             json.format())
-            : JSONUtil.RFC3399_FORMAT;
+            : this.formatter;
         string(formatter.format(date));
     }
 
