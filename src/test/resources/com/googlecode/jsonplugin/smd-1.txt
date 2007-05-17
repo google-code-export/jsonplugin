@@ -1,0 +1,19 @@
+{   
+    "methods": [
+        {
+            "name": "add",
+            "parameters": [
+                {"name":"p0"},
+                {"name":"p1"}
+             ]
+         },
+         {
+            "name": "doSomething",
+            "parameters":[]
+         }
+    ],
+    "objectName": null,
+    "serviceType": "JSON-RPC", 
+    "serviceUrl":"http:\/\/sumeruri",
+    "version": ".1"
+}
