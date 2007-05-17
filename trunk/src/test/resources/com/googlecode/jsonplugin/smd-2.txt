@@ -1,0 +1,19 @@
+{   
+    "methods": [
+        {
+            "name": "add",
+            "parameters": [
+                {"name":"a"},
+                {"name":"b"}
+             ]
+         },
+         {
+            "name": "doSomethingElse",
+            "parameters":[]
+         }
+    ],
+    "objectName": "testaction",
+    "serviceType": "service", 
+    "serviceUrl":"http:\/\/sumeruri",
+    "version": "10.0"
+}

@@ -31,6 +31,7 @@ import com.opensymphony.xwork2.interceptor.Interceptor;
  */
 public class JSONInterceptor implements Interceptor {
     private static final Log log = LogFactory.getLog(JSONInterceptor.class);
+    private boolean enableSMD = false;
     private DateFormat formatter;
 
     public void destroy() {
@@ -43,23 +44,44 @@ public class JSONInterceptor implements Interceptor {
         HttpServletRequest request = ServletActionContext.getRequest();
         String contentType = request.getHeader("content-type");
 
-        if(contentType.equalsIgnoreCase("application/json")) {
+        if (contentType.equalsIgnoreCase("application/json")) {
             //load JSON object
             Object obj = JSONUtil.deserialize(request.getReader());
 
-            if(obj instanceof Map) {
+            if (obj instanceof Map) {
                 Map json = (Map) obj;
 
                 //populate fields
                 populateObject(invocation.getAction(), json);
             } else {
                 log.error("Unable to derialize JSON object from request");
-                throw new JSONExeption("Unable to derialize JSON object from request");
+                throw new JSONExeption(
+                    "Unable to derialize JSON object from request");
+            }
+        } else if (contentType.equalsIgnoreCase("application/json-rpc")) {
+            if (enableSMD) {
+                //load JSON object
+                Object obj = JSONUtil.deserialize(request.getReader());
+
+                if (obj instanceof Map) {
+                    Map smd = (Map) obj;
+                    //invoke method
+                    invoke(invocation.getAction(), smd);
+                } else {
+                    log.error("Unable to derialize JSON object from request");
+                    throw new JSONExeption(
+                        "Unable to derialize JSON object from request");
+                }
+            } else {
+                if (log.isDebugEnabled())
+                    log
+                        .debug("Request with content type of 'application/json' was received but SMD is "
+                            + "not enabled for this interceptor. Set 'enableSMD' to true to enable it");
             }
         } else {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log
-                    .debug("Content type must be 'application/json'. Ignoring request with content type "
+                    .debug("Content type must be 'application/json' or 'application/json-rpc'. Ignoring request with content type "
                         + contentType);
             }
         }
@@ -67,53 +89,88 @@ public class JSONInterceptor implements Interceptor {
         return invocation.invoke();
     }
 
+    public void invoke(Object object, Map data) {
+        // the map is going to have: 'params', 'method' and 'id' (what is the id for?)
+        Class clazz = object.getClass();
+        boolean debug = log.isDebugEnabled();
+
+        //parameters
+        List parameters = (List) data.get("parameters");
+        int parameterCount = parameters != null ? parameters.size() : 0;
+
+        //method
+        String methodName = (String) data.get("method");
+        if (methodName == null) {
+            log.error("'method' is required for JSON RPC");
+            return;
+        }
+        Method method = getMethod(clazz, methodName, parameterCount);
+        if (method == null) {
+            log.error("'method' is required for JSON RPC");
+            return;
+        }
+
+        
+    }
+
+    private Method getMethod(Class clazz, String name, int parameterCount) {
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods) {
+            if (method.getName().equals(name)
+                && method.getParameterTypes().length == parameterCount)
+                return method;
+        }
+        return null;
+    }
+
     public void populateObject(final Object object, final Map elements)
-        throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-        IntrospectionException, IllegalArgumentException, JSONExeption,
-        InstantiationException {
+        throws IllegalAccessException, InvocationTargetException,
+        NoSuchMethodException, IntrospectionException, IllegalArgumentException,
+        JSONExeption, InstantiationException {
         Class clazz = object.getClass();
 
         BeanInfo info = Introspector.getBeanInfo(clazz);
         PropertyDescriptor[] props = info.getPropertyDescriptors();
 
         //iterate over class fields
-        for(int i = 0; i < props.length; ++i) {
+        for (int i = 0; i < props.length; ++i) {
             PropertyDescriptor prop = props[i];
             String name = prop.getName();
 
-            if(elements.containsKey(name)) {
+            if (elements.containsKey(name)) {
                 Object value = elements.get(name);
                 Method accessor = prop.getWriteMethod();
 
                 JSON json = prop.getWriteMethod().getAnnotation(JSON.class);
-                if(json != null && !json.deserialize()) {
+                if (json != null && !json.deserialize()) {
                     continue;
                 }
 
                 //use only public setters
-                if((accessor != null) && Modifier.isPublic(accessor.getModifiers())) {
+                if ((accessor != null) && Modifier.isPublic(accessor.getModifiers())) {
                     Class[] paramTypes = accessor.getParameterTypes();
 
-                    if(paramTypes.length == 1) {
+                    if (paramTypes.length == 1) {
                         Class paramType = paramTypes[0];
 
-                        if(paramType.isPrimitive() || paramType.equals(String.class)
+                        if (paramType.isPrimitive()
+                            || paramType.equals(String.class)
                             || paramType.equals(Date.class)) {
                             setPrimitive(object, accessor, paramType, value);
-                        } else if(List.class.equals(paramType)
+                        } else if (List.class.equals(paramType)
                             || Map.class.equals(paramType)) {
                             accessor.invoke(object, new Object[] { value });
-                        } else if(paramType.isArray()) {
+                        } else if (paramType.isArray()) {
                             setArray(object, accessor, value);
-                        } else if(value instanceof Map) {
+                        } else if (value instanceof Map) {
                             //nested field
                             Object newInstance = paramType.newInstance();
 
                             populateObject(newInstance, (Map) value);
                             accessor.invoke(object, new Object[] { newInstance });
                         } else {
-                            throw new JSONExeption("Incompatible types for property "
-                                + name);
+                            throw new JSONExeption(
+                                "Incompatible types for property " + name);
                         }
                     }
                 }
@@ -127,19 +184,19 @@ public class JSONInterceptor implements Interceptor {
         IntrospectionException {
         Class arrayType = accessor.getParameterTypes()[0].getComponentType();
 
-        if(value instanceof List) {
+        if (value instanceof List) {
             List values = (List) value;
             Object newArray = Array.newInstance(arrayType, values.size());
 
             //create an object fr each element
-            for(int j = 0; j < values.size(); j++) {
+            for (int j = 0; j < values.size(); j++) {
                 Object listValue = values.get(j);
                 Class listValueType = listValue.getClass();
 
-                if(arrayType.equals(Object.class)) {
+                if (arrayType.equals(Object.class)) {
                     //Object[]
                     Array.set(newArray, j, listValue);
-                } else if(arrayType.isPrimitive() || arrayType.equals(String.class)
+                } else if (arrayType.isPrimitive() || arrayType.equals(String.class)
                     || arrayType.equals(Date.class)) {
                     //primitive array
                     Array.set(newArray, j, convertPrimitive(arrayType, listValue,
@@ -148,7 +205,7 @@ public class JSONInterceptor implements Interceptor {
                     //array of other class
                     Object newObject = arrayType.newInstance();
 
-                    if(listValue instanceof Map) {
+                    if (listValue instanceof Map) {
                         populateObject(newObject, (Map) listValue);
                         Array.set(newArray, j, newObject);
                     } else {
@@ -165,10 +222,10 @@ public class JSONInterceptor implements Interceptor {
         }
     }
 
-    private void setPrimitive(Object object, Method accessor, Class clazz, Object value)
-        throws IllegalArgumentException, IllegalAccessException,
+    private void setPrimitive(Object object, Method accessor, Class clazz,
+        Object value) throws IllegalArgumentException, IllegalAccessException,
         InvocationTargetException, JSONExeption {
-        if(value != null) {
+        if (value != null) {
             accessor.invoke(object, new Object[] { convertPrimitive(clazz, value,
                 accessor) });
         }
@@ -180,23 +237,23 @@ public class JSONInterceptor implements Interceptor {
      */
     private Object convertPrimitive(Class clazz, Object value, Method method)
         throws JSONExeption {
-        if(value instanceof Number) {
+        if (value instanceof Number) {
             Number number = (Number) value;
 
-            if(Short.TYPE.equals(clazz)) {
+            if (Short.TYPE.equals(clazz)) {
                 return number.shortValue();
-            } else if(Byte.TYPE.equals(clazz)) {
+            } else if (Byte.TYPE.equals(clazz)) {
                 return number.byteValue();
-            } else if(Integer.TYPE.equals(clazz)) {
+            } else if (Integer.TYPE.equals(clazz)) {
                 return number.intValue();
-            } else if(Long.TYPE.equals(clazz)) {
+            } else if (Long.TYPE.equals(clazz)) {
                 return number.longValue();
-            } else if(Float.TYPE.equals(clazz)) {
+            } else if (Float.TYPE.equals(clazz)) {
                 return number.floatValue();
-            } else if(Double.TYPE.equals(clazz)) {
+            } else if (Double.TYPE.equals(clazz)) {
                 return number.doubleValue();
             }
-        } else if(clazz.equals(Date.class)) {
+        } else if (clazz.equals(Date.class)) {
             try {
                 JSON json = method.getAnnotation(JSON.class);
                 
@@ -207,18 +264,26 @@ public class JSONInterceptor implements Interceptor {
                     json.format())
                     : this.formatter;
                 return formatter.parse((String) value);
-            } catch(ParseException e) {
+            } catch (ParseException e) {
                 log.error(e);
                 throw new JSONExeption("Unable to parse date from: " + value);
             }
-        } else if(value instanceof String) {
-            if(Boolean.TYPE.equals(clazz)) {
+        } else if (value instanceof String) {
+            if (Boolean.TYPE.equals(clazz)) {
                 return Boolean.valueOf((String) value);
-            } else if(Character.TYPE.equals(clazz)) {
+            } else if (Character.TYPE.equals(clazz)) {
                 return ((String) value).charAt(0);
             }
         }
 
         return value;
+    }
+
+    public boolean isEnableSMD() {
+        return enableSMD;
+    }
+
+    public void setEnableSMD(boolean enableSMD) {
+        this.enableSMD = enableSMD;
     }
 }

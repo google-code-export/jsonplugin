@@ -2,10 +2,13 @@ package com.googlecode.jsonplugin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -13,6 +16,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.StrutsConstants;
 
+import com.googlecode.jsonplugin.annotations.SMD;
+import com.googlecode.jsonplugin.annotations.SMDMethod;
+import com.googlecode.jsonplugin.annotations.SMDMethodParameter;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.Result;
@@ -22,8 +28,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 /**
  * <!-- START SNIPPET: description -->
  *
- * This result serializes an action into JSON. Fields to be serialized must have
- * a getter method and <b>must not</b> be 'transient'.
+ * This result serializes an action into JSON. 
  *
  * <!-- END SNIPPET: description -->
  *
@@ -53,7 +58,8 @@ public class JSONResult implements Result {
     private List<Pattern> excludeProperties = null;
     private String root;
     private boolean wrapWithComments;
-    
+    private boolean enableSMD = false;
+
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
         defaultEncoding = val;
@@ -77,23 +83,23 @@ public class JSONResult implements Result {
      */
     public void setExcludeProperties(String commaDelim) {
         List<String> excludePatterns = asList(commaDelim);
-        if(excludePatterns != null) {
+        if (excludePatterns != null) {
             excludeProperties = new ArrayList<Pattern>(excludePatterns.size());
-            for(String pattern : excludePatterns) {
+            for (String pattern : excludePatterns) {
                 excludeProperties.add(Pattern.compile(pattern));
             }
         }
     }
 
     private List<String> asList(String commaDelim) {
-        if(commaDelim == null || commaDelim.trim().length() == 0) {
+        if (commaDelim == null || commaDelim.trim().length() == 0) {
             return null;
         }
         List<String> list = new ArrayList<String>();
         String[] split = commaDelim.split(",");
-        for(int i = 0; i < split.length; i++) {
+        for (int i = 0; i < split.length; i++) {
             String trimmed = split[i].trim();
-            if(trimmed.length() > 0) {
+            if (trimmed.length() > 0) {
                 list.add(trimmed);
             }
         }
@@ -105,24 +111,32 @@ public class JSONResult implements Result {
         HttpServletResponse response = (HttpServletResponse) actionContext
             .get(ServletActionContext.HTTP_RESPONSE);
 
-        // Write JSON to response.
         try {
-            Object rootObject = null;
-            if(this.root != null) {
-                ValueStack stack = invocation.getStack();
-                rootObject = stack.findValue(this.root);
+            String json = null;
+            if (this.enableSMD) {
+                //generate SMD
+                com.googlecode.jsonplugin.smd.SMD smd = writeSMD(invocation);
+                json = JSONUtil.serialize(smd, null);
             } else {
-                rootObject = invocation.getAction();
+                // generate JSON
+                Object rootObject = null;
+                if (this.root != null) {
+                    ValueStack stack = invocation.getStack();
+                    rootObject = stack.findValue(this.root);
+                } else {
+                    rootObject = invocation.getAction();
+                }
+
+                json = JSONUtil.serialize(rootObject, excludeProperties);
             }
-           
-            String json = JSONUtil.serialize(rootObject, excludeProperties);
-            if(wrapWithComments) {
+
+            if (wrapWithComments) {
                 StringBuilder sb = new StringBuilder("/* ");
                 sb.append(json);
                 sb.append(" */");
                 json = sb.toString();
             }
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("[JSON]" + json);
             }
 
@@ -131,12 +145,108 @@ public class JSONResult implements Result {
             response.setContentType("application/json;charset=" + encoding);
 
             PrintWriter out = response.getWriter();
-
             out.print(json);
-        } catch(IOException exception) {
+
+        } catch (IOException exception) {
             log.error(exception);
             throw exception;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private com.googlecode.jsonplugin.smd.SMD writeSMD(ActionInvocation invocation) {
+        ActionContext actionContext = invocation.getInvocationContext();
+        HttpServletRequest request = (HttpServletRequest) actionContext
+            .get(ServletActionContext.HTTP_REQUEST);
+        HttpServletResponse response = (HttpServletResponse) actionContext
+            .get(ServletActionContext.HTTP_RESPONSE);
+
+        //root is based on OGNL expression (action by default)
+        Object rootObject = null;
+        if (this.root != null) {
+            ValueStack stack = invocation.getStack();
+            rootObject = stack.findValue(this.root);
+        } else {
+            rootObject = invocation.getAction();
+        }
+
+        Class clazz = rootObject.getClass();
+        com.googlecode.jsonplugin.smd.SMD smd = new com.googlecode.jsonplugin.smd.SMD();
+        //URL
+        smd.setServiceUrl(request.getRequestURI());
+
+        //customize SMD
+        SMD smdAnnotation = (SMD) clazz.getAnnotation(SMD.class);
+        if (smdAnnotation != null) {
+            smd.setObjectName(smdAnnotation.objectName());
+            smd.setServiceType(smdAnnotation.serviceType());
+            smd.setVersion(smdAnnotation.version());
+        }
+
+        //get public methods
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods) {
+            SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
+
+            //SMDMethod annotation is required
+            if (smdMethodAnnotation != null && !shouldIgnoreProperty(method.getName())) {
+                String methodName = smdMethodAnnotation.name().length() == 0 ?  method.getName() : smdMethodAnnotation.name();
+                com.googlecode.jsonplugin.smd.SMDMethod smdMethod = new com.googlecode.jsonplugin.smd.SMDMethod(
+                    methodName);
+                smd.addSMDMethod(smdMethod);
+
+                //find params for this method
+                int parametersCount = method.getParameterTypes().length;
+                if (parametersCount > 0) {
+                    Annotation[][] parameterAnnotations = method
+                        .getParameterAnnotations();
+
+                    for (int i = 0; i < parametersCount; i++) {
+                        //are you ever going to pick shorter names? nope                    
+                        SMDMethodParameter smdMethodParameterAnnotation = getSMDMethodParameterAnnotation(parameterAnnotations[i]);
+
+                        String paramName = smdMethodParameterAnnotation != null ? smdMethodParameterAnnotation
+                            .name()
+                            : "p" + i;
+
+                        //goog thing this is the end of the hierarchy, oitherwise I would need that 21'' LCD ;)    
+                        smdMethod
+                            .addSMDMethodParameter(new com.googlecode.jsonplugin.smd.SMDMethodParameter(
+                                paramName));
+                    }
+                }
+
+            } else {
+                if (log.isDebugEnabled())
+                    log.debug("Ignoring property " + method.getName());
+            }
+        }
+        return smd;
+    }
+
+    /**
+     * Find an SMDethodParameter annotation on this array
+     */
+    private com.googlecode.jsonplugin.annotations.SMDMethodParameter getSMDMethodParameterAnnotation(
+        Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof com.googlecode.jsonplugin.annotations.SMDMethodParameter) {
+                return (com.googlecode.jsonplugin.annotations.SMDMethodParameter) annotation;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean shouldIgnoreProperty(String expr) {
+        if (excludeProperties != null) {
+            for (Pattern pattern : excludeProperties) {
+                if (pattern.matcher(expr).matches()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -148,11 +258,11 @@ public class JSONResult implements Result {
     protected String getEncoding() {
         String encoding = defaultEncoding;
 
-        if(encoding == null) {
+        if (encoding == null) {
             encoding = System.getProperty("file.encoding");
         }
 
-        if(encoding == null) {
+        if (encoding == null) {
             encoding = "UTF-8";
         }
 
@@ -188,5 +298,20 @@ public class JSONResult implements Result {
      */
     public void setWrapWithComments(boolean wrapWithComments) {
         this.wrapWithComments = wrapWithComments;
+    }
+
+    /**
+     * @return Result has SMD generation enabled
+     */
+    public boolean isEnableSMD() {
+        return enableSMD;
+    }
+
+    /**
+     * Enable SMD generation for action, which can be used for JSON-RPC
+     * @param enableSMD
+     */
+    public void setEnableSMD(boolean enableSMD) {
+        this.enableSMD = enableSMD;
     }
 }

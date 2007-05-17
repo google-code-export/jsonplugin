@@ -148,8 +148,7 @@ class JSONWriter {
     }
 
     /**
-     * Instrospect bean and serialize its properties, ignore the ones
-     * who wrap a field marked as transient
+     * Instrospect bean and serialize its properties
      */
     private void bean(Object object) throws JSONExeption {
         add("{");
@@ -242,7 +241,8 @@ class JSONWriter {
     private boolean shouldIgnoreProperty(String expr) {
         for(Pattern pattern : ignoreProperties) {
             if(pattern.matcher(expr).matches()) {
-                log.debug("Ignoring property " + expr);
+                if(log.isDebugEnabled())
+                    log.debug("Ignoring property " + expr);
                 return true;
             }
         }
