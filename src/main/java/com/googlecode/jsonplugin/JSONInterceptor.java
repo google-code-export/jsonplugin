@@ -80,7 +80,7 @@ public class JSONInterceptor implements Interceptor {
                     Object result = this.invoke(invocation.getAction(), smd);
                     String json = JSONUtil.serialize(result, null);
                     JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                        this.wrapWithComments, json);
+                        this.wrapWithComments, json, true);
 
                     return Action.NONE;
                 } else {
