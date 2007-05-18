@@ -133,8 +133,8 @@ public class JSONUtil {
     }
 
     static void writeJSONToResponse(HttpServletResponse response, String encoding,
-        boolean wrapWithComments, String serializedJSON) throws IOException {
-        String json = serializedJSON == null ? "" : serializedJSON; 
+        boolean wrapWithComments, String serializedJSON, boolean smd) throws IOException {
+        String json = serializedJSON == null ? "" : serializedJSON;
         if (wrapWithComments) {
             StringBuilder sb = new StringBuilder("/* ");
             sb.append(json);
@@ -146,7 +146,8 @@ public class JSONUtil {
         }
 
         response.setContentLength(json.getBytes(encoding).length);
-        response.setContentType("application/json;charset=" + encoding);
+        response.setContentType((smd ? "application/json-rpc;charset="
+            : "application/json;charset=") + encoding);
 
         PrintWriter out = response.getWriter();
         out.print(json);

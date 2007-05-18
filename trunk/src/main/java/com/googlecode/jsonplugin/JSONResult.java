@@ -130,7 +130,7 @@ public class JSONResult implements Result {
             }
 
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                isWrapWithComments(), json);
+                isWrapWithComments(), json, false);
 
         } catch (IOException exception) {
             log.error(exception);
