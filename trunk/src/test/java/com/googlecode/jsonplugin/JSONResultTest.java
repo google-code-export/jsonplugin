@@ -63,7 +63,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd.txt"));
+            .getResource("smd-8.txt"));
         assertEquals(normalizedExpected, normalizedActual);
     }
 
@@ -176,7 +176,7 @@ public class JSONResultTest extends StrutsTestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public void _testCommentWrap() throws Exception {
+    public void testCommentWrap() throws Exception {
         JSONResult result = new JSONResult();
 
         TestAction action = new TestAction();
@@ -252,7 +252,7 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
     }
 
-    public void _test2() throws Exception {
+    public void test2() throws Exception {
         JSONResult result = new JSONResult();
 
         TestAction action = new TestAction();

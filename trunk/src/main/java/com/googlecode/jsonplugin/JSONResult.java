@@ -54,7 +54,7 @@ import com.opensymphony.xwork2.util.ValueStack;
  */
 public class JSONResult implements Result {
     private static final Log log = LogFactory.getLog(JSONResult.class);
-    private String defaultEncoding;
+    private String defaultEncoding = "ISO-8859-1";
     private List<Pattern> excludeProperties = null;
     private String root;
     private boolean wrapWithComments;
@@ -129,22 +129,8 @@ public class JSONResult implements Result {
                 json = JSONUtil.serialize(rootObject, this.excludeProperties);
             }
 
-            if (this.wrapWithComments) {
-                StringBuilder sb = new StringBuilder("/* ");
-                sb.append(json);
-                sb.append(" */");
-                json = sb.toString();
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("[JSON]" + json);
-            }
-
-            String encoding = this.getEncoding();
-            response.setContentLength(json.getBytes(encoding).length);
-            response.setContentType("application/json;charset=" + encoding);
-
-            PrintWriter out = response.getWriter();
-            out.print(json);
+            JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
+                isWrapWithComments(), json);
 
         } catch (IOException exception) {
             log.error(exception);
@@ -157,7 +143,7 @@ public class JSONResult implements Result {
         ActionContext actionContext = invocation.getInvocationContext();
         HttpServletRequest request = (HttpServletRequest) actionContext
             .get(StrutsStatics.HTTP_REQUEST);
-        
+
         //root is based on OGNL expression (action by default)
         Object rootObject = null;
         if (this.root != null) {

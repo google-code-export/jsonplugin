@@ -1,7 +1,9 @@
 package com.googlecode.jsonplugin;
 
 import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,9 @@ import com.opensymphony.xwork2.util.ValueStackFactory;
 public class JSONInterceptorTest extends StrutsTestCase {
     private MockActionInvocationEx invocation;
     private StrutsMockHttpServletRequest request;
+    private StringWriter stringWriter;
+    private PrintWriter writer;
+    private StrutsMockHttpServletResponse response;
 
     public void testSMDDisabledSMD() throws Exception {
         //request
@@ -49,10 +54,39 @@ public class JSONInterceptorTest extends StrutsTestCase {
         this.invocation.setAction(action);
 
         //SMD was enabled so invocation must happen
-        interceptor.intercept(this.invocation);
+        try {
+            interceptor.intercept(this.invocation);
+            assertTrue("Exception was expected here!", true);
+        } catch(Exception e) {
+            //ok
+        }
         assertFalse(this.invocation.isInvoked());
     }
 
+    public void testSMDMethodWithoutAnnotations() throws Exception {
+        //request
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-9.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest1 action = new SMDActionTest1();
+
+        this.invocation.setAction(action);
+
+        //SMD was enabled so invocation must happen
+        try {
+            interceptor.intercept(this.invocation);
+            assertTrue("Exception was expected here!", true);
+        } catch(Exception e) {
+            //ok
+        }
+        assertFalse(this.invocation.isInvoked());
+    }
+
+    
     public void testSMDPrimitivesNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -80,8 +114,37 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertEquals(4.4, action.getDoubleParam());
         assertEquals(5, action.getShortParam());
         assertEquals(6, action.getByteParam());
+        
+        assertEquals("null", stringWriter.toString());
     }
 
+    
+    public void testSMDReturnObject() throws Exception {
+        //request
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-10.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest2 action = new SMDActionTest2();
+
+        this.invocation.setAction(action);
+
+        //can't be invoked
+        interceptor.intercept(this.invocation);
+        assertFalse(this.invocation.isInvoked());
+        
+        String json = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class
+            .getResource("json-2.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+
+    }
+    
     @SuppressWarnings("unchecked")
     public void testSMDObjectsNoResult() throws Exception {
         //request
@@ -256,12 +319,17 @@ public class JSONInterceptorTest extends StrutsTestCase {
         super.setUp();
 
         this.request = new StrutsMockHttpServletRequest();
-
+        this.stringWriter = new StringWriter();
+        this.writer = new PrintWriter(this.stringWriter);
+        this.response = new StrutsMockHttpServletResponse();
+        this.response.setWriter(this.writer);
+        
         ValueStack stack = ValueStackFactory.getFactory().createValueStack();
         ActionContext context = new ActionContext(stack.getContext());
 
         ActionContext.setContext(context);
         context.put(StrutsStatics.HTTP_REQUEST, this.request);
+        context.put(StrutsStatics.HTTP_RESPONSE, this.response);
 
         StrutsMockServletContext servletContext = new StrutsMockServletContext();
 

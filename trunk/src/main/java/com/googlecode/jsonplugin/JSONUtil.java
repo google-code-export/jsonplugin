@@ -22,16 +22,24 @@ package com.googlecode.jsonplugin;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *  Wrapper for JSONWriter with some utility methods.
  */
 public class JSONUtil {
     final static String RFC3339_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final Log log = LogFactory.getLog(JSONUtil.class);
 
     /**
      * Serilizes an object into JSON.
@@ -122,5 +130,26 @@ public class JSONUtil {
         }
 
         return deserialize(buffer.toString());
+    }
+
+    static void writeJSONToResponse(HttpServletResponse response, String encoding,
+        boolean wrapWithComments, String serializedJSON) throws IOException {
+        String json = serializedJSON == null ? "" : serializedJSON; 
+        if (wrapWithComments) {
+            StringBuilder sb = new StringBuilder("/* ");
+            sb.append(json);
+            sb.append(" */");
+            json = sb.toString();
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[JSON]" + json);
+        }
+
+        response.setContentLength(json.getBytes(encoding).length);
+        response.setContentType("application/json;charset=" + encoding);
+
+        PrintWriter out = response.getWriter();
+        out.print(json);
+
     }
 }

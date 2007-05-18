@@ -1,15 +1,15 @@
 {   
     "methods": [
         {
+            "name": "doSomethingElse",
+            "parameters":[]
+        },
+        {
             "name": "add",
             "parameters": [
                 {"name":"a"},
                 {"name":"b"}
              ]
-         },
-         {
-            "name": "doSomethingElse",
-            "parameters":[]
          }
     ],
     "objectName": "testaction",

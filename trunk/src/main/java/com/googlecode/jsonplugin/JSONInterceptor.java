@@ -17,14 +17,18 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.StrutsConstants;
 
 import com.googlecode.jsonplugin.annotations.JSON;
+import com.googlecode.jsonplugin.annotations.SMDMethod;
 import com.opensymphony.xwork2.Action;
 import com.opensymphony.xwork2.ActionInvocation;
+import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.interceptor.Interceptor;
 
 /**
@@ -35,6 +39,8 @@ public class JSONInterceptor implements Interceptor {
     private static final Log log = LogFactory.getLog(JSONInterceptor.class);
     private boolean enableSMD = false;
     private DateFormat formatter;
+    private boolean wrapWithComments;
+    private String defaultEncoding = "ISO-8859-1";
 
     public void destroy() {
     }
@@ -45,6 +51,7 @@ public class JSONInterceptor implements Interceptor {
     @SuppressWarnings("unchecked")
     public String intercept(ActionInvocation invocation) throws Exception {
         HttpServletRequest request = ServletActionContext.getRequest();
+        HttpServletResponse response = ServletActionContext.getResponse();
         String contentType = request.getHeader("content-type");
 
         if ((contentType != null) && contentType.equalsIgnoreCase("application/json")) {
@@ -68,8 +75,13 @@ public class JSONInterceptor implements Interceptor {
 
                 if (obj instanceof Map) {
                     Map smd = (Map) obj;
+
                     //invoke method
-                    this.invoke(invocation.getAction(), smd);
+                    Object result = this.invoke(invocation.getAction(), smd);
+                    String json = JSONUtil.serialize(result, null);
+                    JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
+                        this.wrapWithComments, json);
+
                     return Action.NONE;
                 } else {
                     log.error("SMD request was not on the right format.");
@@ -93,7 +105,7 @@ public class JSONInterceptor implements Interceptor {
     }
 
     @SuppressWarnings("unchecked")
-    public void invoke(Object object, Map data) throws IllegalArgumentException,
+    public Object invoke(Object object, Map data) throws IllegalArgumentException,
         IllegalAccessException, InvocationTargetException, JSONExeption,
         InstantiationException, NoSuchMethodException, IntrospectionException {
         // the map is going to have: 'params', 'method' and 'id' (what is the id for?)
@@ -114,6 +126,14 @@ public class JSONInterceptor implements Interceptor {
         if (method == null) {
             String message = "Method " + methodName
                 + " could not be found in action class.";
+            log.error(message);
+            throw new JSONExeption(message);
+        }
+        SMDMethod smdMehtod = method.getAnnotation(SMDMethod.class);
+        if (smdMehtod == null) {
+            //don't give details, as someone would be trying to figure out method names
+            //total paraonia :)
+            String message = "Unable to execute method " + methodName;
             log.error(message);
             throw new JSONExeption(message);
         }
@@ -140,9 +160,9 @@ public class JSONInterceptor implements Interceptor {
                 invocationParameters.add(converted);
             }
 
-            method.invoke(object, invocationParameters.toArray());
+            return method.invoke(object, invocationParameters.toArray());
         } else {
-            method.invoke(object, new Object[0]);
+            return method.invoke(object, new Object[0]);
         }
     }
 
@@ -230,7 +250,7 @@ public class JSONInterceptor implements Interceptor {
             //create an object fr each element
             for (int j = 0; j < values.size(); j++) {
                 Object listValue = values.get(j);
-                
+
                 if (arrayType.equals(Object.class)) {
                     //Object[]
                     Array.set(newArray, j, listValue);
@@ -311,5 +331,18 @@ public class JSONInterceptor implements Interceptor {
 
     public void setEnableSMD(boolean enableSMD) {
         this.enableSMD = enableSMD;
+    }
+
+    /**
+     * Wrap generated JSON with comments. Only used if SMD is enabled.
+     * @param wrapWithComments
+     */
+    public void setWrapWithComments(boolean wrapWithComments) {
+        this.wrapWithComments = wrapWithComments;
+    }
+
+    @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
+    public void setDefaultEncoding(String val) {
+        this.defaultEncoding = val;
     }
 }
