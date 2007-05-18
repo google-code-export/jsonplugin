@@ -1,7 +1,6 @@
 package com.googlecode.jsonplugin;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

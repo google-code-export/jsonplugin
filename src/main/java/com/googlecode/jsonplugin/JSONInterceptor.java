@@ -26,6 +26,9 @@ import org.apache.struts2.StrutsConstants;
 
 import com.googlecode.jsonplugin.annotations.JSON;
 import com.googlecode.jsonplugin.annotations.SMDMethod;
+import com.googlecode.jsonplugin.rpc.RPCError;
+import com.googlecode.jsonplugin.rpc.RPCErrorCode;
+import com.googlecode.jsonplugin.rpc.RPCResponse;
 import com.opensymphony.xwork2.Action;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.inject.Inject;
@@ -72,20 +75,25 @@ public class JSONInterceptor implements Interceptor {
             if (this.enableSMD) {
                 //load JSON object
                 Object obj = JSONUtil.deserialize(request.getReader());
-
+                Object result = null;
+                
                 if (obj instanceof Map) {
                     Map smd = (Map) obj;
 
                     //invoke method
-                    Object result = this.invoke(invocation.getAction(), smd);
+                    result = this.invoke(invocation.getAction(), smd);
                     String json = JSONUtil.serialize(result, null);
                     JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                         this.wrapWithComments, json, true);
 
                     return Action.NONE;
                 } else {
-                    log.error("SMD request was not on the right format.");
-                    throw new JSONExeption("SMD request was not on the right format.");
+                    String message = "SMD request was not on the right format. See http://json-rpc.org"; 
+                    log.error(message);
+                    
+                    RPCResponse rpcResponse = new RPCResponse();
+                    buildError(rpcResponse, message, RPCErrorCode.INVALID_PROCEDURE_CALL);
+                    result = rpcResponse;
                 }
             } else {
                 if (log.isDebugEnabled())
@@ -105,9 +113,21 @@ public class JSONInterceptor implements Interceptor {
     }
 
     @SuppressWarnings("unchecked")
-    public Object invoke(Object object, Map data) throws IllegalArgumentException,
+    public RPCResponse invoke(Object object, Map data) throws IllegalArgumentException,
         IllegalAccessException, InvocationTargetException, JSONExeption,
         InstantiationException, NoSuchMethodException, IntrospectionException {
+        
+        RPCResponse response = new RPCResponse();
+        
+        //validate id 
+        Object id = data.get("id");
+        if(id == null) {
+            String message = "'id' is required for JSON RPC";
+            return buildError(response, message, RPCErrorCode.METHOD_NOT_FOUND);
+        }
+        //could be a numeric value
+        response.setId(id.toString());
+        
         // the map is going to have: 'params', 'method' and 'id' (what is the id for?)
         Class clazz = object.getClass();
 
@@ -119,36 +139,31 @@ public class JSONInterceptor implements Interceptor {
         String methodName = (String) data.get("method");
         if (methodName == null) {
             String message = "'method' is required for JSON RPC";
-            log.error(message);
-            throw new JSONExeption(message);
+            return buildError(response, message, RPCErrorCode.MISSING_METHOD);
         }
+        
         Method method = this.getMethod(clazz, methodName, parameterCount);
-        if (method == null) {
+        SMDMethod smdMethod = method.getAnnotation(SMDMethod.class);
+        if (method == null || smdMethod == null) {
             String message = "Method " + methodName
                 + " could not be found in action class.";
-            log.error(message);
-            throw new JSONExeption(message);
-        }
-        SMDMethod smdMehtod = method.getAnnotation(SMDMethod.class);
-        if (smdMehtod == null) {
-            //don't give details, as someone would be trying to figure out method names
-            //total paraonia :)
-            String message = "Unable to execute method " + methodName;
-            log.error(message);
-            throw new JSONExeption(message);
+            return buildError(response, message, RPCErrorCode.METHOD_NOT_FOUND);
         }
 
+        //parameters
         if (parameterCount > 0) {
             Class[] parameterTypes = method.getParameterTypes();
             List invocationParameters = new ArrayList();
 
+            //validate size
             if (parameterTypes.length != parameterCount) {
                 //size mismatch
                 String message = "Parameter count in request, " + parameterCount
                     + " do not match expected parameter count for " + methodName + ", "
                     + parameterTypes.length;
-                log.error(message);
-                throw new JSONExeption(message);
+
+
+                return buildError(response, message, RPCErrorCode.PARAMETERS_MISMATCH);
             }
 
             //convert parameters
@@ -160,10 +175,22 @@ public class JSONInterceptor implements Interceptor {
                 invocationParameters.add(converted);
             }
 
-            return method.invoke(object, invocationParameters.toArray());
+            response.setResult(method.invoke(object, invocationParameters.toArray()));
         } else {
-            return method.invoke(object, new Object[0]);
+            response.setResult(method.invoke(object, new Object[0]));
         }
+        
+        return response;
+    }
+    
+    private RPCResponse buildError(RPCResponse response, String message, RPCErrorCode code) {
+        RPCError error = new RPCError();
+        error.setCode(code.code());
+        error.setMessage(message);
+        
+        log.error(message);
+        response.setError(error);
+        return response;
     }
 
     @SuppressWarnings("unchecked")

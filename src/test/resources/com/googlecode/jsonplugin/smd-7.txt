@@ -15,5 +15,5 @@
         ["str0", "str1"]
     ],
     "method": "doSomethingObjects",
-    "id":1
+    "id":"2"
 }

@@ -54,12 +54,16 @@ public class JSONInterceptorTest extends StrutsTestCase {
         this.invocation.setAction(action);
 
         //SMD was enabled so invocation must happen
-        try {
-            interceptor.intercept(this.invocation);
-            assertTrue("Exception was expected here!", true);
-        } catch(Exception e) {
-            //ok
-        }
+        
+        interceptor.intercept(this.invocation);
+        
+        String json = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class
+            .getResource("smd-13.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+        
         assertFalse(this.invocation.isInvoked());
     }
 
@@ -115,7 +119,14 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertEquals(5, action.getShortParam());
         assertEquals(6, action.getByteParam());
         
-        assertEquals("null", stringWriter.toString());
+        String json = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class
+            .getResource("smd-11.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+        
+        assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
 
     
@@ -140,9 +151,10 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("json-2.txt"));
+            .getResource("smd-12.txt"));
         assertEquals(normalizedExpected, normalizedActual);
 
+        assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
     
     @SuppressWarnings("unchecked")
@@ -186,7 +198,14 @@ public class JSONInterceptorTest extends StrutsTestCase {
         List insideList = (List) map.get("c");
         assertEquals(1.0d, insideList.get(0));
         assertEquals(2.0d, insideList.get(1));
-
+        
+        String json = this.stringWriter.toString();
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class
+            .getResource("smd-11.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+        
+        assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
 
     @SuppressWarnings({ "unchecked", "unchecked" })

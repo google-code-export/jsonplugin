@@ -81,6 +81,7 @@ public class JSONResultTest extends StrutsTestCase {
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("smd-1.txt"));
         assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
     public void testSMDDefaultAnnotations() throws Exception {
@@ -97,6 +98,7 @@ public class JSONResultTest extends StrutsTestCase {
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("smd-2.txt"));
         assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
     @SuppressWarnings("unchecked")
@@ -173,6 +175,7 @@ public class JSONResultTest extends StrutsTestCase {
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("json.txt"));
         assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
     @SuppressWarnings("unchecked")
@@ -250,6 +253,7 @@ public class JSONResultTest extends StrutsTestCase {
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("json-3.txt"));
         assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
     public void test2() throws Exception {
@@ -285,6 +289,7 @@ public class JSONResultTest extends StrutsTestCase {
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("json-2.txt"));
         assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
     @Override
