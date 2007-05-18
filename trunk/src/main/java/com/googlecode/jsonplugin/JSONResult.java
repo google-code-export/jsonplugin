@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.StrutsConstants;
+import org.apache.struts2.StrutsStatics;
 
 import com.googlecode.jsonplugin.annotations.SMD;
 import com.googlecode.jsonplugin.annotations.SMDMethod;
@@ -62,7 +62,7 @@ public class JSONResult implements Result {
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
-        defaultEncoding = val;
+        this.defaultEncoding = val;
     }
 
     /**
@@ -71,8 +71,8 @@ public class JSONResult implements Result {
      * 
      * @return A list of compiled regular expression patterns
      */
-    public List getExcludePropertiesList() {
-        return excludeProperties;
+    public List<Pattern> getExcludePropertiesList() {
+        return this.excludeProperties;
     }
 
     /**
@@ -82,19 +82,18 @@ public class JSONResult implements Result {
      * @param commaDelim A comma-delimited list of regular expressions
      */
     public void setExcludeProperties(String commaDelim) {
-        List<String> excludePatterns = asList(commaDelim);
+        List<String> excludePatterns = this.asList(commaDelim);
         if (excludePatterns != null) {
-            excludeProperties = new ArrayList<Pattern>(excludePatterns.size());
+            this.excludeProperties = new ArrayList<Pattern>(excludePatterns.size());
             for (String pattern : excludePatterns) {
-                excludeProperties.add(Pattern.compile(pattern));
+                this.excludeProperties.add(Pattern.compile(pattern));
             }
         }
     }
 
     private List<String> asList(String commaDelim) {
-        if (commaDelim == null || commaDelim.trim().length() == 0) {
+        if ((commaDelim == null) || (commaDelim.trim().length() == 0))
             return null;
-        }
         List<String> list = new ArrayList<String>();
         String[] split = commaDelim.split(",");
         for (int i = 0; i < split.length; i++) {
@@ -109,13 +108,13 @@ public class JSONResult implements Result {
     public void execute(ActionInvocation invocation) throws Exception {
         ActionContext actionContext = invocation.getInvocationContext();
         HttpServletResponse response = (HttpServletResponse) actionContext
-            .get(ServletActionContext.HTTP_RESPONSE);
+            .get(StrutsStatics.HTTP_RESPONSE);
 
         try {
             String json = null;
             if (this.enableSMD) {
                 //generate SMD
-                com.googlecode.jsonplugin.smd.SMD smd = writeSMD(invocation);
+                com.googlecode.jsonplugin.smd.SMD smd = this.writeSMD(invocation);
                 json = JSONUtil.serialize(smd, null);
             } else {
                 // generate JSON
@@ -127,10 +126,10 @@ public class JSONResult implements Result {
                     rootObject = invocation.getAction();
                 }
 
-                json = JSONUtil.serialize(rootObject, excludeProperties);
+                json = JSONUtil.serialize(rootObject, this.excludeProperties);
             }
 
-            if (wrapWithComments) {
+            if (this.wrapWithComments) {
                 StringBuilder sb = new StringBuilder("/* ");
                 sb.append(json);
                 sb.append(" */");
@@ -140,7 +139,7 @@ public class JSONResult implements Result {
                 log.debug("[JSON]" + json);
             }
 
-            String encoding = getEncoding();
+            String encoding = this.getEncoding();
             response.setContentLength(json.getBytes(encoding).length);
             response.setContentType("application/json;charset=" + encoding);
 
@@ -157,10 +156,8 @@ public class JSONResult implements Result {
     private com.googlecode.jsonplugin.smd.SMD writeSMD(ActionInvocation invocation) {
         ActionContext actionContext = invocation.getInvocationContext();
         HttpServletRequest request = (HttpServletRequest) actionContext
-            .get(ServletActionContext.HTTP_REQUEST);
-        HttpServletResponse response = (HttpServletResponse) actionContext
-            .get(ServletActionContext.HTTP_RESPONSE);
-
+            .get(StrutsStatics.HTTP_REQUEST);
+        
         //root is based on OGNL expression (action by default)
         Object rootObject = null;
         if (this.root != null) {
@@ -189,8 +186,10 @@ public class JSONResult implements Result {
             SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
 
             //SMDMethod annotation is required
-            if (smdMethodAnnotation != null && !shouldIgnoreProperty(method.getName())) {
-                String methodName = smdMethodAnnotation.name().length() == 0 ?  method.getName() : smdMethodAnnotation.name();
+            if ((smdMethodAnnotation != null)
+                && !this.shouldIgnoreProperty(method.getName())) {
+                String methodName = smdMethodAnnotation.name().length() == 0 ? method
+                    .getName() : smdMethodAnnotation.name();
                 com.googlecode.jsonplugin.smd.SMDMethod smdMethod = new com.googlecode.jsonplugin.smd.SMDMethod(
                     methodName);
                 smd.addSMDMethod(smdMethod);
@@ -203,7 +202,8 @@ public class JSONResult implements Result {
 
                     for (int i = 0; i < parametersCount; i++) {
                         //are you ever going to pick shorter names? nope                    
-                        SMDMethodParameter smdMethodParameterAnnotation = getSMDMethodParameterAnnotation(parameterAnnotations[i]);
+                        SMDMethodParameter smdMethodParameterAnnotation = this
+                            .getSMDMethodParameterAnnotation(parameterAnnotations[i]);
 
                         String paramName = smdMethodParameterAnnotation != null ? smdMethodParameterAnnotation
                             .name()
@@ -230,20 +230,18 @@ public class JSONResult implements Result {
     private com.googlecode.jsonplugin.annotations.SMDMethodParameter getSMDMethodParameterAnnotation(
         Annotation[] annotations) {
         for (Annotation annotation : annotations) {
-            if (annotation instanceof com.googlecode.jsonplugin.annotations.SMDMethodParameter) {
+            if (annotation instanceof com.googlecode.jsonplugin.annotations.SMDMethodParameter)
                 return (com.googlecode.jsonplugin.annotations.SMDMethodParameter) annotation;
-            }
         }
 
         return null;
     }
 
     private boolean shouldIgnoreProperty(String expr) {
-        if (excludeProperties != null) {
-            for (Pattern pattern : excludeProperties) {
-                if (pattern.matcher(expr).matches()) {
+        if (this.excludeProperties != null) {
+            for (Pattern pattern : this.excludeProperties) {
+                if (pattern.matcher(expr).matches())
                     return true;
-                }
             }
         }
         return false;
@@ -256,7 +254,7 @@ public class JSONResult implements Result {
      * @return The encoding associated with this template (defaults to the value of 'struts.i18n.encoding' property)
      */
     protected String getEncoding() {
-        String encoding = defaultEncoding;
+        String encoding = this.defaultEncoding;
 
         if (encoding == null) {
             encoding = System.getProperty("file.encoding");
@@ -273,7 +271,7 @@ public class JSONResult implements Result {
      * @return  OGNL expression of root object to be serialized
      */
     public String getRoot() {
-        return root;
+        return this.root;
     }
 
     /**
@@ -289,7 +287,7 @@ public class JSONResult implements Result {
      * @return Generated JSON must be enclosed in comments
      */
     public boolean isWrapWithComments() {
-        return wrapWithComments;
+        return this.wrapWithComments;
     }
 
     /**
@@ -304,7 +302,7 @@ public class JSONResult implements Result {
      * @return Result has SMD generation enabled
      */
     public boolean isEnableSMD() {
-        return enableSMD;
+        return this.enableSMD;
     }
 
     /**

@@ -40,7 +40,9 @@ import com.mockobjects.servlet.MockHttpServletRequest;
  */
 public class StrutsMockHttpServletRequest extends MockHttpServletRequest {
     Locale locale = Locale.US;
+    @SuppressWarnings("unchecked")
     private Map attributes = new HashMap();
+    @SuppressWarnings("unchecked")
     private Map parameterMap = new HashMap();
     private String context = "";
     private String pathInfo = "";
@@ -52,22 +54,28 @@ public class StrutsMockHttpServletRequest extends MockHttpServletRequest {
     private String encoding;
     private String requestDispatherString;
 
+    @SuppressWarnings("unchecked")
+    @Override
     public void setAttribute(String s, Object o) {
-        attributes.put(s, o);
+        this.attributes.put(s, o);
     }
 
+    @Override
     public Object getAttribute(String s) {
-        return attributes.get(s);
+        return this.attributes.get(s);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public Enumeration getAttributeNames() {
         Vector v = new Vector();
 
-        v.addAll(attributes.keySet());
+        v.addAll(this.attributes.keySet());
 
         return v.elements();
     }
 
+    @Override
     public String getContextPath() {
         return this.context;
     }
@@ -76,50 +84,63 @@ public class StrutsMockHttpServletRequest extends MockHttpServletRequest {
         this.locale = locale;
     }
 
+    @Override
     public Locale getLocale() {
-        return locale;
+        return this.locale;
     }
 
+    @Override
     public void setCharacterEncoding(String s) {
         this.encoding = s;
     }
 
+    @Override
     public String getCharacterEncoding() {
-        return encoding;
+        return this.encoding;
     }
 
+    @SuppressWarnings("unchecked")
     public void setParameterMap(Map parameterMap) {
         this.parameterMap = parameterMap;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public Map getParameterMap() {
-        return parameterMap;
+        return this.parameterMap;
     }
 
+    @Override
     public String getParameter(String string) {
-        return (String) parameterMap.get(string);
+        return (String) this.parameterMap.get(string);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public Enumeration getParameterNames() {
-        return Collections.enumeration(parameterMap.keySet());
+        return Collections.enumeration(this.parameterMap.keySet());
     }
 
+    @Override
     public String[] getParameterValues(String string) {
-        return (String[]) parameterMap.get(string);
+        return (String[]) this.parameterMap.get(string);
     }
 
+    @Override
     public String getPathInfo() {
-        return pathInfo;
+        return this.pathInfo;
     }
 
     public void setQueryString(String queryString) {
         this.queryString = queryString;
     }
 
+    @Override
     public String getQueryString() {
-        return queryString;
+        return this.queryString;
     }
 
+    @Override
     public RequestDispatcher getRequestDispatcher(String string) {
         this.requestDispatherString = string;
 
@@ -130,47 +151,52 @@ public class StrutsMockHttpServletRequest extends MockHttpServletRequest {
      * Get's the source string that was used in the last getRequestDispatcher method call.
      */
     public String getRequestDispatherString() {
-        return requestDispatherString;
+        return this.requestDispatherString;
     }
 
     public void setRequestURI(String requestURI) {
         this.requestURI = requestURI;
     }
 
+    @Override
     public String getRequestURI() {
-        return requestURI;
+        return this.requestURI;
     }
 
     public void setScheme(String scheme) {
         this.scheme = scheme;
     }
 
+    @Override
     public String getScheme() {
-        return scheme;
+        return this.scheme;
     }
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
     }
 
+    @Override
     public String getServerName() {
-        return serverName;
+        return this.serverName;
     }
 
     public void setServerPort(int serverPort) {
         this.serverPort = serverPort;
     }
 
+    @Override
     public int getServerPort() {
-        return serverPort;
+        return this.serverPort;
     }
 
+    @Override
     public HttpSession getSession() {
         HttpSession session = null;
 
         try {
             session = super.getSession();
-        } catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             //ignore
         }
 

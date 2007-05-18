@@ -13,7 +13,7 @@ public class SMDActionTest2 {
 
     }
 
-    @SMDMethod(name="doSomethingElse")
+    @SMDMethod(name = "doSomethingElse")
     public void doSomething() {
 
     }

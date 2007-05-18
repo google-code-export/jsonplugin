@@ -55,87 +55,92 @@ class JSONReader {
     private StringBuffer buf = new StringBuffer();
 
     private char next() {
-        c = it.next();
+        this.c = this.it.next();
 
-        return c;
+        return this.c;
     }
 
     private void skipWhiteSpace() {
-        while(Character.isWhitespace(c)) {
-            next();
+        while (Character.isWhitespace(this.c)) {
+            this.next();
         }
     }
 
     public Object read(String string) throws JSONExeption {
-        it = new StringCharacterIterator(string);
-        c = it.first();
+        this.it = new StringCharacterIterator(string);
+        this.c = this.it.first();
 
-        return read();
+        return this.read();
     }
 
     private Object read() throws JSONExeption {
         Object ret = null;
 
-        skipWhiteSpace();
+        this.skipWhiteSpace();
 
-        if(c == '"') {
-            next();
-            ret = string();
-        } else if(c == '[') {
-            next();
-            ret = array();
-        } else if(c == ']') {
+        if (this.c == '"') {
+            this.next();
+            ret = this.string('"');
+        } else if (this.c == '\'') {
+            this.next();
+            ret = this.string('\'');
+        } else if (this.c == '[') {
+            this.next();
+            ret = this.array();
+        } else if (this.c == ']') {
             ret = ARRAY_END;
-            next();
-        } else if(c == ',') {
+            this.next();
+        } else if (this.c == ',') {
             ret = COMMA;
-            next();
-        } else if(c == '{') {
-            next();
-            ret = object();
-        } else if(c == '}') {
+            this.next();
+        } else if (this.c == '{') {
+            this.next();
+            ret = this.object();
+        } else if (this.c == '}') {
             ret = OBJECT_END;
-            next();
-        } else if(c == ':') {
+            this.next();
+        } else if (this.c == ':') {
             ret = COLON;
-            next();
-        } else if((c == 't') && (next() == 'r') && (next() == 'u') && (next() == 'e')) {
+            this.next();
+        } else if ((this.c == 't') && (this.next() == 'r') && (this.next() == 'u')
+            && (this.next() == 'e')) {
             ret = Boolean.TRUE;
-            next();
-        } else if((c == 'f') && (next() == 'a') && (next() == 'l') && (next() == 's')
-            && (next() == 'e')) {
+            this.next();
+        } else if ((this.c == 'f') && (this.next() == 'a') && (this.next() == 'l')
+            && (this.next() == 's') && (this.next() == 'e')) {
             ret = Boolean.FALSE;
-            next();
-        } else if((c == 'n') && (next() == 'u') && (next() == 'l') && (next() == 'l')) {
+            this.next();
+        } else if ((this.c == 'n') && (this.next() == 'u') && (this.next() == 'l')
+            && (this.next() == 'l')) {
             ret = null;
-            next();
-        } else if(Character.isDigit(c) || (c == '-')) {
-            ret = number();
+            this.next();
+        } else if (Character.isDigit(this.c) || (this.c == '-')) {
+            ret = this.number();
         }
 
-        token = ret;
+        this.token = ret;
 
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
     private Map object() throws JSONExeption {
         Map ret = new HashMap();
-        String key = (String) read();
+        String key = (String) this.read();
 
-        while(token != OBJECT_END) {
-            read(); // should be a colon
+        while (this.token != OBJECT_END) {
+            this.read(); // should be a colon
 
-            if(token != OBJECT_END) {
-                ret.put(key, read());
+            if (this.token != OBJECT_END) {
+                ret.put(key, this.read());
 
-                if(read() == COMMA) {
-                    Object name = read();
+                if (this.read() == COMMA) {
+                    Object name = this.read();
 
-                    if(name instanceof String) {
+                    if (name instanceof String) {
                         key = (String) name;
-                    } else {
+                    } else
                         throw new JSONExeption("Input string is not well formed JSON");
-                    }
                 }
             }
         }
@@ -143,15 +148,16 @@ class JSONReader {
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
     private List array() throws JSONExeption {
         List ret = new ArrayList();
-        Object value = read();
+        Object value = this.read();
 
-        while(token != ARRAY_END) {
+        while (this.token != ARRAY_END) {
             ret.add(value);
 
-            if(read() == COMMA) {
-                value = read();
+            if (this.read() == COMMA) {
+                value = this.read();
             }
         }
 
@@ -159,79 +165,79 @@ class JSONReader {
     }
 
     private Object number() {
-        buf.setLength(0);
+        this.buf.setLength(0);
 
-        if(c == '-') {
-            add();
+        if (this.c == '-') {
+            this.add();
         }
 
-        addDigits();
+        this.addDigits();
 
-        if(c == '.') {
-            add();
-            addDigits();
+        if (this.c == '.') {
+            this.add();
+            this.addDigits();
         }
 
-        if((c == 'e') || (c == 'E')) {
-            add();
+        if ((this.c == 'e') || (this.c == 'E')) {
+            this.add();
 
-            if((c == '+') || (c == '-')) {
-                add();
+            if ((this.c == '+') || (this.c == '-')) {
+                this.add();
             }
 
-            addDigits();
+            this.addDigits();
         }
 
-        return (buf.indexOf(".") >= 0) ? (Object) Double.parseDouble(buf.toString())
-            : (Object) Long.parseLong(buf.toString());
+        return (this.buf.indexOf(".") >= 0) ? (Object) Double.parseDouble(this.buf
+            .toString()) : (Object) Long.parseLong(this.buf.toString());
     }
 
-    private Object string() {
-        buf.setLength(0);
+    private Object string(char quote) {
+        this.buf.setLength(0);
 
-        while(c != '"') {
-            if(c == '\\') {
-                next();
+        while (this.c != quote) {
+            if (this.c == '\\') {
+                this.next();
 
-                if(c == 'u') {
-                    add(unicode());
+                if (this.c == 'u') {
+                    this.add(this.unicode());
                 } else {
-                    Object value = escapes.get(new Character(c));
+                    Object value = escapes.get(new Character(this.c));
 
-                    if(value != null) {
-                        add(((Character) value).charValue());
+                    if (value != null) {
+                        this.add(((Character) value).charValue());
                     }
                 }
             } else {
-                add();
+                this.add();
             }
         }
 
-        next();
+        this.next();
 
-        return buf.toString();
+        return this.buf.toString();
     }
 
     private void add(char cc) {
-        buf.append(cc);
-        next();
+        this.buf.append(cc);
+        this.next();
     }
 
     private void add() {
-        add(c);
+        this.add(this.c);
     }
 
     private void addDigits() {
-        while(Character.isDigit(c)) {
-            add();
+        while (Character.isDigit(this.c)) {
+            this.add();
         }
     }
 
     private char unicode() {
         int value = 0;
 
-        for(int i = 0; i < 4; ++i) {
-            switch(next()) {
+        for (int i = 0; i < 4; ++i) {
+            switch (this.next()) {
             case '0':
             case '1':
             case '2':
@@ -242,7 +248,7 @@ class JSONReader {
             case '7':
             case '8':
             case '9':
-                value = ((value << 4) + c) - '0';
+                value = ((value << 4) + this.c) - '0';
 
                 break;
 
@@ -252,7 +258,7 @@ class JSONReader {
             case 'd':
             case 'e':
             case 'f':
-                value = ((value << 4) + c) - 'k';
+                value = ((value << 4) + this.c) - 'k';
 
                 break;
 
@@ -262,7 +268,7 @@ class JSONReader {
             case 'D':
             case 'E':
             case 'F':
-                value = ((value << 4) + c) - 'K';
+                value = ((value << 4) + this.c) - 'K';
 
                 break;
             }

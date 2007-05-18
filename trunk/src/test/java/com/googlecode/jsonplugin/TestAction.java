@@ -30,6 +30,7 @@ import com.opensymphony.xwork2.ActionSupport;
 
 /**
  */
+@SuppressWarnings("unchecked")
 public class TestAction extends ActionSupport {
     private static final long serialVersionUID = -8891365561914451494L;
     private List collection;
@@ -49,7 +50,7 @@ public class TestAction extends ActionSupport {
     private String foo2 = null;
 
     public Bean getBean() {
-        return bean;
+        return this.bean;
     }
 
     public void setBean(Bean bean) {
@@ -57,7 +58,7 @@ public class TestAction extends ActionSupport {
     }
 
     public List getCollection() {
-        return collection;
+        return this.collection;
     }
 
     public void setCollection(List collection) {
@@ -65,7 +66,7 @@ public class TestAction extends ActionSupport {
     }
 
     public List getCollection2() {
-        return collection2;
+        return this.collection2;
     }
 
     public void setCollection2(List collection2) {
@@ -73,7 +74,7 @@ public class TestAction extends ActionSupport {
     }
 
     public Map getMap() {
-        return map;
+        return this.map;
     }
 
     public void setMap(Map map) {
@@ -81,7 +82,7 @@ public class TestAction extends ActionSupport {
     }
 
     public String getFoo() {
-        return foo;
+        return this.foo;
     }
 
     public void setFoo(String foo) {
@@ -89,7 +90,7 @@ public class TestAction extends ActionSupport {
     }
 
     public String getResult() {
-        return result;
+        return this.result;
     }
 
     public void setResult(String result) {
@@ -97,7 +98,7 @@ public class TestAction extends ActionSupport {
     }
 
     public String[] getArray() {
-        return array;
+        return this.array;
     }
 
     public void setArray(String[] array) {
@@ -105,19 +106,20 @@ public class TestAction extends ActionSupport {
     }
 
     public List getList() {
-        return list;
+        return this.list;
     }
 
     public void setList(List list) {
         this.list = list;
     }
 
+    @Override
     public String execute() throws Exception {
-        if(result == null) {
-            result = Action.SUCCESS;
+        if (this.result == null) {
+            this.result = Action.SUCCESS;
         }
 
-        return result;
+        return this.result;
     }
 
     public String doInput() throws Exception {
@@ -128,27 +130,27 @@ public class TestAction extends ActionSupport {
         this.bar = bar;
     }
 
-    @JSON(serialize=false)
+    @JSON(serialize = false)
     public String getBar() {
-        return bar;
+        return this.bar;
     }
 
     public void setNogetter(String nogetter) {
         this.nogetter = nogetter;
     }
 
-    @JSON(serialize=false)
+    @JSON(serialize = false)
     public int[] getIntArray() {
-        return intArray;
+        return this.intArray;
     }
 
     public void setIntArray(int[] intArray) {
         this.intArray = intArray;
     }
 
-    @JSON(serialize=false)
+    @JSON(serialize = false)
     public Bean[] getBeanArray() {
-        return beanArray;
+        return this.beanArray;
     }
 
     public void setBeanArray(Bean[] beanArray) {
@@ -156,29 +158,29 @@ public class TestAction extends ActionSupport {
     }
 
     public Date getDate() {
-        return date;
+        return this.date;
     }
 
     public void setDate(Date date) {
         this.date = date;
     }
 
-    @JSON(format="dd/MM/yy")
+    @JSON(format = "dd/MM/yy")
     public Date getDate2() {
-        return date2;
+        return this.date2;
     }
 
-    @JSON(format="dd/MM/yy")
+    @JSON(format = "dd/MM/yy")
     public void setDate2(Date date2) {
         this.date2 = date2;
     }
 
-    @JSON(serialize=false)
+    @JSON(serialize = false)
     public String getFoo2() {
-        return foo2;
+        return this.foo2;
     }
 
-    @JSON(deserialize=false)
+    @JSON(deserialize = false)
     public void setFoo2(String foo2) {
         this.foo2 = foo2;
     }

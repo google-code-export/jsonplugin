@@ -41,20 +41,23 @@ import javax.servlet.ServletException;
 public class StrutsMockServletContext implements ServletContext {
     String realPath;
     String servletInfo;
+    @SuppressWarnings("unchecked")
     Map initParams = new HashMap();
+    @SuppressWarnings("unchecked")
     Map attributes = new HashMap();
     InputStream resourceAsStream;
 
+    @SuppressWarnings("unchecked")
     public void setInitParameter(String name, String value) {
-        initParams.put(name, value);
+        this.initParams.put(name, value);
     }
 
     public void setRealPath(String value) {
-        realPath = value;
+        this.realPath = value;
     }
 
     public String getRealPath(String string) {
-        return realPath;
+        return this.realPath;
     }
 
     public ServletContext getContext(String s) {
@@ -73,19 +76,18 @@ public class StrutsMockServletContext implements ServletContext {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public Set getResourcePaths(String s) {
         return null;
     }
 
-    public URL getResource(String s)
-        throws MalformedURLException {
+    public URL getResource(String s) throws MalformedURLException {
         return null;
     }
 
     public InputStream getResourceAsStream(String s) {
-        if(resourceAsStream != null) {
-            return resourceAsStream;
-        }
+        if (this.resourceAsStream != null)
+            return this.resourceAsStream;
 
         return null;
     }
@@ -102,15 +104,16 @@ public class StrutsMockServletContext implements ServletContext {
         return null;
     }
 
-    public Servlet getServlet(String s)
-        throws ServletException {
+    public Servlet getServlet(String s) throws ServletException {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public Enumeration getServlets() {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public Enumeration getServletNames() {
         return null;
     }
@@ -125,31 +128,34 @@ public class StrutsMockServletContext implements ServletContext {
     }
 
     public String getServerInfo() {
-        return servletInfo;
+        return this.servletInfo;
     }
 
     public String getInitParameter(String s) {
-        return (String) initParams.get(s);
+        return (String) this.initParams.get(s);
     }
 
+    @SuppressWarnings("unchecked")
     public Enumeration getInitParameterNames() {
-        return Collections.enumeration(initParams.keySet());
+        return Collections.enumeration(this.initParams.keySet());
     }
 
     public Object getAttribute(String s) {
-        return attributes.get(s);
+        return this.attributes.get(s);
     }
 
+    @SuppressWarnings("unchecked")
     public Enumeration getAttributeNames() {
-        return Collections.enumeration(attributes.keySet());
+        return Collections.enumeration(this.attributes.keySet());
     }
 
+    @SuppressWarnings("unchecked")
     public void setAttribute(String s, Object o) {
-        attributes.put(s, o);
+        this.attributes.put(s, o);
     }
 
     public void removeAttribute(String s) {
-        attributes.remove(s);
+        this.attributes.remove(s);
     }
 
     public String getServletContextName() {

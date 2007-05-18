@@ -15,7 +15,7 @@ public class Bean {
      * @return the byteField
      */
     public byte getByteField() {
-        return byteField;
+        return this.byteField;
     }
 
     /**
@@ -26,7 +26,7 @@ public class Bean {
     }
 
     public boolean isBooleanField() {
-        return booleanField;
+        return this.booleanField;
     }
 
     public void setBooleanField(boolean booleanField) {
@@ -34,7 +34,7 @@ public class Bean {
     }
 
     public char getCharField() {
-        return charField;
+        return this.charField;
     }
 
     public void setCharField(char charField) {
@@ -42,7 +42,7 @@ public class Bean {
     }
 
     public double getDoubleField() {
-        return doubleField;
+        return this.doubleField;
     }
 
     public void setDoubleField(double doubleField) {
@@ -50,7 +50,7 @@ public class Bean {
     }
 
     public float getFloatField() {
-        return floatField;
+        return this.floatField;
     }
 
     public void setFloatField(float floatField) {
@@ -58,7 +58,7 @@ public class Bean {
     }
 
     public int getIntField() {
-        return intField;
+        return this.intField;
     }
 
     public void setIntField(int intField) {
@@ -66,7 +66,7 @@ public class Bean {
     }
 
     public long getLongField() {
-        return longField;
+        return this.longField;
     }
 
     public void setLongField(long longField) {
@@ -74,7 +74,7 @@ public class Bean {
     }
 
     public Object getObjectField() {
-        return objectField;
+        return this.objectField;
     }
 
     public void setObjectField(Object objectField) {
@@ -82,7 +82,7 @@ public class Bean {
     }
 
     public String getStringField() {
-        return stringField;
+        return this.stringField;
     }
 
     public void setStringField(String stringField) {

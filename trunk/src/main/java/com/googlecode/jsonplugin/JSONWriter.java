@@ -46,6 +46,7 @@ import com.googlecode.jsonplugin.annotations.JSON;
  * <p>Serializes an object into JavaScript Object Notation (JSON). If cyclic references are detected
  * they will be nulled out. </p>
  */
+@SuppressWarnings("unchecked")
 class JSONWriter {
     private static final Log log = LogFactory.getLog(JSONWriter.class);
     static char[] hex = "0123456789ABCDEF".toCharArray();
@@ -64,7 +65,7 @@ class JSONWriter {
      * @throws JSONExeption
      */
     public String write(Object object) throws JSONExeption {
-        return write(object, null);
+        return this.write(object, null);
     }
 
     /**
@@ -74,139 +75,140 @@ class JSONWriter {
      */
     public String write(Object object, Collection<Pattern> ignoreProperties)
         throws JSONExeption {
-        buf.setLength(0);
+        this.buf.setLength(0);
         this.root = object;
         this.exprStack = "";
-        this.buildExpr = ignoreProperties != null && !ignoreProperties.isEmpty();
+        this.buildExpr = (ignoreProperties != null) && !ignoreProperties.isEmpty();
         this.ignoreProperties = ignoreProperties;
-        value(object, null);
+        this.value(object, null);
 
-        return buf.toString();
+        return this.buf.toString();
     }
 
     /**
      * Detect yclic references
      */
     private void value(Object object, Method method) throws JSONExeption {
-        if(object == null) {
-            add("null");
+        if (object == null) {
+            this.add("null");
 
             return;
         }
 
-        if(stack.contains(object)) {
+        if (this.stack.contains(object)) {
             Class clazz = object.getClass();
 
             //cyclic reference
-            if(clazz.isPrimitive() || clazz.equals(String.class)) {
-                process(object, method);
+            if (clazz.isPrimitive() || clazz.equals(String.class)) {
+                this.process(object, method);
             } else {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Cyclic reference detected on " + object);
                 }
 
-                add("null");
+                this.add("null");
             }
 
             return;
         }
 
-        process(object, method);
+        this.process(object, method);
     }
 
     /**
      * Serialize object into json
      */
     private void process(Object object, Method method) throws JSONExeption {
-        stack.push(object);
+        this.stack.push(object);
 
-        if(object instanceof Class) {
-            string(object);
-        } else if(object instanceof Boolean) {
-            bool(((Boolean) object).booleanValue());
-        } else if(object instanceof Number) {
-            add(object);
-        } else if(object instanceof String) {
-            string(object);
-        } else if(object instanceof Character) {
-            string(object);
-        } else if(object instanceof Map) {
-            map((Map) object, method);
-        } else if(object.getClass().isArray()) {
-            array(object, method);
-        } else if(object instanceof Iterable) {
-            array(((Iterable) object).iterator(), method);
-        } else if(object instanceof Date) {
-            date((Date) object, method);
-        } else if(object instanceof Calendar) {
-            date(((Calendar) object).getTime(), method);
+        if (object instanceof Class) {
+            this.string(object);
+        } else if (object instanceof Boolean) {
+            this.bool(((Boolean) object).booleanValue());
+        } else if (object instanceof Number) {
+            this.add(object);
+        } else if (object instanceof String) {
+            this.string(object);
+        } else if (object instanceof Character) {
+            this.string(object);
+        } else if (object instanceof Map) {
+            this.map((Map) object, method);
+        } else if (object.getClass().isArray()) {
+            this.array(object, method);
+        } else if (object instanceof Iterable) {
+            this.array(((Iterable) object).iterator(), method);
+        } else if (object instanceof Date) {
+            this.date((Date) object, method);
+        } else if (object instanceof Calendar) {
+            this.date(((Calendar) object).getTime(), method);
         } else {
-            bean(object);
+            this.bean(object);
         }
 
-        stack.pop();
+        this.stack.pop();
     }
 
     /**
      * Instrospect bean and serialize its properties
      */
     private void bean(Object object) throws JSONExeption {
-        add("{");
+        this.add("{");
 
         BeanInfo info;
 
         try {
             Class clazz = object.getClass();
 
-            info = ((object == root) && ignoreRootParents) ? Introspector.getBeanInfo(
-                clazz, clazz.getSuperclass()) : Introspector.getBeanInfo(clazz);
+            info = ((object == this.root) && this.ignoreRootParents) ? Introspector
+                .getBeanInfo(clazz, clazz.getSuperclass()) : Introspector
+                .getBeanInfo(clazz);
 
             PropertyDescriptor[] props = info.getPropertyDescriptors();
 
             boolean hasData = false;
-            for(int i = 0; i < props.length; ++i) {
+            for (int i = 0; i < props.length; ++i) {
                 PropertyDescriptor prop = props[i];
                 String name = prop.getName();
                 Method accessor = prop.getReadMethod();
 
-                if(accessor != null) {
+                if (accessor != null) {
                     Object value = accessor.invoke(object, new Object[0]);
 
                     JSON json = prop.getReadMethod().getAnnotation(JSON.class);
-                    if(json != null) {
-                        if(!json.serialize())
+                    if (json != null) {
+                        if (!json.serialize())
                             continue;
-                        else if(json.name().length() > 0)
+                        else if (json.name().length() > 0)
                             name = json.name();
                     }
 
                     //ignore "class" and others
-                    if(shouldIgnoreProperty(clazz, prop)) {
+                    if (this.shouldIgnoreProperty(clazz, prop)) {
                         continue;
                     }
                     String expr = null;
-                    if(buildExpr) {
-                        expr = expandExpr(name);
-                        if(shouldIgnoreProperty(expr)) {
+                    if (this.buildExpr) {
+                        expr = this.expandExpr(name);
+                        if (this.shouldIgnoreProperty(expr)) {
                             continue;
                         }
-                        expr = setExprStack(expr);
+                        expr = this.setExprStack(expr);
                     }
-                    if(hasData) {
-                        add(',');
+                    if (hasData) {
+                        this.add(',');
                     }
                     hasData = true;
-                    add(name, value, accessor);
-                    if(buildExpr) {
-                        setExprStack(expr);
+                    this.add(name, value, accessor);
+                    if (this.buildExpr) {
+                        this.setExprStack(expr);
                     }
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new JSONExeption(e);
         }
 
-        add("}");
+        this.add("}");
     }
 
     /**
@@ -214,9 +216,8 @@ class JSONWriter {
      */
     private boolean shouldIgnoreProperty(Class clazz, PropertyDescriptor prop)
         throws SecurityException, NoSuchFieldException {
-        if(prop.getName().equals("class")) {
+        if (prop.getName().equals("class"))
             return true;
-        }
 
         return false;
     }
@@ -226,9 +227,8 @@ class JSONWriter {
     }
 
     private String expandExpr(String property) {
-        if(exprStack.length() == 0) {
+        if (this.exprStack.length() == 0)
             return property;
-        }
         return this.exprStack + "." + property;
     }
 
@@ -239,9 +239,9 @@ class JSONWriter {
     }
 
     private boolean shouldIgnoreProperty(String expr) {
-        for(Pattern pattern : ignoreProperties) {
-            if(pattern.matcher(expr).matches()) {
-                if(log.isDebugEnabled())
+        for (Pattern pattern : this.ignoreProperties) {
+            if (pattern.matcher(expr).matches()) {
+                if (log.isDebugEnabled())
                     log.debug("Ignoring property " + expr);
                 return true;
             }
@@ -253,50 +253,52 @@ class JSONWriter {
      * Add name/value pair to buffer
      */
     private void add(String name, Object value, Method method) throws JSONExeption {
-        add('"');
-        add(name);
-        add("\":");
-        value(value, method);
+        this.add('"');
+        this.add(name);
+        this.add("\":");
+        this.value(value, method);
     }
 
     /**
      * Add map to buffer
      */
     private void map(Map map, Method method) throws JSONExeption {
-        add("{");
+        this.add("{");
 
         Iterator it = map.entrySet().iterator();
 
         boolean hasData = false;
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             Object key = entry.getKey();
             String expr = null;
-            if(buildExpr) {
-                if(key == null) {
-                    log.error("Cannot build expression for null key in " + exprStack);
+            if (this.buildExpr) {
+                if (key == null) {
+                    log
+                        .error("Cannot build expression for null key in "
+                            + this.exprStack);
                     continue;
                 } else {
-                    expr = expandExpr(key.toString());
-                    if(shouldIgnoreProperty(expr)) {
+                    expr = this.expandExpr(key.toString());
+                    if (this.shouldIgnoreProperty(expr)) {
                         continue;
                     }
-                    expr = setExprStack(expr);
+                    expr = this.setExprStack(expr);
                 }
             }
-            if(hasData) {
-                add(',');
+            if (hasData) {
+                this.add(',');
             }
             hasData = true;
-            value(key, method);
-            add(":");
-            value(entry.getValue(), method);
-            if(buildExpr) {
-                setExprStack(expr);
+            this.value(key, method);
+            this.add(":");
+            this.value(entry.getValue(), method);
+            if (this.buildExpr) {
+                this.setExprStack(expr);
             }
         }
 
-        add("}");
+        this.add("}");
     }
 
     /**
@@ -304,129 +306,129 @@ class JSONWriter {
      */
     private void date(Date date, Method method) {
         JSON json = method.getAnnotation(JSON.class);
-        if(this.formatter == null) 
+        if (this.formatter == null)
             this.formatter = new SimpleDateFormat(JSONUtil.RFC3339_FORMAT);
-        
-        DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(
+
+        DateFormat formatter = (json != null) && (json.format().length() > 0) ? new SimpleDateFormat(
             json.format())
             : this.formatter;
-        string(formatter.format(date));
+        this.string(formatter.format(date));
     }
 
     /**
      * Add array to buffer
      */
     private void array(Iterator it, Method method) throws JSONExeption {
-        add("[");
+        this.add("[");
 
         boolean hasData = false;
-        for(int i = 0; it.hasNext(); i++) {
+        for (int i = 0; it.hasNext(); i++) {
             String expr = null;
-            if(buildExpr) {
-                expr = expandExpr(i);
-                if(shouldIgnoreProperty(expr)) {
+            if (this.buildExpr) {
+                expr = this.expandExpr(i);
+                if (this.shouldIgnoreProperty(expr)) {
                     continue;
                 }
-                expr = setExprStack(expr);
+                expr = this.setExprStack(expr);
             }
-            if(hasData) {
-                add(',');
+            if (hasData) {
+                this.add(',');
             }
             hasData = true;
-            value(it.next(), method);
-            if(buildExpr) {
-                setExprStack(expr);
+            this.value(it.next(), method);
+            if (this.buildExpr) {
+                this.setExprStack(expr);
             }
         }
 
-        add("]");
+        this.add("]");
     }
 
     /**
      * Add array to buffer
      */
     private void array(Object object, Method method) throws JSONExeption {
-        add("[");
+        this.add("[");
 
         int length = Array.getLength(object);
 
         boolean hasData = false;
-        for(int i = 0; i < length; ++i) {
+        for (int i = 0; i < length; ++i) {
             String expr = null;
-            if(buildExpr) {
-                expr = expandExpr(i);
-                if(shouldIgnoreProperty(expr)) {
+            if (this.buildExpr) {
+                expr = this.expandExpr(i);
+                if (this.shouldIgnoreProperty(expr)) {
                     continue;
                 }
-                expr = setExprStack(expr);
+                expr = this.setExprStack(expr);
             }
-            if(hasData) {
-                add(',');
+            if (hasData) {
+                this.add(',');
             }
             hasData = true;
-            value(Array.get(object, i), method);
-            if(buildExpr) {
-                setExprStack(expr);
+            this.value(Array.get(object, i), method);
+            if (this.buildExpr) {
+                this.setExprStack(expr);
             }
         }
 
-        add("]");
+        this.add("]");
     }
 
     /**
      * Add boolean to buffer
      */
     private void bool(boolean b) {
-        add(b ? "true" : "false");
+        this.add(b ? "true" : "false");
     }
 
     /**
      * escape characters
      */
     private void string(Object obj) {
-        add('"');
+        this.add('"');
 
         CharacterIterator it = new StringCharacterIterator(obj.toString());
 
-        for(char c = it.first(); c != CharacterIterator.DONE; c = it.next()) {
-            if(c == '"') {
-                add("\\\"");
-            } else if(c == '\\') {
-                add("\\\\");
-            } else if(c == '/') {
-                add("\\/");
-            } else if(c == '\b') {
-                add("\\b");
-            } else if(c == '\f') {
-                add("\\f");
-            } else if(c == '\n') {
-                add("\\n");
-            } else if(c == '\r') {
-                add("\\r");
-            } else if(c == '\t') {
-                add("\\t");
-            } else if(Character.isISOControl(c)) {
-                unicode(c);
+        for (char c = it.first(); c != CharacterIterator.DONE; c = it.next()) {
+            if (c == '"') {
+                this.add("\\\"");
+            } else if (c == '\\') {
+                this.add("\\\\");
+            } else if (c == '/') {
+                this.add("\\/");
+            } else if (c == '\b') {
+                this.add("\\b");
+            } else if (c == '\f') {
+                this.add("\\f");
+            } else if (c == '\n') {
+                this.add("\\n");
+            } else if (c == '\r') {
+                this.add("\\r");
+            } else if (c == '\t') {
+                this.add("\\t");
+            } else if (Character.isISOControl(c)) {
+                this.unicode(c);
             } else {
-                add(c);
+                this.add(c);
             }
         }
 
-        add('"');
+        this.add('"');
     }
 
     /**
      * Add object to buffer
      */
     private void add(Object obj) {
-        buf.append(obj);
+        this.buf.append(obj);
     }
 
     /**
      * Add char to buffer
      */
     private void add(char c) {
-        buf.append(c);
+        this.buf.append(c);
     }
 
     /**
@@ -434,14 +436,14 @@ class JSONWriter {
      * @param c character to be encoded
      */
     private void unicode(char c) {
-        add("\\u");
+        this.add("\\u");
 
         int n = c;
 
-        for(int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i) {
             int digit = (n & 0xf000) >> 12;
 
-            add(hex[digit]);
+            this.add(hex[digit]);
             n <<= 4;
         }
     }
