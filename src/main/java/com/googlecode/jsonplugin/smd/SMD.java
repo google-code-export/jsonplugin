@@ -26,19 +26,19 @@ import java.util.List;
 public class SMD {
     public static final String DEFAULT_VERSION = ".1";
     public static final String DEFAULT_SERVICE_TYPE = "JSON-RPC";
-    
+
     private String version = DEFAULT_VERSION;
     private String objectName;
     private String serviceType = DEFAULT_SERVICE_TYPE;
     private String serviceUrl;
     private List<SMDMethod> methods = new ArrayList<SMDMethod>();
-    
+
     public void addSMDMethod(SMDMethod method) {
         this.methods.add(method);
     }
-    
+
     public String getVersion() {
-        return version;
+        return this.version;
     }
 
     public void setVersion(String version) {
@@ -46,7 +46,7 @@ public class SMD {
     }
 
     public String getObjectName() {
-        return objectName;
+        return this.objectName;
     }
 
     public void setObjectName(String objectName) {
@@ -54,7 +54,7 @@ public class SMD {
     }
 
     public String getServiceType() {
-        return serviceType;
+        return this.serviceType;
     }
 
     public void setServiceType(String serviceType) {
@@ -62,7 +62,7 @@ public class SMD {
     }
 
     public String getServiceUrl() {
-        return serviceUrl;
+        return this.serviceUrl;
     }
 
     public void setServiceUrl(String serviceUrl) {
@@ -70,6 +70,6 @@ public class SMD {
     }
 
     public List<SMDMethod> getMethods() {
-        return methods;
+        return this.methods;
     }
 }

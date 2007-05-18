@@ -9,7 +9,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JSON {
     String name() default "";
+
     boolean serialize() default true;
+
     boolean deserialize() default true;
+
     String format() default "";
 }

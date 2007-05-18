@@ -18,79 +18,129 @@ public class JSONInterceptorTest extends StrutsTestCase {
     private MockActionInvocationEx invocation;
     private StrutsMockHttpServletRequest request;
 
-    public void _testSMDDisabledSMD() throws Exception {
+    public void testSMDDisabledSMD() throws Exception {
         //request
-        StringReader stringReader =
-            new StringReader(TestUtils.readContent(
-                    JSONInterceptorTest.class.getResource("smd-3.txt")));
-        request.setupGetReader(new BufferedReader(stringReader));
-        request.setupAddHeader("content-type", "application/json-rpc");
-        
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-3.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
         JSONInterceptor interceptor = new JSONInterceptor();
         SMDActionTest1 action = new SMDActionTest1();
 
-        invocation.setAction(action);
+        this.invocation.setAction(action);
 
         //SMD was not enabled so invocation must happen
-        interceptor.intercept(invocation);
-        assertTrue(invocation.isInvoked());
+        interceptor.intercept(this.invocation);
+        assertTrue(this.invocation.isInvoked());
     }
-    
-    public void _testSMDNoMethod() throws Exception {
+
+    public void testSMDNoMethod() throws Exception {
         //request
-        StringReader stringReader =
-            new StringReader(TestUtils.readContent(
-                    JSONInterceptorTest.class.getResource("smd-4.txt")));
-        request.setupGetReader(new BufferedReader(stringReader));
-        request.setupAddHeader("content-type", "application/json-rpc");
-        
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-4.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
         JSONInterceptor interceptor = new JSONInterceptor();
         interceptor.setEnableSMD(true);
         SMDActionTest1 action = new SMDActionTest1();
 
-        invocation.setAction(action);
+        this.invocation.setAction(action);
 
         //SMD was enabled so invocation must happen
-        interceptor.intercept(invocation);
-        assertFalse(invocation.isInvoked());
+        interceptor.intercept(this.invocation);
+        assertFalse(this.invocation.isInvoked());
     }
-    
-    public void testSMD1() throws Exception {
+
+    public void testSMDPrimitivesNoResult() throws Exception {
         //request
-        StringReader stringReader =
-            new StringReader(TestUtils.readContent(
-                    JSONInterceptorTest.class.getResource("smd-3.txt")));
-        request.setupGetReader(new BufferedReader(stringReader));
-        request.setupAddHeader("content-type", "application/json-rpc");
-        
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-6.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
         JSONInterceptor interceptor = new JSONInterceptor();
         interceptor.setEnableSMD(true);
         SMDActionTest1 action = new SMDActionTest1();
 
-        invocation.setAction(action);
+        this.invocation.setAction(action);
 
         //can't be invoked
-        interceptor.intercept(invocation);
-        assertTrue(invocation.isInvoked());
-        
-        
+        interceptor.intercept(this.invocation);
+        assertFalse(this.invocation.isInvoked());
+
+        //asert values were passed properly
+        assertEquals("string", action.getStringParam());
+        assertEquals(1, action.getIntParam());
+        assertEquals(true, action.isBooleanParam());
+        assertEquals('c', action.getCharParam());
+        assertEquals(2, action.getLongParam());
+        assertEquals(new Float(3.3), action.getFloatParam());
+        assertEquals(4.4, action.getDoubleParam());
+        assertEquals(5, action.getShortParam());
+        assertEquals(6, action.getByteParam());
     }
-    
-    public void _test() throws Exception {
+
+    @SuppressWarnings("unchecked")
+    public void testSMDObjectsNoResult() throws Exception {
         //request
-        StringReader stringReader =
-            new StringReader(TestUtils.readContent(
-                    JSONInterceptorTest.class.getResource("json-1.txt")));
-        request.setupGetReader(new BufferedReader(stringReader));
-        request.setupAddHeader("content-type", "application/json");
-        
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-7.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest1 action = new SMDActionTest1();
+
+        this.invocation.setAction(action);
+
+        //can't be invoked
+        interceptor.intercept(this.invocation);
+        assertFalse(this.invocation.isInvoked());
+
+        //asert values were passed properly
+        Bean bean = action.getBeanParam();
+        assertNotNull(bean);
+        assertTrue(bean.isBooleanField());
+        assertEquals(bean.getStringField(), "test");
+        assertEquals(bean.getIntField(), 10);
+        assertEquals(bean.getCharField(), 's');
+        assertEquals(bean.getDoubleField(), 10.1);
+        assertEquals(bean.getByteField(), 3);
+
+        List list = action.getListParam();
+        assertNotNull(list);
+        assertEquals("str0", list.get(0));
+        assertEquals("str1", list.get(1));
+
+        Map map = action.getMapParam();
+        assertNotNull(map);
+        assertNotNull(map.get("a"));
+        assertEquals(new Long(1), map.get("a"));
+        assertNotNull(map.get("c"));
+        List insideList = (List) map.get("c");
+        assertEquals(1.0d, insideList.get(0));
+        assertEquals(2.0d, insideList.get(1));
+
+    }
+
+    @SuppressWarnings({ "unchecked", "unchecked" })
+    public void test() throws Exception {
+        //request
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("json-1.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json");
+
         //interceptor
         JSONInterceptor interceptor = new JSONInterceptor();
         TestAction action = new TestAction();
 
-        invocation.setAction(action);
+        this.invocation.setAction(action);
 
-        interceptor.intercept(invocation);
+        interceptor.intercept(this.invocation);
 
         //serialize and compare
         List list = action.getList();
@@ -150,7 +200,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         assertEquals(action.getResult(), null);
 
-        Bean bean2 = (Bean) action.getBean();
+        Bean bean2 = action.getBean();
 
         assertNotNull(bean2);
         assertTrue(bean2.isBooleanField());
@@ -201,42 +251,41 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertNull(action.getFoo2());
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        request =
-            new StrutsMockHttpServletRequest();
+        this.request = new StrutsMockHttpServletRequest();
 
         ValueStack stack = ValueStackFactory.getFactory().createValueStack();
         ActionContext context = new ActionContext(stack.getContext());
 
         ActionContext.setContext(context);
-        context.put(StrutsStatics.HTTP_REQUEST, request);
+        context.put(StrutsStatics.HTTP_REQUEST, this.request);
 
-        StrutsMockServletContext servletContext =
-            new StrutsMockServletContext();
+        StrutsMockServletContext servletContext = new StrutsMockServletContext();
 
         context.put(StrutsStatics.SERVLET_CONTEXT, servletContext);
-        invocation = new MockActionInvocationEx();
-        invocation.setInvocationContext(context);
+        this.invocation = new MockActionInvocationEx();
+        this.invocation.setInvocationContext(context);
     }
 }
 
 class MockActionInvocationEx extends MockActionInvocation {
     private boolean invoked;
-    
+
+    @Override
     public String invoke() throws Exception {
         this.invoked = true;
         return super.invoke();
     }
 
     public boolean isInvoked() {
-        return invoked;
+        return this.invoked;
     }
 
     public void setInvoked(boolean invoked) {
         this.invoked = invoked;
     }
 
-   
 }

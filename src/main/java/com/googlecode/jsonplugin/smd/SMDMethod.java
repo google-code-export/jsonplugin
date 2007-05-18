@@ -34,9 +34,9 @@ public class SMDMethod {
     public void addSMDMethodParameter(SMDMethodParameter parameter) {
         this.parameters.add(parameter);
     }
-    
+
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -44,6 +44,6 @@ public class SMDMethod {
     }
 
     public List<SMDMethodParameter> getParameters() {
-        return parameters;
+        return this.parameters;
     }
 }

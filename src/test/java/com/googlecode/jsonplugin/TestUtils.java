@@ -38,21 +38,20 @@ public class TestUtils {
      * @return the normalized string
      */
     public static String normalize(Object obj, boolean appendSpace) {
-        StringTokenizer st =
-            new StringTokenizer(obj.toString().trim(), " \t\r\n");
+        StringTokenizer st = new StringTokenizer(obj.toString().trim(), " \t\r\n");
         StringBuffer buffer = new StringBuffer(128);
 
-        while(st.hasMoreTokens()) {
+        while (st.hasMoreTokens()) {
             buffer.append(st.nextToken());
         }
 
         return buffer.toString();
     }
 
-    
     public static String normalize(URL url) throws Exception {
-    	return normalize(readContent(url), true);
+        return normalize(readContent(url), true);
     }
+
     /**
      * Attempt to verify the contents of text against the contents of the URL specified. Performs a
      * trim on both ends
@@ -60,8 +59,7 @@ public class TestUtils {
      * @param url the HTML snippet that we want to validate against
      * @throws Exception if the validation failed
      */
-    public static boolean compare(URL url, String text)
-        throws Exception {
+    public static boolean compare(URL url, String text) throws Exception {
         /**
          * compare the trimmed values of each buffer and make sure they're equivalent.  however, let's make sure to
          * normalize the strings first to account for line termination differences between platforms.
@@ -71,21 +69,17 @@ public class TestUtils {
 
         return bufferString.equals(writerString);
     }
-    
-    
 
-    public static String readContent(URL url)
-        throws Exception {
-        if(url == null) {
+    public static String readContent(URL url) throws Exception {
+        if (url == null)
             throw new Exception("unable to verify a null URL");
-        }
 
         StringBuffer buffer = new StringBuffer(128);
         InputStream in = url.openStream();
         byte[] buf = new byte[4096];
         int nbytes;
 
-        while((nbytes = in.read(buf)) > 0) {
+        while ((nbytes = in.read(buf)) > 0) {
             buffer.append(new String(buf, 0, nbytes));
         }
 

@@ -29,6 +29,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SMD {
     String version() default com.googlecode.jsonplugin.smd.SMD.DEFAULT_VERSION;
+
     String objectName();
+
     String serviceType() default com.googlecode.jsonplugin.smd.SMD.DEFAULT_SERVICE_TYPE;
 }

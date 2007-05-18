@@ -7,23 +7,46 @@ import com.googlecode.jsonplugin.annotations.SMDMethod;
 
 public class SMDActionTest1 {
     private boolean addWasCalled;
-    private int intParameter;
-    private boolean cooleanParameter;
-    private char charParameter;
-    private String stringParameter;
-    private List listParameter;
-    private Map mapParameter;
-    private int[] arrayParameter;
-    private Bean beanParameter;
+    @SuppressWarnings("unchecked")
+    private List listParam;
+    @SuppressWarnings("unchecked")
+    private Map mapParam;
+    private Bean beanParam;
+    private String stringParam;
+    private int intParam;
+    private boolean booleanParam;
+    private char charParam;
+    private long longParam;
+    private float floatParam;
+    private double doubleParam;
+    private short shortParam;
+    private Object objectParam;
+    private byte byteParam;
+
+    public void doSomethingPrimitives(String stringParam, int intParam,
+        boolean booleanParam, char charParam, long longParam, float floatParam,
+        double doubleParam, short shortParam, byte byteParam) {
+        this.stringParam = stringParam;
+        this.intParam = intParam;
+        this.booleanParam = booleanParam;
+        this.charParam = charParam;
+        this.longParam = longParam;
+        this.floatParam = floatParam;
+        this.doubleParam = doubleParam;
+        this.byteParam = byteParam;
+        this.shortParam = shortParam;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void doSomethingObjects(Bean beanParam, Map mapParam, List listParam) {
+        this.beanParam = beanParam;
+        this.mapParam = mapParam;
+        this.listParam = listParam;
+    }
 
     @SMDMethod
     public void add(int a, int b) {
-        addWasCalled = true;
-    }
-
-    public void testPrimitiveParameters(int intParameter, char charParameter,
-        boolean booleanParameter, String stringParameter) {
-
+        this.addWasCalled = true;
     }
 
     @SMDMethod
@@ -32,10 +55,118 @@ public class SMDActionTest1 {
     }
 
     public boolean isAddWasCalled() {
-        return addWasCalled;
+        return this.addWasCalled;
     }
 
     public void setAddWasCalled(boolean addWasCalled) {
         this.addWasCalled = addWasCalled;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List getListParam() {
+        return this.listParam;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setListParam(List listParam) {
+        this.listParam = listParam;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map getMapParam() {
+        return this.mapParam;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setMapParam(Map mapParam) {
+        this.mapParam = mapParam;
+    }
+
+    public Bean getBeanParam() {
+        return this.beanParam;
+    }
+
+    public void setBeanParam(Bean beanParam) {
+        this.beanParam = beanParam;
+    }
+
+    public String getStringParam() {
+        return this.stringParam;
+    }
+
+    public void setStringParam(String stringParam) {
+        this.stringParam = stringParam;
+    }
+
+    public int getIntParam() {
+        return this.intParam;
+    }
+
+    public void setIntParam(int intParam) {
+        this.intParam = intParam;
+    }
+
+    public boolean isBooleanParam() {
+        return this.booleanParam;
+    }
+
+    public void setBooleanParam(boolean booleanParam) {
+        this.booleanParam = booleanParam;
+    }
+
+    public char getCharParam() {
+        return this.charParam;
+    }
+
+    public void setCharParam(char charParam) {
+        this.charParam = charParam;
+    }
+
+    public long getLongParam() {
+        return this.longParam;
+    }
+
+    public void setLongParam(long longParam) {
+        this.longParam = longParam;
+    }
+
+    public float getFloatParam() {
+        return this.floatParam;
+    }
+
+    public void setFloatParam(float floatParam) {
+        this.floatParam = floatParam;
+    }
+
+    public double getDoubleParam() {
+        return this.doubleParam;
+    }
+
+    public void setDoubleParam(double doubleParam) {
+        this.doubleParam = doubleParam;
+    }
+
+    public Object getObjectParam() {
+        return this.objectParam;
+    }
+
+    public void setObjectParam(Object objectParam) {
+        this.objectParam = objectParam;
+    }
+
+    public byte getByteParam() {
+        return this.byteParam;
+    }
+
+    public void setByteParam(byte byteParam) {
+        this.byteParam = byteParam;
+    }
+
+    public short getShortParam() {
+        return this.shortParam;
+    }
+
+    public void setShortParam(short shortParam) {
+        this.shortParam = shortParam;
     }
 }

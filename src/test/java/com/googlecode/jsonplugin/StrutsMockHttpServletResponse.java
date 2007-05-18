@@ -37,10 +37,12 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
     private int status;
     private String redirectURL;
 
+    @Override
     public Locale getLocale() {
-        return locale;
+        return this.locale;
     }
 
+    @Override
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
@@ -49,13 +51,12 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
         return null; //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public PrintWriter getWriter()
-        throws IOException {
-        if(writer == null) {
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        if (this.writer == null)
             return new PrintWriter(new ByteArrayOutputStream());
-        } else {
-            return writer;
-        }
+        else
+            return this.writer;
     }
 
     public void setCharacterEncoding(String string) {
@@ -66,33 +67,37 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
         this.writer = writer;
     }
 
+    @Override
     public String encodeURL(String s) {
         return s;
     }
 
+    @Override
     public String encodeRedirectURL(String s) {
         return s;
     }
 
+    @Override
     public String encodeUrl(String s) {
         return s;
     }
 
+    @Override
     public void setStatus(int i) {
         this.status = i;
         super.setStatus(i);
     }
 
     public int getStatus() {
-        return status;
+        return this.status;
     }
 
     public String getRedirectURL() {
-        return redirectURL;
+        return this.redirectURL;
     }
 
-    public void sendRedirect(String redirectURL)
-        throws IOException {
+    @Override
+    public void sendRedirect(String redirectURL) throws IOException {
         this.redirectURL = redirectURL;
         super.sendRedirect(redirectURL);
     }

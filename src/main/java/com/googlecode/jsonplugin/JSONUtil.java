@@ -114,10 +114,10 @@ public class JSONUtil {
         StringBuilder buffer = new StringBuilder();
 
         try {
-            while((line = bufferReader.readLine()) != null) {
+            while ((line = bufferReader.readLine()) != null) {
                 buffer.append(line);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new JSONExeption(e);
         }
 

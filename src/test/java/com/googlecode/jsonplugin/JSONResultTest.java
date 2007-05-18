@@ -55,43 +55,43 @@ public class JSONResultTest extends StrutsTestCase {
     public void testSMDDisabledSMD() throws Exception {
         JSONResult result = new JSONResult();
         SMDActionTest1 action = new SMDActionTest1();
-        
-        invocation.setAction(action);
-        result.execute(invocation);
-        
-        String smd = stringWriter.toString();
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String smd = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("smd.txt"));
         assertEquals(normalizedExpected, normalizedActual);
     }
-    
+
     public void testSMDDefault() throws Exception {
         JSONResult result = new JSONResult();
         result.setEnableSMD(true);
         SMDActionTest1 action = new SMDActionTest1();
-        
-        invocation.setAction(action);
-        result.execute(invocation);
-        
-        String smd = stringWriter.toString();
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String smd = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("smd-1.txt"));
         assertEquals(normalizedExpected, normalizedActual);
     }
-    
+
     public void testSMDDefaultAnnotations() throws Exception {
         JSONResult result = new JSONResult();
         result.setEnableSMD(true);
         SMDActionTest2 action = new SMDActionTest2();
-        
-        invocation.setAction(action);
-        result.execute(invocation);
-        
-        String smd = stringWriter.toString();
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String smd = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
@@ -106,8 +106,8 @@ public class JSONResultTest extends StrutsTestCase {
         TestAction action = new TestAction();
 
         //test scape characters
-        action.setArray(new String[] { "a", "a", "\"", "\\", "/", "\b", "\f", "\n",
-                "\r", "\t" });
+        action.setArray(new String[] { "a", "a", "\"", "\\", "/", "\b", "\f", "\n", "\r",
+                "\t" });
 
         List list = new ArrayList();
 
@@ -164,10 +164,10 @@ public class JSONResultTest extends StrutsTestCase {
         action.setDate(calendar.getTime());
         action.setDate2(calendar.getTime());
 
-        invocation.setAction(action);
-        result.execute(invocation);
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
 
-        String json = stringWriter.toString();
+        String json = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
@@ -182,8 +182,8 @@ public class JSONResultTest extends StrutsTestCase {
         TestAction action = new TestAction();
 
         //test scape characters
-        action.setArray(new String[] { "a", "a", "\"", "\\", "/", "\b", "\f", "\n",
-                "\r", "\t" });
+        action.setArray(new String[] { "a", "a", "\"", "\\", "/", "\b", "\f", "\n", "\r",
+                "\t" });
 
         List list = new ArrayList();
 
@@ -240,11 +240,11 @@ public class JSONResultTest extends StrutsTestCase {
         action.setDate(calendar.getTime());
         action.setDate2(calendar.getTime());
 
-        invocation.setAction(action);
+        this.invocation.setAction(action);
         result.setWrapWithComments(true);
-        result.execute(invocation);
+        result.execute(this.invocation);
 
-        String json = stringWriter.toString();
+        String json = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
@@ -274,12 +274,12 @@ public class JSONResultTest extends StrutsTestCase {
 
         ValueStack stack = ValueStackFactory.getFactory().createValueStack();
         stack.push(action);
-        invocation.setStack(stack);
-        invocation.setAction(action);
+        this.invocation.setStack(stack);
+        this.invocation.setAction(action);
 
-        result.execute(invocation);
+        result.execute(this.invocation);
 
-        String json = stringWriter.toString();
+        String json = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
@@ -287,21 +287,22 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
-        stringWriter = new StringWriter();
-        writer = new PrintWriter(stringWriter);
-        response = new StrutsMockHttpServletResponse();
-        response.setWriter(writer);
-        request = new StrutsMockHttpServletRequest();
-        request.setRequestURI("http://sumeruri");
-        stack = ValueStackFactory.getFactory().createValueStack();
-        context = new ActionContext(stack.getContext());
-        context.put(StrutsStatics.HTTP_RESPONSE, response);
-        context.put(StrutsStatics.HTTP_REQUEST, request);
-        servletContext = new StrutsMockServletContext();
-        context.put(StrutsStatics.SERVLET_CONTEXT, servletContext);
-        invocation = new MockActionInvocation();
-        invocation.setInvocationContext(context);
+        this.stringWriter = new StringWriter();
+        this.writer = new PrintWriter(this.stringWriter);
+        this.response = new StrutsMockHttpServletResponse();
+        this.response.setWriter(this.writer);
+        this.request = new StrutsMockHttpServletRequest();
+        this.request.setRequestURI("http://sumeruri");
+        this.stack = ValueStackFactory.getFactory().createValueStack();
+        this.context = new ActionContext(this.stack.getContext());
+        this.context.put(StrutsStatics.HTTP_RESPONSE, this.response);
+        this.context.put(StrutsStatics.HTTP_REQUEST, this.request);
+        this.servletContext = new StrutsMockServletContext();
+        this.context.put(StrutsStatics.SERVLET_CONTEXT, this.servletContext);
+        this.invocation = new MockActionInvocation();
+        this.invocation.setInvocationContext(this.context);
     }
 }
