@@ -15,6 +15,14 @@
              ]
         },
         {
+            "name":"doSomethingObjects",
+            "parameters":[
+                {"name":"p0"},
+                {"name":"p1"},
+                {"name":"p2"}
+            ]
+        },
+        {
             "name":"doSomething",
             "parameters":[]
         },
