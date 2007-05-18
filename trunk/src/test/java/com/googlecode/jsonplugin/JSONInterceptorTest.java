@@ -15,9 +15,76 @@ import com.opensymphony.xwork2.util.ValueStack;
 import com.opensymphony.xwork2.util.ValueStackFactory;
 
 public class JSONInterceptorTest extends StrutsTestCase {
-    private MockActionInvocation invocation;
+    private MockActionInvocationEx invocation;
+    private StrutsMockHttpServletRequest request;
 
-    public void test() throws Exception {
+    public void _testSMDDisabledSMD() throws Exception {
+        //request
+        StringReader stringReader =
+            new StringReader(TestUtils.readContent(
+                    JSONInterceptorTest.class.getResource("smd-3.txt")));
+        request.setupGetReader(new BufferedReader(stringReader));
+        request.setupAddHeader("content-type", "application/json-rpc");
+        
+        JSONInterceptor interceptor = new JSONInterceptor();
+        SMDActionTest1 action = new SMDActionTest1();
+
+        invocation.setAction(action);
+
+        //SMD was not enabled so invocation must happen
+        interceptor.intercept(invocation);
+        assertTrue(invocation.isInvoked());
+    }
+    
+    public void _testSMDNoMethod() throws Exception {
+        //request
+        StringReader stringReader =
+            new StringReader(TestUtils.readContent(
+                    JSONInterceptorTest.class.getResource("smd-4.txt")));
+        request.setupGetReader(new BufferedReader(stringReader));
+        request.setupAddHeader("content-type", "application/json-rpc");
+        
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest1 action = new SMDActionTest1();
+
+        invocation.setAction(action);
+
+        //SMD was enabled so invocation must happen
+        interceptor.intercept(invocation);
+        assertFalse(invocation.isInvoked());
+    }
+    
+    public void testSMD1() throws Exception {
+        //request
+        StringReader stringReader =
+            new StringReader(TestUtils.readContent(
+                    JSONInterceptorTest.class.getResource("smd-3.txt")));
+        request.setupGetReader(new BufferedReader(stringReader));
+        request.setupAddHeader("content-type", "application/json-rpc");
+        
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest1 action = new SMDActionTest1();
+
+        invocation.setAction(action);
+
+        //can't be invoked
+        interceptor.intercept(invocation);
+        assertTrue(invocation.isInvoked());
+        
+        
+    }
+    
+    public void _test() throws Exception {
+        //request
+        StringReader stringReader =
+            new StringReader(TestUtils.readContent(
+                    JSONInterceptorTest.class.getResource("json-1.txt")));
+        request.setupGetReader(new BufferedReader(stringReader));
+        request.setupAddHeader("content-type", "application/json");
+        
+        //interceptor
         JSONInterceptor interceptor = new JSONInterceptor();
         TestAction action = new TestAction();
 
@@ -137,14 +204,8 @@ public class JSONInterceptorTest extends StrutsTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        StringReader stringReader =
-            new StringReader(TestUtils.readContent(
-                    JSONInterceptorTest.class.getResource("json-1.txt")));
-        StrutsMockHttpServletRequest request =
+        request =
             new StrutsMockHttpServletRequest();
-
-        request.setupAddHeader("content-type", "application/json");
-        request.setupGetReader(new BufferedReader(stringReader));
 
         ValueStack stack = ValueStackFactory.getFactory().createValueStack();
         ActionContext context = new ActionContext(stack.getContext());
@@ -156,7 +217,26 @@ public class JSONInterceptorTest extends StrutsTestCase {
             new StrutsMockServletContext();
 
         context.put(StrutsStatics.SERVLET_CONTEXT, servletContext);
-        invocation = new MockActionInvocation();
+        invocation = new MockActionInvocationEx();
         invocation.setInvocationContext(context);
     }
+}
+
+class MockActionInvocationEx extends MockActionInvocation {
+    private boolean invoked;
+    
+    public String invoke() throws Exception {
+        this.invoked = true;
+        return super.invoke();
+    }
+
+    public boolean isInvoked() {
+        return invoked;
+    }
+
+    public void setInvoked(boolean invoked) {
+        this.invoked = invoked;
+    }
+
+   
 }

@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts2.ServletActionContext;
 
 import com.googlecode.jsonplugin.annotations.JSON;
+import com.opensymphony.xwork2.Action;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.interceptor.Interceptor;
 
@@ -40,11 +42,12 @@ public class JSONInterceptor implements Interceptor {
     public void init() {
     }
 
+    @SuppressWarnings("unchecked")
     public String intercept(ActionInvocation invocation) throws Exception {
         HttpServletRequest request = ServletActionContext.getRequest();
         String contentType = request.getHeader("content-type");
 
-        if (contentType.equalsIgnoreCase("application/json")) {
+        if (contentType != null && contentType.equalsIgnoreCase("application/json")) {
             //load JSON object
             Object obj = JSONUtil.deserialize(request.getReader());
 
@@ -58,7 +61,7 @@ public class JSONInterceptor implements Interceptor {
                 throw new JSONExeption(
                     "Unable to derialize JSON object from request");
             }
-        } else if (contentType.equalsIgnoreCase("application/json-rpc")) {
+        } else if (contentType != null && contentType.equalsIgnoreCase("application/json-rpc")) {
             if (enableSMD) {
                 //load JSON object
                 Object obj = JSONUtil.deserialize(request.getReader());
@@ -67,6 +70,7 @@ public class JSONInterceptor implements Interceptor {
                     Map smd = (Map) obj;
                     //invoke method
                     invoke(invocation.getAction(), smd);
+                    return Action.NONE;
                 } else {
                     log.error("Unable to derialize JSON object from request");
                     throw new JSONExeption(
@@ -89,13 +93,14 @@ public class JSONInterceptor implements Interceptor {
         return invocation.invoke();
     }
 
-    public void invoke(Object object, Map data) {
+    @SuppressWarnings("unchecked")
+    public void invoke(Object object, Map data) throws IllegalArgumentException,
+        IllegalAccessException, InvocationTargetException, JSONExeption, InstantiationException, NoSuchMethodException, IntrospectionException {
         // the map is going to have: 'params', 'method' and 'id' (what is the id for?)
         Class clazz = object.getClass();
-        boolean debug = log.isDebugEnabled();
 
         //parameters
-        List parameters = (List) data.get("parameters");
+        List parameters = (List) data.get("params");
         int parameterCount = parameters != null ? parameters.size() : 0;
 
         //method
@@ -106,11 +111,28 @@ public class JSONInterceptor implements Interceptor {
         }
         Method method = getMethod(clazz, methodName, parameterCount);
         if (method == null) {
-            log.error("'method' is required for JSON RPC");
+            log.error("Method " + methodName
+                + " could not be found in action class.");
             return;
         }
 
-        
+        if (parameterCount > 0) {
+            Class[] parameterTypes = method.getParameterTypes();
+            List invocationParameters = new ArrayList();
+
+            //convert parameters
+            for (int i = 0; i < parameters.size(); i++) {
+                Object parameter = parameters.get(i);
+                Class paramType = parameterTypes[i];
+
+                Object converted = convert(paramType, parameter, method);
+                invocationParameters.add(converted);
+            }
+            
+            method.invoke(object, invocationParameters.toArray());
+        } else {
+            method.invoke(object, new Object[0]);
+        }
     }
 
     private Method getMethod(Class clazz, String name, int parameterCount) {
@@ -123,6 +145,7 @@ public class JSONInterceptor implements Interceptor {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public void populateObject(final Object object, final Map elements)
         throws IllegalAccessException, InvocationTargetException,
         NoSuchMethodException, IntrospectionException, IllegalArgumentException,
@@ -139,7 +162,7 @@ public class JSONInterceptor implements Interceptor {
 
             if (elements.containsKey(name)) {
                 Object value = elements.get(name);
-                Method accessor = prop.getWriteMethod();
+                Method method = prop.getWriteMethod();
 
                 JSON json = prop.getWriteMethod().getAnnotation(JSON.class);
                 if (json != null && !json.deserialize()) {
@@ -147,38 +170,47 @@ public class JSONInterceptor implements Interceptor {
                 }
 
                 //use only public setters
-                if ((accessor != null) && Modifier.isPublic(accessor.getModifiers())) {
-                    Class[] paramTypes = accessor.getParameterTypes();
+                if ((method != null) && Modifier.isPublic(method.getModifiers())) {
+                    Class[] paramTypes = method.getParameterTypes();
 
                     if (paramTypes.length == 1) {
                         Class paramType = paramTypes[0];
-
-                        if (paramType.isPrimitive()
-                            || paramType.equals(String.class)
-                            || paramType.equals(Date.class)) {
-                            setPrimitive(object, accessor, paramType, value);
-                        } else if (List.class.equals(paramType)
-                            || Map.class.equals(paramType)) {
-                            accessor.invoke(object, new Object[] { value });
-                        } else if (paramType.isArray()) {
-                            setArray(object, accessor, value);
-                        } else if (value instanceof Map) {
-                            //nested field
-                            Object newInstance = paramType.newInstance();
-
-                            populateObject(newInstance, (Map) value);
-                            accessor.invoke(object, new Object[] { newInstance });
-                        } else {
-                            throw new JSONExeption(
-                                "Incompatible types for property " + name);
-                        }
+                        Object convertedValue = convert(paramType, value, method);
+                        method.invoke(object, new Object[] { convertedValue });
                     }
                 }
             }
         }
     }
+    
+    @SuppressWarnings("unchecked")
+    private Object convert(Class clazz, Object value, Method method) throws IllegalArgumentException, JSONExeption, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException, IntrospectionException {
+        if (clazz.isPrimitive()
+            || clazz.equals(String.class)
+            || clazz.equals(Date.class)) {
+            
+            return convertPrimitive(clazz, value, method);
+        } else if (List.class.equals(clazz)
+            || Map.class.equals(clazz)) {
+            
+            return  value;
+        } else if (clazz.isArray()) {
+            
+            return convertToArray(value, method, value);
+        } else if (value instanceof Map) {
+            //nested field
+            Object convertedValue = clazz.newInstance();
 
-    private void setArray(Object target, Method accessor, Object value)
+            populateObject(convertedValue, (Map) value);
+            return convertedValue;
+        } else {
+            throw new JSONExeption(
+                "Incompatible types for property " + method.getName());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object convertToArray(Object target, Method accessor, Object value)
         throws JSONExeption, IllegalArgumentException, IllegalAccessException,
         InvocationTargetException, InstantiationException, NoSuchMethodException,
         IntrospectionException {
@@ -215,26 +247,19 @@ public class JSONInterceptor implements Interceptor {
                 }
             }
 
-            accessor.invoke(target, new Object[] { newArray });
+            return newArray;
         } else {
             throw new JSONExeption("Incompatible types for property "
                 + accessor.getName());
         }
     }
 
-    private void setPrimitive(Object object, Method accessor, Class clazz,
-        Object value) throws IllegalArgumentException, IllegalAccessException,
-        InvocationTargetException, JSONExeption {
-        if (value != null) {
-            accessor.invoke(object, new Object[] { convertPrimitive(clazz, value,
-                accessor) });
-        }
-    }
 
     /**
      * Converts numbers to the desired class, if possible
      * @throws JSONExeption
      */
+    @SuppressWarnings("unchecked")
     private Object convertPrimitive(Class clazz, Object value, Method method)
         throws JSONExeption {
         if (value instanceof Number) {
@@ -256,10 +281,10 @@ public class JSONInterceptor implements Interceptor {
         } else if (clazz.equals(Date.class)) {
             try {
                 JSON json = method.getAnnotation(JSON.class);
-                
-                if(this.formatter == null) 
+
+                if (this.formatter == null)
                     this.formatter = new SimpleDateFormat(JSONUtil.RFC3339_FORMAT);
-                
+
                 DateFormat formatter = json != null && json.format().length() > 0 ? new SimpleDateFormat(
                     json.format())
                     : this.formatter;

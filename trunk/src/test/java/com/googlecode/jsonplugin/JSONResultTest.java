@@ -20,7 +20,6 @@
  */
 package com.googlecode.jsonplugin;
 
-import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class JSONResultTest extends StrutsTestCase {
     ValueStack stack;
     private StrutsMockHttpServletRequest request;
 
-    public void _testSMDDisabledSMD() throws Exception {
+    public void testSMDDisabledSMD() throws Exception {
         JSONResult result = new JSONResult();
         SMDActionTest1 action = new SMDActionTest1();
         
@@ -68,7 +67,7 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
     }
     
-    public void _testSMDDefault() throws Exception {
+    public void testSMDDefault() throws Exception {
         JSONResult result = new JSONResult();
         result.setEnableSMD(true);
         SMDActionTest1 action = new SMDActionTest1();
@@ -100,7 +99,8 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
     }
 
-    public void _test() throws Exception {
+    @SuppressWarnings("unchecked")
+    public void test() throws Exception {
         JSONResult result = new JSONResult();
 
         TestAction action = new TestAction();
@@ -175,6 +175,7 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
     }
 
+    @SuppressWarnings("unchecked")
     public void _testCommentWrap() throws Exception {
         JSONResult result = new JSONResult();
 
