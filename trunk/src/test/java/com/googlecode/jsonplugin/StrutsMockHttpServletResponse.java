@@ -36,6 +36,7 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
     private PrintWriter writer;
     private int status;
     private String redirectURL;
+    private String contentType;
 
     @Override
     public Locale getLocale() {
@@ -48,7 +49,13 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
     }
 
     public String getContentType() {
-        return null; //To change body of implemented methods use File | Settings | File Templates.
+        return contentType;
+    }
+
+    
+    @Override
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     @Override
