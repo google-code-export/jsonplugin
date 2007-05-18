@@ -23,6 +23,7 @@ public class SMDActionTest1 {
     private Object objectParam;
     private byte byteParam;
 
+    @SMDMethod
     public void doSomethingPrimitives(String stringParam, int intParam,
         boolean booleanParam, char charParam, long longParam, float floatParam,
         double doubleParam, short shortParam, byte byteParam) {
@@ -38,6 +39,7 @@ public class SMDActionTest1 {
     }
 
     @SuppressWarnings("unchecked")
+    @SMDMethod
     public void doSomethingObjects(Bean beanParam, Map mapParam, List listParam) {
         this.beanParam = beanParam;
         this.mapParam = mapParam;
@@ -52,6 +54,10 @@ public class SMDActionTest1 {
     @SMDMethod
     public void doSomething() {
 
+    }
+    
+    public void methodWithoutAnnotation() {
+        
     }
 
     public boolean isAddWasCalled() {
