@@ -23,7 +23,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     private PrintWriter writer;
     private StrutsMockHttpServletResponse response;
 
-    public void _testSMDDisabledSMD() throws Exception {
+    public void testSMDDisabledSMD() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-3.txt")));
@@ -80,7 +80,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertTrue(action.isDoSomethingInvoked());
     }
 
-    public void _testSMDNoMethod() throws Exception {
+    public void testSMDNoMethod() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-4.txt")));
@@ -107,7 +107,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertFalse(this.invocation.isInvoked());
     }
 
-    public void _testSMDMethodWithoutAnnotations() throws Exception {
+    public void testSMDMethodWithoutAnnotations() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-9.txt")));
@@ -131,7 +131,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
 
     
-    public void _testSMDPrimitivesNoResult() throws Exception {
+    public void testSMDPrimitivesNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-6.txt")));
@@ -170,7 +170,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
 
     
-    public void _testSMDReturnObject() throws Exception {
+    public void testSMDReturnObject() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-10.txt")));
@@ -198,7 +198,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
     
     @SuppressWarnings("unchecked")
-    public void _testSMDObjectsNoResult() throws Exception {
+    public void testSMDObjectsNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-7.txt")));
@@ -249,7 +249,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
 
     @SuppressWarnings({ "unchecked", "unchecked" })
-    public void _test() throws Exception {
+    public void test() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("json-1.txt")));

@@ -200,7 +200,7 @@ public class JSONInterceptor implements Interceptor {
             if(smdMethodAnntotation != null) {
                 String alias = smdMethodAnntotation.name();
                 boolean paramsMatch = method.getParameterTypes().length == parameterCount; 
-                if ((alias == null && method.getName().equals(name) && paramsMatch) 
+                if ((alias.length() == 0 && method.getName().equals(name) && paramsMatch) 
                     || (alias.equals(name) && paramsMatch)) {
                     return method;
                 }
