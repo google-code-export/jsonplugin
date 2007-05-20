@@ -1,6 +1,13 @@
 {
     "methods":[
         {
+            "name":"add",
+            "parameters":[
+                {"name":"p0"},
+                {"name":"p1"}
+            ]
+        },
+        {
             "name":"doSomethingPrimitives",
             "parameters":[
                 {"name":"p0"},
@@ -25,13 +32,6 @@
         {
             "name":"doSomething",
             "parameters":[]
-        },
-        {
-            "name":"add",
-            "parameters":[
-                {"name":"p0"},
-                {"name":"p1"}
-            ]
         }
     ],
     "objectName":null,
