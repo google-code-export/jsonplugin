@@ -5,7 +5,7 @@
     <groupId>com.googlecode.jsonplugin</groupId>
     <artifactId>jsonplugin</artifactId>
     <packaging>jar</packaging>
-    <version>0.9</version>
+    <version>0.10</version>
     <name>jsonplugin</name>
     <url>http://code.google.com/p/jsonplugin/</url>
 

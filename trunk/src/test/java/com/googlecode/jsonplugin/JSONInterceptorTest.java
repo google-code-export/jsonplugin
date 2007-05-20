@@ -23,7 +23,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     private PrintWriter writer;
     private StrutsMockHttpServletResponse response;
 
-    public void testSMDDisabledSMD() throws Exception {
+    public void _testSMDDisabledSMD() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-3.txt")));
@@ -39,8 +39,48 @@ public class JSONInterceptorTest extends StrutsTestCase {
         interceptor.intercept(this.invocation);
         assertTrue(this.invocation.isInvoked());
     }
+    
+    public void testSMDAliasedMethodCall1() throws Exception {
+        //request
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-14.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
 
-    public void testSMDNoMethod() throws Exception {
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest2 action = new SMDActionTest2();
+
+        this.invocation.setAction(action);
+
+        interceptor.intercept(this.invocation);
+        //method was aliased, but was invoked with the regular name
+        //so method must not be invoked
+        assertFalse(this.invocation.isInvoked());
+        assertFalse(action.isDoSomethingInvoked());
+    }
+    
+    public void testSMDAliasedMethodCall2() throws Exception {
+        //request
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("smd-15.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest2 action = new SMDActionTest2();
+
+        this.invocation.setAction(action);
+
+        interceptor.intercept(this.invocation);
+        //method was aliased, but was invoked with the aliased name
+        //so method must  be invoked
+        assertFalse(this.invocation.isInvoked());
+        assertTrue(action.isDoSomethingInvoked());
+    }
+
+    public void _testSMDNoMethod() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-4.txt")));
@@ -67,7 +107,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertFalse(this.invocation.isInvoked());
     }
 
-    public void testSMDMethodWithoutAnnotations() throws Exception {
+    public void _testSMDMethodWithoutAnnotations() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-9.txt")));
@@ -91,7 +131,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
 
     
-    public void testSMDPrimitivesNoResult() throws Exception {
+    public void _testSMDPrimitivesNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-6.txt")));
@@ -130,7 +170,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
 
     
-    public void testSMDReturnObject() throws Exception {
+    public void _testSMDReturnObject() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-10.txt")));
@@ -158,7 +198,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
     
     @SuppressWarnings("unchecked")
-    public void testSMDObjectsNoResult() throws Exception {
+    public void _testSMDObjectsNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("smd-7.txt")));
@@ -209,7 +249,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     }
 
     @SuppressWarnings({ "unchecked", "unchecked" })
-    public void test() throws Exception {
+    public void _test() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("json-1.txt")));

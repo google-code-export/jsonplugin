@@ -143,8 +143,7 @@ public class JSONInterceptor implements Interceptor {
         }
         
         Method method = this.getMethod(clazz, methodName, parameterCount);
-        SMDMethod smdMethod = method.getAnnotation(SMDMethod.class);
-        if (method == null || smdMethod == null) {
+        if (method == null) {
             String message = "Method " + methodName
                 + " could not be found in action class.";
             return buildError(response, message, RPCErrorCode.METHOD_NOT_FOUND);
@@ -197,9 +196,15 @@ public class JSONInterceptor implements Interceptor {
     private Method getMethod(Class clazz, String name, int parameterCount) {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            if (method.getName().equals(name)
-                && (method.getParameterTypes().length == parameterCount))
-                return method;
+            SMDMethod smdMethodAnntotation = method.getAnnotation(SMDMethod.class);
+            if(smdMethodAnntotation != null) {
+                String alias = smdMethodAnntotation.name();
+                boolean paramsMatch = method.getParameterTypes().length == parameterCount; 
+                if ((alias == null && method.getName().equals(name) && paramsMatch) 
+                    || (alias.equals(name) && paramsMatch)) {
+                    return method;
+                }
+            }
         }
         return null;
     }
