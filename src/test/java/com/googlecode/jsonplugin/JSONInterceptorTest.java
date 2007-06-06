@@ -32,6 +32,22 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testBadJSON2() throws Exception {
         tryBadJSON("bad-2.txt");
     }
+    
+    public void testBadJSON3() throws Exception {
+        tryBadJSON("bad-3.txt");
+    }
+    
+    public void testBadJSON4() throws Exception {
+        tryBadJSON("bad-4.txt");
+    }
+    
+    public void testBadJSON5() throws Exception {
+        tryBadJSON("bad-5.txt");
+    }
+    
+    public void testBadToTheBoneJSON4() throws Exception {
+        tryBadJSON("bad-to-the-bone.txt");
+    }
 
     private void tryBadJSON(String fileName) throws Exception {
         //request
