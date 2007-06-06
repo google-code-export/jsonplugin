@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.StrutsTestCase;
+import org.apache.struts2.views.annotations.StrutsTagAttribute;
+import org.junit.Test;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.mock.MockActionInvocation;
@@ -23,6 +25,37 @@ public class JSONInterceptorTest extends StrutsTestCase {
     private PrintWriter writer;
     private StrutsMockHttpServletResponse response;
 
+    public void testBadJSON1() throws Exception {
+        tryBadJSON("bad-1.txt");
+    }
+    
+    public void testBadJSON2() throws Exception {
+        tryBadJSON("bad-2.txt");
+    }
+
+    private void tryBadJSON(String fileName) throws Exception {
+        //request
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource(fileName)));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json-rpc");
+
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setEnableSMD(true);
+        SMDActionTest1 action = new SMDActionTest1();
+
+        this.invocation.setAction(action);
+
+        //JSON is not well formed, throw exception
+        try {
+            interceptor.intercept(this.invocation);
+            fail("Should have thrown an exception");
+        }  catch (JSONException e) {
+            //I can't get JUnit to ignore the exception
+            // @Test(expected = JSONException.class)
+        }
+    }
+    
     public void testSMDDisabledSMD() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -35,11 +68,19 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         this.invocation.setAction(action);
 
+        //SMD was not enabled so expect exception
+
         //SMD was not enabled so invocation must happen
-        interceptor.intercept(this.invocation);
-        assertTrue(this.invocation.isInvoked());
+        try {
+            interceptor.intercept(this.invocation);
+            fail("Should have thrown an exception");
+        }  catch (JSONException e) {
+            //I can't get JUnit to ignore the exception
+            // @Test(expected = JSONException.class)
+        }
+
     }
-    
+
     public void testSMDAliasedMethodCall1() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -59,7 +100,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertFalse(this.invocation.isInvoked());
         assertFalse(action.isDoSomethingInvoked());
     }
-    
+
     public void testSMDAliasedMethodCall2() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -94,16 +135,16 @@ public class JSONInterceptorTest extends StrutsTestCase {
         this.invocation.setAction(action);
 
         //SMD was enabled so invocation must happen
-        
+
         interceptor.intercept(this.invocation);
-        
+
         String json = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("smd-13.txt"));
         assertEquals(normalizedExpected, normalizedActual);
-        
+
         assertFalse(this.invocation.isInvoked());
     }
 
@@ -124,13 +165,12 @@ public class JSONInterceptorTest extends StrutsTestCase {
         try {
             interceptor.intercept(this.invocation);
             assertTrue("Exception was expected here!", true);
-        } catch(Exception e) {
+        } catch (Exception e) {
             //ok
         }
         assertFalse(this.invocation.isInvoked());
     }
 
-    
     public void testSMDPrimitivesNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -158,18 +198,17 @@ public class JSONInterceptorTest extends StrutsTestCase {
         assertEquals(4.4, action.getDoubleParam());
         assertEquals(5, action.getShortParam());
         assertEquals(6, action.getByteParam());
-        
+
         String json = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("smd-11.txt"));
         assertEquals(normalizedExpected, normalizedActual);
-        
+
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
 
-    
     public void testSMDReturnObject() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -186,7 +225,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         //can't be invoked
         interceptor.intercept(this.invocation);
         assertFalse(this.invocation.isInvoked());
-        
+
         String json = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(json, true);
@@ -196,7 +235,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
-    
+
     @SuppressWarnings("unchecked")
     public void testSMDObjectsNoResult() throws Exception {
         //request
@@ -238,17 +277,17 @@ public class JSONInterceptorTest extends StrutsTestCase {
         List insideList = (List) map.get("c");
         assertEquals(1.0d, insideList.get(0));
         assertEquals(2.0d, insideList.get(1));
-        
+
         String json = this.stringWriter.toString();
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("smd-11.txt"));
         assertEquals(normalizedExpected, normalizedActual);
-        
+
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
 
-    @SuppressWarnings({ "unchecked", "unchecked" })
+    @SuppressWarnings( { "unchecked", "unchecked" })
     public void test() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -382,7 +421,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         this.writer = new PrintWriter(this.stringWriter);
         this.response = new StrutsMockHttpServletResponse();
         this.response.setWriter(this.writer);
-        
+
         ValueStack stack = ValueStackFactory.getFactory().createValueStack();
         ActionContext context = new ActionContext(stack.getContext());
 

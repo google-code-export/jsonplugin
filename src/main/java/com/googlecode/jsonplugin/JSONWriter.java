@@ -62,19 +62,19 @@ class JSONWriter {
     /**
      * @param object Object to be serialized into JSON
      * @return JSON string for object
-     * @throws JSONExeption
+     * @throws JSONException
      */
-    public String write(Object object) throws JSONExeption {
+    public String write(Object object) throws JSONException {
         return this.write(object, null);
     }
 
     /**
      * @param object Object to be serialized into JSON
      * @return JSON string for object
-     * @throws JSONExeption
+     * @throws JSONException
      */
     public String write(Object object, Collection<Pattern> ignoreProperties)
-        throws JSONExeption {
+        throws JSONException {
         this.buf.setLength(0);
         this.root = object;
         this.exprStack = "";
@@ -88,7 +88,7 @@ class JSONWriter {
     /**
      * Detect yclic references
      */
-    private void value(Object object, Method method) throws JSONExeption {
+    private void value(Object object, Method method) throws JSONException {
         if (object == null) {
             this.add("null");
 
@@ -118,7 +118,7 @@ class JSONWriter {
     /**
      * Serialize object into json
      */
-    private void process(Object object, Method method) throws JSONExeption {
+    private void process(Object object, Method method) throws JSONException {
         this.stack.push(object);
 
         if (object instanceof Class) {
@@ -151,7 +151,7 @@ class JSONWriter {
     /**
      * Instrospect bean and serialize its properties
      */
-    private void bean(Object object) throws JSONExeption {
+    private void bean(Object object) throws JSONException {
         this.add("{");
 
         BeanInfo info;
@@ -205,7 +205,7 @@ class JSONWriter {
                 }
             }
         } catch (Exception e) {
-            throw new JSONExeption(e);
+            throw new JSONException(e);
         }
 
         this.add("}");
@@ -252,7 +252,7 @@ class JSONWriter {
     /**
      * Add name/value pair to buffer
      */
-    private void add(String name, Object value, Method method) throws JSONExeption {
+    private void add(String name, Object value, Method method) throws JSONException {
         this.add('"');
         this.add(name);
         this.add("\":");
@@ -262,7 +262,7 @@ class JSONWriter {
     /**
      * Add map to buffer
      */
-    private void map(Map map, Method method) throws JSONExeption {
+    private void map(Map map, Method method) throws JSONException {
         this.add("{");
 
         Iterator it = map.entrySet().iterator();
@@ -318,7 +318,7 @@ class JSONWriter {
     /**
      * Add array to buffer
      */
-    private void array(Iterator it, Method method) throws JSONExeption {
+    private void array(Iterator it, Method method) throws JSONException {
         this.add("[");
 
         boolean hasData = false;
@@ -347,7 +347,7 @@ class JSONWriter {
     /**
      * Add array to buffer
      */
-    private void array(Object object, Method method) throws JSONExeption {
+    private void array(Object object, Method method) throws JSONException {
         this.add("[");
 
         int length = Array.getLength(object);
