@@ -66,14 +66,14 @@ class JSONReader {
         }
     }
 
-    public Object read(String string) throws JSONExeption {
+    public Object read(String string) throws JSONException {
         this.it = new StringCharacterIterator(string);
         this.c = this.it.first();
 
         return this.read();
     }
 
-    private Object read() throws JSONExeption {
+    private Object read() throws JSONException {
         Object ret = null;
 
         this.skipWhiteSpace();
@@ -116,6 +116,8 @@ class JSONReader {
             this.next();
         } else if (Character.isDigit(this.c) || (this.c == '-')) {
             ret = this.number();
+        } else {
+            throw new JSONException("Input string is not well formed JSON");
         }
 
         this.token = ret;
@@ -124,7 +126,7 @@ class JSONReader {
     }
 
     @SuppressWarnings("unchecked")
-    private Map object() throws JSONExeption {
+    private Map object() throws JSONException {
         Map ret = new HashMap();
         String key = (String) this.read();
 
@@ -140,7 +142,7 @@ class JSONReader {
                     if (name instanceof String) {
                         key = (String) name;
                     } else
-                        throw new JSONExeption("Input string is not well formed JSON");
+                        throw new JSONException("Input string is not well formed JSON");
                 }
             }
         }
@@ -149,7 +151,7 @@ class JSONReader {
     }
 
     @SuppressWarnings("unchecked")
-    private List array() throws JSONExeption {
+    private List array() throws JSONException {
         List ret = new ArrayList();
         Object value = this.read();
 

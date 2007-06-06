@@ -44,9 +44,9 @@ public class JSONUtil {
      * Serilizes an object into JSON.
      * @param object to be serialized
      * @return JSON string
-     * @throws JSONExeption
+     * @throws JSONException
      */
-    public static String serialize(Object object) throws JSONExeption {
+    public static String serialize(Object object) throws JSONException {
         JSONWriter writer = new JSONWriter();
 
         return writer.write(object);
@@ -58,10 +58,10 @@ public class JSONUtil {
      * @param object to be serialized
      * @param Patterns matching properties to ignore
      * @return JSON string
-     * @throws JSONExeption
+     * @throws JSONException
      */
     public static String serialize(Object object, Collection<Pattern> ignoreProperties)
-        throws JSONExeption {
+        throws JSONException {
         JSONWriter writer = new JSONWriter();
 
         return writer.write(object, ignoreProperties);
@@ -73,10 +73,10 @@ public class JSONUtil {
      * @param object object to be serialized
      * @param Patterns matching properties to ignore
      * @throws IOException
-     * @throws JSONExeption
+     * @throws JSONException
      */
     public static void serialize(Writer writer, Object object) throws IOException,
-        JSONExeption {
+        JSONException {
         writer.write(serialize(object));
     }
 
@@ -87,10 +87,10 @@ public class JSONUtil {
      * @param object object to be serialized
      * @param Patterns matching properties to ignore
      * @throws IOException
-     * @throws JSONExeption
+     * @throws JSONException
      */
     public static void serialize(Writer writer, Object object,
-        Collection<Pattern> ignoreProperties) throws IOException, JSONExeption {
+        Collection<Pattern> ignoreProperties) throws IOException, JSONException {
         writer.write(serialize(object, ignoreProperties));
     }
 
@@ -98,10 +98,10 @@ public class JSONUtil {
      * Deserilizes a object from JSON
      * @param json string in JSON
      * @return desrialized object
-     * @throws JSONExeption
-     * @throws JSONExeption
+     * @throws JSONException
+     * @throws JSONException
      */
-    public static Object deserialize(String json) throws JSONExeption {
+    public static Object deserialize(String json) throws JSONException {
         JSONReader reader = new JSONReader();
 
         return reader.read(json);
@@ -111,10 +111,10 @@ public class JSONUtil {
      * Deserilizes a object from JSON
      * @param json string in JSON
      * @return desrialized object
-     * @throws JSONExeption
-     * @throws JSONExeption
+     * @throws JSONException
+     * @throws JSONException
      */
-    public static Object deserialize(Reader reader) throws JSONExeption {
+    public static Object deserialize(Reader reader) throws JSONException {
         //read content
         BufferedReader bufferReader = new BufferedReader(reader);
         String line = null;
@@ -125,7 +125,7 @@ public class JSONUtil {
                 buffer.append(line);
             }
         } catch (IOException e) {
-            throw new JSONExeption(e);
+            throw new JSONException(e);
         }
 
         return deserialize(buffer.toString());

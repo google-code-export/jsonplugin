@@ -23,16 +23,16 @@ package com.googlecode.jsonplugin;
 /**
  * Wrap exceptions throwed by the JSON serializer
  */
-public class JSONExeption extends Exception {
-    public JSONExeption(String message) {
+public class JSONException extends Exception {
+    public JSONException(String message) {
         super(message);
     }
 
-    public JSONExeption(Throwable cause) {
+    public JSONException(Throwable cause) {
         super(cause);
     }
 
-    public JSONExeption(String message, Throwable cause) {
+    public JSONException(String message, Throwable cause) {
         super(message, cause);
     }
 }

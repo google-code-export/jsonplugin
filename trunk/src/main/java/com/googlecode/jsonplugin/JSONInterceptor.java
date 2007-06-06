@@ -68,7 +68,7 @@ public class JSONInterceptor implements Interceptor {
                 this.populateObject(invocation.getAction(), json);
             } else {
                 log.error("Unable to deserialize JSON object from request");
-                throw new JSONExeption("Unable to deserialize JSON object from request");
+                throw new JSONException("Unable to deserialize JSON object from request");
             }
         } else if ((contentType != null)
             && contentType.equalsIgnoreCase("application/json-rpc")) {
@@ -96,9 +96,7 @@ public class JSONInterceptor implements Interceptor {
                     result = rpcResponse;
                 }
             } else {
-                if (log.isDebugEnabled())
-                    log
-                        .debug("Request with content type of 'application/json-rpc' was received but SMD is "
+                throw new JSONException("Request with content type of 'application/json-rpc' was received but SMD is "
                             + "not enabled for this interceptor. Set 'enableSMD' to true to enable it");
             }
         } else {
@@ -114,7 +112,7 @@ public class JSONInterceptor implements Interceptor {
 
     @SuppressWarnings("unchecked")
     public RPCResponse invoke(Object object, Map data) throws IllegalArgumentException,
-        IllegalAccessException, InvocationTargetException, JSONExeption,
+        IllegalAccessException, InvocationTargetException, JSONException,
         InstantiationException, NoSuchMethodException, IntrospectionException {
         
         RPCResponse response = new RPCResponse();
@@ -212,7 +210,7 @@ public class JSONInterceptor implements Interceptor {
     @SuppressWarnings("unchecked")
     public void populateObject(final Object object, final Map elements)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-        IntrospectionException, IllegalArgumentException, JSONExeption,
+        IntrospectionException, IllegalArgumentException, JSONException,
         InstantiationException {
         Class clazz = object.getClass();
 
@@ -249,7 +247,7 @@ public class JSONInterceptor implements Interceptor {
 
     @SuppressWarnings("unchecked")
     private Object convert(Class clazz, Object value, Method method)
-        throws IllegalArgumentException, JSONExeption, IllegalAccessException,
+        throws IllegalArgumentException, JSONException, IllegalAccessException,
         InvocationTargetException, InstantiationException, NoSuchMethodException,
         IntrospectionException {
         if (clazz.isPrimitive() || clazz.equals(String.class) || clazz.equals(Date.class))
@@ -265,12 +263,12 @@ public class JSONInterceptor implements Interceptor {
             this.populateObject(convertedValue, (Map) value);
             return convertedValue;
         } else
-            throw new JSONExeption("Incompatible types for property " + method.getName());
+            throw new JSONException("Incompatible types for property " + method.getName());
     }
 
     @SuppressWarnings("unchecked")
     private Object convertToArray(Object target, Method accessor, Object value)
-        throws JSONExeption, IllegalArgumentException, IllegalAccessException,
+        throws JSONException, IllegalArgumentException, IllegalAccessException,
         InvocationTargetException, InstantiationException, NoSuchMethodException,
         IntrospectionException {
         Class arrayType = accessor.getParameterTypes()[0].getComponentType();
@@ -299,24 +297,24 @@ public class JSONInterceptor implements Interceptor {
                         this.populateObject(newObject, (Map) listValue);
                         Array.set(newArray, j, newObject);
                     } else
-                        throw new JSONExeption("Incompatible types for property "
+                        throw new JSONException("Incompatible types for property "
                             + accessor.getName());
                 }
             }
 
             return newArray;
         } else
-            throw new JSONExeption("Incompatible types for property "
+            throw new JSONException("Incompatible types for property "
                 + accessor.getName());
     }
 
     /**
      * Converts numbers to the desired class, if possible
-     * @throws JSONExeption
+     * @throws JSONException
      */
     @SuppressWarnings("unchecked")
     private Object convertPrimitive(Class clazz, Object value, Method method)
-        throws JSONExeption {
+        throws JSONException {
         if (value instanceof Number) {
             Number number = (Number) value;
 
@@ -345,7 +343,7 @@ public class JSONInterceptor implements Interceptor {
                 return formatter.parse((String) value);
             } catch (ParseException e) {
                 log.error(e);
-                throw new JSONExeption("Unable to parse date from: " + value);
+                throw new JSONException("Unable to parse date from: " + value);
             }
         } else if (value instanceof String) {
             if (Boolean.TYPE.equals(clazz))

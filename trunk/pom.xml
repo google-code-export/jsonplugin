@@ -5,7 +5,7 @@
     <groupId>com.googlecode.jsonplugin</groupId>
     <artifactId>jsonplugin</artifactId>
     <packaging>jar</packaging>
-    <version>0.11</version>
+    <version>0.12</version>
     <name>jsonplugin</name>
     <url>http://code.google.com/p/jsonplugin/</url>
 
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>4.3</version>
             <scope>test</scope>
         </dependency>
 
