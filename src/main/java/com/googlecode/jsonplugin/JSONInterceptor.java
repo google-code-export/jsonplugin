@@ -44,7 +44,8 @@ public class JSONInterceptor implements Interceptor {
     private DateFormat formatter;
     private boolean wrapWithComments;
     private String defaultEncoding = "ISO-8859-1";
-
+    private boolean ignoreHierarchy = true;
+    
     public void destroy() {
     }
 
@@ -82,7 +83,7 @@ public class JSONInterceptor implements Interceptor {
 
                     //invoke method
                     result = this.invoke(invocation.getAction(), smd);
-                    String json = JSONUtil.serialize(result, null);
+                    String json = JSONUtil.serialize(result, null, ignoreHierarchy);
                     JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                         this.wrapWithComments, json, true);
 
@@ -374,5 +375,9 @@ public class JSONInterceptor implements Interceptor {
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
         this.defaultEncoding = val;
+    }
+
+    public void setIgnoreHierarchy(boolean ignoreHierarchy) {
+        this.ignoreHierarchy = ignoreHierarchy;
     }
 }

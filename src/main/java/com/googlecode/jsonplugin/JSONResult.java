@@ -58,7 +58,8 @@ public class JSONResult implements Result {
     private String root;
     private boolean wrapWithComments;
     private boolean enableSMD = false;
-
+    private boolean ignoreHierarchy = true;
+    
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
         this.defaultEncoding = val;
@@ -114,7 +115,7 @@ public class JSONResult implements Result {
             if (this.enableSMD) {
                 //generate SMD
                 com.googlecode.jsonplugin.smd.SMD smd = this.writeSMD(invocation);
-                json = JSONUtil.serialize(smd, null);
+                json = JSONUtil.serialize(smd, null, false);
             } else {
                 // generate JSON
                 Object rootObject = null;
@@ -125,7 +126,7 @@ public class JSONResult implements Result {
                     rootObject = invocation.getAction();
                 }
 
-                json = JSONUtil.serialize(rootObject, this.excludeProperties);
+                json = JSONUtil.serialize(rootObject, this.excludeProperties, ignoreHierarchy);
             }
 
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
@@ -296,5 +297,9 @@ public class JSONResult implements Result {
      */
     public void setEnableSMD(boolean enableSMD) {
         this.enableSMD = enableSMD;
+    }
+
+    public void setIgnoreHierarchy(boolean ignoreHierarchy) {
+        this.ignoreHierarchy = ignoreHierarchy;
     }
 }
