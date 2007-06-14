@@ -60,10 +60,10 @@ public class JSONUtil {
      * @return JSON string
      * @throws JSONException
      */
-    public static String serialize(Object object, Collection<Pattern> ignoreProperties)
-        throws JSONException {
+    public static String serialize(Object object, Collection<Pattern> ignoreProperties,
+        boolean ignoreHierarchy) throws JSONException {
         JSONWriter writer = new JSONWriter();
-
+        writer.setIgnoreHierarchy(ignoreHierarchy);
         return writer.write(object, ignoreProperties);
     }
 
@@ -91,7 +91,7 @@ public class JSONUtil {
      */
     public static void serialize(Writer writer, Object object,
         Collection<Pattern> ignoreProperties) throws IOException, JSONException {
-        writer.write(serialize(object, ignoreProperties));
+        writer.write(serialize(object, ignoreProperties, true));
     }
 
     /**
@@ -146,7 +146,8 @@ public class JSONUtil {
 
         response.setContentLength(json.getBytes(encoding).length);
         response.setContentType((smd ? "application/json-rpc;charset="
-            : "application/json;charset=") + encoding);
+            : "application/json;charset=")
+            + encoding);
 
         PrintWriter out = response.getWriter();
         out.print(json);

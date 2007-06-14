@@ -52,7 +52,7 @@ class JSONWriter {
     static char[] hex = "0123456789ABCDEF".toCharArray();
     private StringBuilder buf = new StringBuilder();
     private Stack stack = new Stack();
-    private boolean ignoreRootParents = true;
+    private boolean ignoreHierarchy = true;
     private Object root;
     private boolean buildExpr = true;
     private String exprStack = "";
@@ -159,7 +159,7 @@ class JSONWriter {
         try {
             Class clazz = object.getClass();
 
-            info = ((object == this.root) && this.ignoreRootParents) ? Introspector
+            info = ((object == this.root) && this.ignoreHierarchy) ? Introspector
                 .getBeanInfo(clazz, clazz.getSuperclass()) : Introspector
                 .getBeanInfo(clazz);
 
@@ -446,5 +446,9 @@ class JSONWriter {
             this.add(hex[digit]);
             n <<= 4;
         }
+    }
+
+    public void setIgnoreHierarchy(boolean ignoreHierarchy) {
+        this.ignoreHierarchy = ignoreHierarchy;
     }
 }
