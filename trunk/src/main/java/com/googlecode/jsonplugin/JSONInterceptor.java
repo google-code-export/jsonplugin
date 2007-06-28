@@ -33,6 +33,7 @@ import com.opensymphony.xwork2.Action;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.interceptor.Interceptor;
+import com.opensymphony.xwork2.util.ValueStack;
 
 /**
  * Populates an action from a JSON string
@@ -45,6 +46,7 @@ public class JSONInterceptor implements Interceptor {
     private boolean wrapWithComments;
     private String defaultEncoding = "ISO-8859-1";
     private boolean ignoreHierarchy = true;
+    private String root;
     
     public void destroy() {
     }
@@ -58,6 +60,14 @@ public class JSONInterceptor implements Interceptor {
         HttpServletResponse response = ServletActionContext.getResponse();
         String contentType = request.getHeader("content-type");
 
+        Object rootObject = null;
+        if (this.root != null) {
+            ValueStack stack = invocation.getStack();
+            rootObject = stack.findValue(this.root);
+        } else {
+            rootObject = invocation.getAction();
+        }
+        
         if ((contentType != null) && contentType.equalsIgnoreCase("application/json")) {
             //load JSON object
             Object obj = JSONUtil.deserialize(request.getReader());
@@ -66,7 +76,7 @@ public class JSONInterceptor implements Interceptor {
                 Map json = (Map) obj;
 
                 //populate fields
-                this.populateObject(invocation.getAction(), json);
+                this.populateObject(rootObject, json);
             } else {
                 log.error("Unable to deserialize JSON object from request");
                 throw new JSONException("Unable to deserialize JSON object from request");
@@ -82,7 +92,7 @@ public class JSONInterceptor implements Interceptor {
                     Map smd = (Map) obj;
 
                     //invoke method
-                    result = this.invoke(invocation.getAction(), smd);
+                    result = this.invoke(rootObject, smd);
                     String json = JSONUtil.serialize(result, null, ignoreHierarchy);
                     JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                         this.wrapWithComments, json, true);
@@ -379,5 +389,14 @@ public class JSONInterceptor implements Interceptor {
 
     public void setIgnoreHierarchy(boolean ignoreHierarchy) {
         this.ignoreHierarchy = ignoreHierarchy;
+    }
+    
+    /**
+     * Sets the root object to be deserialized, defaults to the Action
+     * 
+     * @param root OGNL expression of root object to be serialized
+     */
+    public void setRoot(String root) {
+        this.root = root;
     }
 }

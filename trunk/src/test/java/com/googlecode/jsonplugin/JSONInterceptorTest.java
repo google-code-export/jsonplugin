@@ -10,8 +10,6 @@ import java.util.Map;
 
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.StrutsTestCase;
-import org.apache.struts2.views.annotations.StrutsTagAttribute;
-import org.junit.Test;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.mock.MockActionInvocation;
@@ -427,6 +425,33 @@ public class JSONInterceptorTest extends StrutsTestCase {
         //test desrialize=false
         assertNull(action.getFoo2());
     }
+    
+    public void testRoot() throws Exception {
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("json-5.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json");
+
+        //interceptor
+        JSONInterceptor interceptor = new JSONInterceptor();
+        interceptor.setRoot("bean");
+        TestAction4 action = new TestAction4();
+
+        this.invocation.setAction(action);
+        this.invocation.getStack().push(action);
+
+        interceptor.intercept(this.invocation);
+        
+        Bean bean2 = action.getBean();
+
+        assertNotNull(bean2);
+        assertTrue(bean2.isBooleanField());
+        assertEquals(bean2.getStringField(), "test");
+        assertEquals(bean2.getIntField(), 10);
+        assertEquals(bean2.getCharField(), 's');
+        assertEquals(bean2.getDoubleField(), 10.1);
+        assertEquals(bean2.getByteField(), 3);
+    }
 
     @Override
     protected void setUp() throws Exception {
@@ -450,6 +475,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         context.put(StrutsStatics.SERVLET_CONTEXT, servletContext);
         this.invocation = new MockActionInvocationEx();
         this.invocation.setInvocationContext(context);
+        this.invocation.setStack(stack);
     }
 }
 
