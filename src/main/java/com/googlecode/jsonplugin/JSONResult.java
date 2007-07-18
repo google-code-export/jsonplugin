@@ -82,27 +82,13 @@ public class JSONResult implements Result {
      * @param commaDelim A comma-delimited list of regular expressions
      */
     public void setExcludeProperties(String commaDelim) {
-        List<String> excludePatterns = this.asList(commaDelim);
+        List<String> excludePatterns = JSONUtil.asList(commaDelim);
         if (excludePatterns != null) {
             this.excludeProperties = new ArrayList<Pattern>(excludePatterns.size());
             for (String pattern : excludePatterns) {
                 this.excludeProperties.add(Pattern.compile(pattern));
             }
         }
-    }
-
-    private List<String> asList(String commaDelim) {
-        if ((commaDelim == null) || (commaDelim.trim().length() == 0))
-            return null;
-        List<String> list = new ArrayList<String>();
-        String[] split = commaDelim.split(",");
-        for (int i = 0; i < split.length; i++) {
-            String trimmed = split[i].trim();
-            if (trimmed.length() > 0) {
-                list.add(trimmed);
-            }
-        }
-        return list;
     }
 
     public void execute(ActionInvocation invocation) throws Exception {

@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
@@ -146,10 +148,24 @@ public class JSONUtil {
 
         response.setContentLength(json.getBytes(encoding).length);
         response.setContentType((smd ? "application/json-rpc;charset="
-            : "application/json;charset=")
-            + encoding);
+            : "application/json;charset=") +
+            encoding);
 
         PrintWriter out = response.getWriter();
         out.print(json);
+    }
+
+    public static List<String> asList(String commaDelim) {
+        if ((commaDelim == null) || (commaDelim.trim().length() == 0))
+            return null;
+        List<String> list = new ArrayList<String>();
+        String[] split = commaDelim.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String trimmed = split[i].trim();
+            if (trimmed.length() > 0) {
+                list.add(trimmed);
+            }
+        }
+        return list;
     }
 }
