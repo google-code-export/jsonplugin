@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +48,7 @@ public class JSONInterceptor implements Interceptor {
     private String defaultEncoding = "ISO-8859-1";
     private boolean ignoreHierarchy = true;
     private String root;
+    private List<Pattern> excludeProperties = null;
     
     public void destroy() {
     }
@@ -93,7 +95,7 @@ public class JSONInterceptor implements Interceptor {
 
                     //invoke method
                     result = this.invoke(rootObject, smd);
-                    String json = JSONUtil.serialize(result, null, ignoreHierarchy);
+                    String json = JSONUtil.serialize(result, excludeProperties, ignoreHierarchy);
                     JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                         this.wrapWithComments, json, true);
 
@@ -398,5 +400,22 @@ public class JSONInterceptor implements Interceptor {
      */
     public void setRoot(String root) {
         this.root = root;
+    }
+    
+    
+    /**
+     * Sets a comma-delimited list of regular expressions to match 
+     * properties that should be excluded from the JSON output.
+     * 
+     * @param commaDelim A comma-delimited list of regular expressions
+     */
+    public void setExcludeProperties(String commaDelim) {
+        List<String> excludePatterns = JSONUtil.asList(commaDelim);
+        if (excludePatterns != null) {
+            this.excludeProperties = new ArrayList<Pattern>(excludePatterns.size());
+            for (String pattern : excludePatterns) {
+                this.excludeProperties.add(Pattern.compile(pattern));
+            }
+        }
     }
 }
