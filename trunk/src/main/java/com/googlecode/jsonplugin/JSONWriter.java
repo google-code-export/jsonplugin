@@ -172,8 +172,6 @@ class JSONWriter {
                 Method accessor = prop.getReadMethod();
 
                 if (accessor != null) {
-                    Object value = accessor.invoke(object, new Object[0]);
-
                     JSON json = prop.getReadMethod().getAnnotation(JSON.class);
                     if (json != null) {
                         if (!json.serialize())
@@ -198,6 +196,8 @@ class JSONWriter {
                         this.add(',');
                     }
                     hasData = true;
+                    
+                    Object value = accessor.invoke(object, new Object[0]);
                     this.add(name, value, accessor);
                     if (this.buildExpr) {
                         this.setExprStack(expr);
