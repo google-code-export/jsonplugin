@@ -2,12 +2,16 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.googlecode.jsonplugin</groupId>
+    <groupId>com.googlecode.code.jsonplugin</groupId>
     <artifactId>jsonplugin</artifactId>
     <packaging>jar</packaging>
-    <version>0.16</version>
-    <name>jsonplugin</name>
+    <version>0.16-SNAPSHOT</version>
+    <name>Struts 2 JSON Plugin</name>
     <url>http://code.google.com/p/jsonplugin/</url>
+    <description>
+        The Struts 2 JSON plugin provides a result and an interceptor that can serialize/deserialize
+        an object to/from JSON
+    </description>
 
     <build>
         <pluginManagement>
@@ -35,6 +39,29 @@
         </pluginManagement>
         <defaultGoal>install</defaultGoal>
     </build>
+
+    <distributionManagement>
+        <downloadUrl>http://code.google.com/p/jsonplugin/downloads/list</downloadUrl>
+    </distributionManagement>
+
+    <issueManagement>
+        <system>Google Code</system>
+        <url>http://code.google.com/p/jsonplugin/issues/list</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://jsonplugin.googlecode.com/svn/</connection>
+        <developerConnection>scm:svn:https://jsonplugin.googlecode.com/svn/</developerConnection>
+        <url>http://code.google.com/p/jsonplugin/source</url>
+    </scm>
 
     <dependencies>
         <dependency>
