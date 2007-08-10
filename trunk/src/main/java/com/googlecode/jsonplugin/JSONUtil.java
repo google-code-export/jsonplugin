@@ -58,22 +58,22 @@ public class JSONUtil {
      * Serilizes an object into JSON, excluding any properties matching
      * any of the regular expressions in the given collection.
      * @param object to be serialized
-     * @param Patterns matching properties to ignore
+     * @param excludeProperties Patterns matching properties to exclude
+	 * @param ignoreHierarchy whether to ignore properties defined on base classes of the root object 
      * @return JSON string
      * @throws JSONException
      */
-    public static String serialize(Object object, Collection<Pattern> ignoreProperties,
+    public static String serialize(Object object, Collection<Pattern> excludeProperties,
         boolean ignoreHierarchy) throws JSONException {
         JSONWriter writer = new JSONWriter();
         writer.setIgnoreHierarchy(ignoreHierarchy);
-        return writer.write(object, ignoreProperties);
+        return writer.write(object, excludeProperties);
     }
 
     /**
      * Serilizes an object into JSON to the given writer.
      * @param writer Writer to serialize the object to
      * @param object object to be serialized
-     * @param Patterns matching properties to ignore
      * @throws IOException
      * @throws JSONException
      */
@@ -87,13 +87,13 @@ public class JSONUtil {
      * any of the regular expressions in the given collection.
      * @param writer Writer to serialize the object to
      * @param object object to be serialized
-     * @param Patterns matching properties to ignore
+     * @param excludeProperties Patterns matching properties to ignore
      * @throws IOException
      * @throws JSONException
      */
     public static void serialize(Writer writer, Object object,
-        Collection<Pattern> ignoreProperties) throws IOException, JSONException {
-        writer.write(serialize(object, ignoreProperties, true));
+        Collection<Pattern> excludeProperties) throws IOException, JSONException {
+        writer.write(serialize(object, excludeProperties, true));
     }
 
     /**
@@ -101,20 +101,17 @@ public class JSONUtil {
      * @param json string in JSON
      * @return desrialized object
      * @throws JSONException
-     * @throws JSONException
      */
     public static Object deserialize(String json) throws JSONException {
         JSONReader reader = new JSONReader();
-
         return reader.read(json);
     }
 
     /**
      * Deserilizes a object from JSON
-     * @param json string in JSON
+     * @param reader Reader to read a JSON string from
      * @return desrialized object
-     * @throws JSONException
-     * @throws JSONException
+     * @throws JSONException when IOException happens
      */
     public static Object deserialize(Reader reader) throws JSONException {
         //read content
