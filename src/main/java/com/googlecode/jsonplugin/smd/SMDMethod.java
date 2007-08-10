@@ -22,10 +22,12 @@ package com.googlecode.jsonplugin.smd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class SMDMethod {
+public class SMDMethod implements Comparable {
     private String name;
-    private List<SMDMethodParameter> parameters = new ArrayList<SMDMethodParameter>();
+    private Set<SMDMethodParameter> parameters = new TreeSet<SMDMethodParameter>();
 
     public SMDMethod(String name) {
         this.name = name;
@@ -43,7 +45,21 @@ public class SMDMethod {
         this.name = name;
     }
 
-    public List<SMDMethodParameter> getParameters() {
+    public Set<SMDMethodParameter> getParameters() {
         return this.parameters;
     }
+
+	public int compareTo(Object o) {
+		if(!(o instanceof SMDMethod)) return 1;
+		if(o==null) return 1;
+		if(name==null && ((SMDMethod)o).name==null) return 0;
+		if(name==null) return -1;
+		return name.compareTo(((SMDMethod)o).name);
+	}
+
+	public boolean equals(Object o) {
+		if(!(o instanceof SMDMethod)) return false;
+		if(name==null && ((SMDMethod)o).name==null) return true;
+		return name != null && name.equals(((SMDMethod) o).name);
+	}
 }
