@@ -49,17 +49,25 @@ public class SMDMethod implements Comparable {
         return this.parameters;
     }
 
-	public int compareTo(Object o) {
-		if(!(o instanceof SMDMethod)) return 1;
-		if(o==null) return 1;
-		if(name==null && ((SMDMethod)o).name==null) return 0;
-		if(name==null) return -1;
-		return name.compareTo(((SMDMethod)o).name);
-	}
+    public int compareTo(Object o) {
+        if (!(o instanceof SMDMethod))
+            return 1;
+        if (o == null)
+            return 1;
+        if (name == null && ((SMDMethod) o).name == null)
+            return 0;
+        if (name == null)
+            return -1;
+        return name.compareTo(((SMDMethod) o).name);
+    }
 
-	public boolean equals(Object o) {
-		if(!(o instanceof SMDMethod)) return false;
-		if(name==null && ((SMDMethod)o).name==null) return true;
-		return name != null && name.equals(((SMDMethod) o).name);
-	}
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SMDMethod))
+            return false;
+        SMDMethod toCompare = (SMDMethod) obj;
+        if (name == null && toCompare.name == null)
+            return true;
+        return name != null && name.equals(toCompare.name) &&
+            parameters.size() == toCompare.parameters.size();
+    }
 }
