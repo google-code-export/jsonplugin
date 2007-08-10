@@ -1,19 +1,19 @@
 {   
     "methods": [
         {
-            "name": "getBean",
-            "parameters":[]
+            "name": "add",
+            "parameters": [
+                {"name":"a"},
+                {"name":"b"}
+             ]
         },
         {
             "name": "doSomethingElse",
             "parameters":[]
         },
         {
-            "name": "add",
-            "parameters": [
-                {"name":"a"},
-                {"name":"b"}
-             ]
+            "name": "getBean",
+            "parameters":[]
         }
     ],
     "objectName": "testaction",

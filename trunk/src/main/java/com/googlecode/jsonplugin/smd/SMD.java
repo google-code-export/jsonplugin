@@ -22,6 +22,8 @@ package com.googlecode.jsonplugin.smd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class SMD {
     public static final String DEFAULT_VERSION = ".1";
@@ -31,7 +33,7 @@ public class SMD {
     private String objectName;
     private String serviceType = DEFAULT_SERVICE_TYPE;
     private String serviceUrl;
-    private List<SMDMethod> methods = new ArrayList<SMDMethod>();
+    private Set<SMDMethod> methods = new TreeSet<SMDMethod>();
 
     public void addSMDMethod(SMDMethod method) {
         this.methods.add(method);
@@ -69,7 +71,7 @@ public class SMD {
         this.serviceUrl = serviceUrl;
     }
 
-    public List<SMDMethod> getMethods() {
+    public Set<SMDMethod> getMethods() {
         return this.methods;
     }
 }
