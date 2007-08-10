@@ -97,23 +97,21 @@ public class JSONResult implements Result {
             .get(StrutsStatics.HTTP_RESPONSE);
 
         try {
-            String json = null;
+            String json;
+            Object rootObject;
             if (this.enableSMD) {
                 //generate SMD
-                com.googlecode.jsonplugin.smd.SMD smd = this.writeSMD(invocation);
-                json = JSONUtil.serialize(smd, null, false);
+                rootObject = this.writeSMD(invocation);
             } else {
                 // generate JSON
-                Object rootObject = null;
                 if (this.root != null) {
                     ValueStack stack = invocation.getStack();
                     rootObject = stack.findValue(this.root);
                 } else {
                     rootObject = invocation.getAction();
                 }
-
-                json = JSONUtil.serialize(rootObject, this.excludeProperties, ignoreHierarchy);
             }
+            json = JSONUtil.serialize(rootObject, this.excludeProperties, ignoreHierarchy);
 
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                 isWrapWithComments(), json, false);
@@ -159,7 +157,7 @@ public class JSONResult implements Result {
 
             //SMDMethod annotation is required
             if ((smdMethodAnnotation != null)
-                && !this.shouldIgnoreProperty(method.getName())) {
+                && !this.shouldExcludeProperty(method.getName())) {
                 String methodName = smdMethodAnnotation.name().length() == 0 ? method
                     .getName() : smdMethodAnnotation.name();
                 com.googlecode.jsonplugin.smd.SMDMethod smdMethod = new com.googlecode.jsonplugin.smd.SMDMethod(
@@ -209,7 +207,7 @@ public class JSONResult implements Result {
         return null;
     }
 
-    private boolean shouldIgnoreProperty(String expr) {
+    private boolean shouldExcludeProperty(String expr) {
         if (this.excludeProperties != null) {
             for (Pattern pattern : this.excludeProperties) {
                 if (pattern.matcher(expr).matches())
