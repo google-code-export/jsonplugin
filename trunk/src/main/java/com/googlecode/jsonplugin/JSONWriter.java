@@ -56,7 +56,7 @@ class JSONWriter {
     private Object root;
     private boolean buildExpr = true;
     private String exprStack = "";
-    private Collection<Pattern> ignoreProperties;
+    private Collection<Pattern> excludeProperties;
     private DateFormat formatter;
 
     /**
@@ -73,13 +73,13 @@ class JSONWriter {
      * @return JSON string for object
      * @throws JSONException
      */
-    public String write(Object object, Collection<Pattern> ignoreProperties)
+    public String write(Object object, Collection<Pattern> excludeProperties)
         throws JSONException {
         this.buf.setLength(0);
         this.root = object;
         this.exprStack = "";
-        this.buildExpr = (ignoreProperties != null) && !ignoreProperties.isEmpty();
-        this.ignoreProperties = ignoreProperties;
+        this.buildExpr = (excludeProperties != null) && !excludeProperties.isEmpty();
+        this.excludeProperties = excludeProperties;
         this.value(object, null);
 
         return this.buf.toString();
@@ -181,13 +181,13 @@ class JSONWriter {
                     }
 
                     //ignore "class" and others
-                    if (this.shouldIgnoreProperty(clazz, prop)) {
+                    if (this.shouldExcludeProperty(clazz, prop)) {
                         continue;
                     }
                     String expr = null;
                     if (this.buildExpr) {
                         expr = this.expandExpr(name);
-                        if (this.shouldIgnoreProperty(expr)) {
+                        if (this.shouldExcludeProperty(expr)) {
                             continue;
                         }
                         expr = this.setExprStack(expr);
@@ -214,7 +214,7 @@ class JSONWriter {
     /**
      * Ignore "class" field
      */
-    private boolean shouldIgnoreProperty(Class clazz, PropertyDescriptor prop)
+    private boolean shouldExcludeProperty(Class clazz, PropertyDescriptor prop)
         throws SecurityException, NoSuchFieldException {
         if (prop.getName().equals("class"))
             return true;
@@ -238,8 +238,8 @@ class JSONWriter {
         return s;
     }
 
-    private boolean shouldIgnoreProperty(String expr) {
-        for (Pattern pattern : this.ignoreProperties) {
+    private boolean shouldExcludeProperty(String expr) {
+        for (Pattern pattern : this.excludeProperties) {
             if (pattern.matcher(expr).matches()) {
                 if (log.isDebugEnabled())
                     log.debug("Ignoring property " + expr);
@@ -280,7 +280,7 @@ class JSONWriter {
                     continue;
                 } else {
                     expr = this.expandExpr(key.toString());
-                    if (this.shouldIgnoreProperty(expr)) {
+                    if (this.shouldExcludeProperty(expr)) {
                         continue;
                     }
                     expr = this.setExprStack(expr);
@@ -326,7 +326,7 @@ class JSONWriter {
             String expr = null;
             if (this.buildExpr) {
                 expr = this.expandExpr(i);
-                if (this.shouldIgnoreProperty(expr)) {
+                if (this.shouldExcludeProperty(expr)) {
                     continue;
                 }
                 expr = this.setExprStack(expr);
@@ -357,7 +357,7 @@ class JSONWriter {
             String expr = null;
             if (this.buildExpr) {
                 expr = this.expandExpr(i);
-                if (this.shouldIgnoreProperty(expr)) {
+                if (this.shouldExcludeProperty(expr)) {
                     continue;
                 }
                 expr = this.setExprStack(expr);
