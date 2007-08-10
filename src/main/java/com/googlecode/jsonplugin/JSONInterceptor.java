@@ -389,13 +389,16 @@ public class JSONInterceptor implements Interceptor {
         this.defaultEncoding = val;
     }
 
-    public void setIgnoreHierarchy(boolean ignoreHierarchy) {
+	/**
+	 * Ignore properties defined on base classes of the root object.
+	 * @param ignoreHierarchy
+	 */
+	public void setIgnoreHierarchy(boolean ignoreHierarchy) {
         this.ignoreHierarchy = ignoreHierarchy;
     }
     
     /**
      * Sets the root object to be deserialized, defaults to the Action
-     * 
      * @param root OGNL expression of root object to be serialized
      */
     public void setRoot(String root) {
