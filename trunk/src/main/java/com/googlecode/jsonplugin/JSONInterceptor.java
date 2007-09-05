@@ -361,9 +361,15 @@ public class JSONInterceptor implements Interceptor {
         } else if (value instanceof String) {
             if (Boolean.TYPE.equals(clazz))
                 return Boolean.valueOf((String) value);
-            else if (Character.TYPE.equals(clazz))
-                return ((String) value).charAt(0);
-        }
+            else if (Character.TYPE.equals(clazz)) {
+				String sValue = (String) value;
+				if(sValue.length()>0) {
+					return sValue.charAt(0);
+				} else {
+					return (char)0;
+				}
+			}
+		}
 
         return value;
     }
