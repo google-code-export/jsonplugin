@@ -59,7 +59,8 @@ public class JSONResult implements Result {
     private boolean wrapWithComments;
     private boolean enableSMD = false;
     private boolean ignoreHierarchy = true;
-    
+    private List<Pattern> smdMethodsHack = null;
+
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
         this.defaultEncoding = val;
@@ -87,6 +88,22 @@ public class JSONResult implements Result {
             this.excludeProperties = new ArrayList<Pattern>(excludePatterns.size());
             for (String pattern : excludePatterns) {
                 this.excludeProperties.add(Pattern.compile(pattern));
+            }
+        }
+    }
+
+    /**
+     * Sets a comma-delimited list of regular expressions to match
+     * methods that should be included irrespective of the @SMDMethod annotation.
+     *
+     * @param commaDelim A comma-delimited list of regular expressions
+     */
+    public void setSMDMethodsHack(String commaDelim) {
+        List<String> includePatterns = JSONUtil.asList(commaDelim);
+        if (includePatterns != null) {
+            this.smdMethodsHack = new ArrayList<Pattern>(includePatterns.size());
+            for (String pattern : includePatterns) {
+                this.smdMethodsHack.add(Pattern.compile(pattern));
             }
         }
     }
@@ -156,10 +173,15 @@ public class JSONResult implements Result {
             SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
 
             //SMDMethod annotation is required
-            if ((smdMethodAnnotation != null)
-                && !this.shouldExcludeProperty(method.getName())) {
-                String methodName = smdMethodAnnotation.name().length() == 0 ? method
-                    .getName() : smdMethodAnnotation.name();
+            if (((smdMethodAnnotation != null)
+                && !this.shouldExcludeProperty(method.getName())) ||
+                 (this.shouldIncludeMethod(method.getName()))) {
+                String methodName;
+                if (smdMethodAnnotation != null) {
+                    methodName = smdMethodAnnotation.name().length() == 0 ? method.getName() : smdMethodAnnotation.name();
+                } else {
+                    methodName = method.getName();
+                }
                 com.googlecode.jsonplugin.smd.SMDMethod smdMethod = new com.googlecode.jsonplugin.smd.SMDMethod(
                     methodName);
                 smd.addSMDMethod(smdMethod);
@@ -210,6 +232,16 @@ public class JSONResult implements Result {
     private boolean shouldExcludeProperty(String expr) {
         if (this.excludeProperties != null) {
             for (Pattern pattern : this.excludeProperties) {
+                if (pattern.matcher(expr).matches())
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldIncludeMethod(String expr) {
+        if (this.smdMethodsHack != null) {
+            for (Pattern pattern : this.smdMethodsHack) {
                 if (pattern.matcher(expr).matches())
                     return true;
             }
