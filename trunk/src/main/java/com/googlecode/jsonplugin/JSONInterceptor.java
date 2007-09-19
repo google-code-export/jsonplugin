@@ -94,20 +94,36 @@ public class JSONInterceptor implements Interceptor {
                     Map smd = (Map) obj;
 
                     //invoke method
-                    result = this.invoke(rootObject, smd);
-                    String json = JSONUtil.serialize(result, excludeProperties, ignoreHierarchy);
-                    JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                        this.wrapWithComments, json, true);
+                    try {
+                        result = this.invoke(rootObject, smd);
+                    } catch (Exception e) {
+                        String message = "SMD invocation threw an exception"; 
 
-                    return Action.NONE;
+                        RPCResponse rpcResponse = new RPCResponse();
+                        buildError(rpcResponse, message, RPCErrorCode.EXCEPTION);
+                        log.error(message, e);	// buildError doesn't log stack trace
+
+                        Throwable t = e;
+                        while (t.getCause() != null) {
+                            t = t.getCause();
+                        }
+                        rpcResponse.getError().setName(t.getClass().getName());
+
+                        result = rpcResponse;
+                    }
                 } else {
                     String message = "SMD request was not on the right format. See http://json-rpc.org"; 
-                    log.error(message);
                     
                     RPCResponse rpcResponse = new RPCResponse();
                     buildError(rpcResponse, message, RPCErrorCode.INVALID_PROCEDURE_CALL);
                     result = rpcResponse;
                 }
+
+                String json = JSONUtil.serialize(result, excludeProperties, ignoreHierarchy);
+                JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
+                    this.wrapWithComments, json, true);
+
+                return Action.NONE;
             } else {
                 throw new JSONException("Request with content type of 'application/json-rpc' was received but SMD is "
                             + "not enabled for this interceptor. Set 'enableSMD' to true to enable it");
