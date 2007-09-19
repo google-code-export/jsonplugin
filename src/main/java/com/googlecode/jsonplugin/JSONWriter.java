@@ -170,9 +170,22 @@ class JSONWriter {
                 PropertyDescriptor prop = props[i];
                 String name = prop.getName();
                 Method accessor = prop.getReadMethod();
+                Method baseAccessor = null;
+                if (clazz.getName().indexOf("$$EnhancerByCGLIB$$") > -1) {
+                    try {
+                        baseAccessor = Class.forName(
+                            clazz.getName().substring(0, clazz.getName().indexOf("$$")))
+                            .getDeclaredMethod(accessor.getName(),
+                                accessor.getParameterTypes());
+                    } catch (Exception ex) {
+                        log.debug(ex.getMessage());
+                    }
+                } else
+                    baseAccessor = accessor;
 
-                if (accessor != null) {
-                    JSON json = prop.getReadMethod().getAnnotation(JSON.class);
+                if (baseAccessor != null) {
+
+                    JSON json = baseAccessor.getAnnotation(JSON.class);
                     if (json != null) {
                         if (!json.serialize())
                             continue;
@@ -196,7 +209,7 @@ class JSONWriter {
                         this.add(',');
                     }
                     hasData = true;
-                    
+
                     Object value = accessor.invoke(object, new Object[0]);
                     this.add(name, value, accessor);
                     if (this.buildExpr) {
@@ -275,8 +288,8 @@ class JSONWriter {
             if (this.buildExpr) {
                 if (key == null) {
                     log
-                        .error("Cannot build expression for null key in "
-                            + this.exprStack);
+                        .error("Cannot build expression for null key in " +
+                            this.exprStack);
                     continue;
                 } else {
                     expr = this.expandExpr(key.toString());
