@@ -49,7 +49,8 @@ public class JSONInterceptor implements Interceptor {
     private boolean ignoreHierarchy = true;
     private String root;
     private List<Pattern> excludeProperties = null;
-    
+    private List<Pattern> smdMethodsHack = null;
+
     public void destroy() {
     }
 
@@ -69,7 +70,7 @@ public class JSONInterceptor implements Interceptor {
         } else {
             rootObject = invocation.getAction();
         }
-        
+
         if ((contentType != null) && contentType.equalsIgnoreCase("application/json")) {
             //load JSON object
             Object obj = JSONUtil.deserialize(request.getReader());
@@ -83,13 +84,13 @@ public class JSONInterceptor implements Interceptor {
                 log.error("Unable to deserialize JSON object from request");
                 throw new JSONException("Unable to deserialize JSON object from request");
             }
-        } else if ((contentType != null)
-            && contentType.equalsIgnoreCase("application/json-rpc")) {
+        } else if ((contentType != null) &&
+            contentType.equalsIgnoreCase("application/json-rpc")) {
             if (this.enableSMD) {
                 //load JSON object
                 Object obj = JSONUtil.deserialize(request.getReader());
                 Object result = null;
-                
+
                 if (obj instanceof Map) {
                     Map smd = (Map) obj;
 
@@ -97,11 +98,11 @@ public class JSONInterceptor implements Interceptor {
                     try {
                         result = this.invoke(rootObject, smd);
                     } catch (Exception e) {
-                        String message = "SMD invocation threw an exception"; 
+                        String message = "SMD invocation threw an exception";
 
                         RPCResponse rpcResponse = new RPCResponse();
                         buildError(rpcResponse, message, RPCErrorCode.EXCEPTION);
-                        log.error(message, e);	// buildError doesn't log stack trace
+                        log.error(message, e); // buildError doesn't log stack trace
 
                         Throwable t = e;
                         while (t.getCause() != null) {
@@ -112,49 +113,77 @@ public class JSONInterceptor implements Interceptor {
                         result = rpcResponse;
                     }
                 } else {
-                    String message = "SMD request was not on the right format. See http://json-rpc.org"; 
-                    
+                    String message = "SMD request was not on the right format. See http://json-rpc.org";
+
                     RPCResponse rpcResponse = new RPCResponse();
                     buildError(rpcResponse, message, RPCErrorCode.INVALID_PROCEDURE_CALL);
                     result = rpcResponse;
                 }
 
-                String json = JSONUtil.serialize(result, excludeProperties, ignoreHierarchy);
+                String json = JSONUtil.serialize(result, excludeProperties,
+                    ignoreHierarchy);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                     this.wrapWithComments, json, true);
 
                 return Action.NONE;
             } else {
-                throw new JSONException("Request with content type of 'application/json-rpc' was received but SMD is "
-                            + "not enabled for this interceptor. Set 'enableSMD' to true to enable it");
+                throw new JSONException(
+                    "Request with content type of 'application/json-rpc' was received but SMD is "
+                        + "not enabled for this interceptor. Set 'enableSMD' to true to enable it");
             }
         } else {
             if (log.isDebugEnabled()) {
                 log
-                    .debug("Content type must be 'application/json' or 'application/json-rpc'. Ignoring request with content type "
-                        + contentType);
+                    .debug("Content type must be 'application/json' or 'application/json-rpc'. Ignoring request with content type " +
+                        contentType);
             }
         }
 
         return invocation.invoke();
     }
 
+    /**
+     * Sets a comma-delimited list of regular expressions to match
+     * methods that should be included irrespective of the @SMDMethod annotation.
+     *
+     * @param commaDelim A comma-delimited list of regular expressions
+     */
+    public void setSMDMethodsHack(String commaDelim) {
+        List<String> includePatterns = JSONUtil.asList(commaDelim);
+        if (includePatterns != null) {
+            this.smdMethodsHack = new ArrayList<Pattern>(includePatterns.size());
+            for (String pattern : includePatterns) {
+                this.smdMethodsHack.add(Pattern.compile(pattern));
+            }
+        }
+    }
+
+    private boolean shouldIncludeMethod(String expr) {
+        if (this.smdMethodsHack != null) {
+            for (Pattern pattern : this.smdMethodsHack) {
+                if (pattern.matcher(expr).matches())
+                    return true;
+            }
+        }
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     public RPCResponse invoke(Object object, Map data) throws IllegalArgumentException,
         IllegalAccessException, InvocationTargetException, JSONException,
         InstantiationException, NoSuchMethodException, IntrospectionException {
-        
+
         RPCResponse response = new RPCResponse();
-        
+
         //validate id 
         Object id = data.get("id");
-        if(id == null) {
+        if (id == null) {
             String message = "'id' is required for JSON RPC";
             return buildError(response, message, RPCErrorCode.METHOD_NOT_FOUND);
         }
         //could be a numeric value
         response.setId(id.toString());
-        
+
         // the map is going to have: 'params', 'method' and 'id' (what is the id for?)
         Class clazz = object.getClass();
 
@@ -168,11 +197,11 @@ public class JSONInterceptor implements Interceptor {
             String message = "'method' is required for JSON RPC";
             return buildError(response, message, RPCErrorCode.MISSING_METHOD);
         }
-        
+
         Method method = this.getMethod(clazz, methodName, parameterCount);
         if (method == null) {
-            String message = "Method " + methodName
-                + " could not be found in action class.";
+            String message = "Method " + methodName +
+                " could not be found in action class.";
             return buildError(response, message, RPCErrorCode.METHOD_NOT_FOUND);
         }
 
@@ -184,10 +213,9 @@ public class JSONInterceptor implements Interceptor {
             //validate size
             if (parameterTypes.length != parameterCount) {
                 //size mismatch
-                String message = "Parameter count in request, " + parameterCount
-                    + " do not match expected parameter count for " + methodName + ", "
-                    + parameterTypes.length;
-
+                String message = "Parameter count in request, " + parameterCount +
+                    " do not match expected parameter count for " + methodName + ", " +
+                    parameterTypes.length;
 
                 return buildError(response, message, RPCErrorCode.PARAMETERS_MISMATCH);
             }
@@ -205,15 +233,15 @@ public class JSONInterceptor implements Interceptor {
         } else {
             response.setResult(method.invoke(object, new Object[0]));
         }
-        
+
         return response;
     }
-    
+
     private RPCResponse buildError(RPCResponse response, String message, RPCErrorCode code) {
         RPCError error = new RPCError();
         error.setCode(code.code());
         error.setMessage(message);
-        
+
         log.error(message);
         response.setError(error);
         return response;
@@ -224,11 +252,14 @@ public class JSONInterceptor implements Interceptor {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
             SMDMethod smdMethodAnntotation = method.getAnnotation(SMDMethod.class);
-            if(smdMethodAnntotation != null) {
-                String alias = smdMethodAnntotation.name();
-                boolean paramsMatch = method.getParameterTypes().length == parameterCount; 
-                if ((alias.length() == 0 && method.getName().equals(name) && paramsMatch) 
-                    || (alias.equals(name) && paramsMatch)) {
+            if ((smdMethodAnntotation != null) || (shouldIncludeMethod(method.getName()))) {
+                String alias = name;
+                if (smdMethodAnntotation != null) {
+                    alias = smdMethodAnntotation.name();
+                }
+                boolean paramsMatch = method.getParameterTypes().length == parameterCount;
+                if ((alias.length() == 0 && method.getName().equals(name) && paramsMatch) ||
+                    (alias.equals(name) && paramsMatch)) {
                     return method;
                 }
             }
@@ -313,8 +344,8 @@ public class JSONInterceptor implements Interceptor {
                 if (arrayType.equals(Object.class)) {
                     //Object[]
                     Array.set(newArray, j, listValue);
-                } else if (arrayType.isPrimitive() || arrayType.equals(String.class)
-                    || arrayType.equals(Date.class)) {
+                } else if (arrayType.isPrimitive() || arrayType.equals(String.class) ||
+                    arrayType.equals(Date.class)) {
                     //primitive array
                     Array.set(newArray, j, this.convertPrimitive(arrayType, listValue,
                         accessor));
@@ -326,15 +357,15 @@ public class JSONInterceptor implements Interceptor {
                         this.populateObject(newObject, (Map) listValue);
                         Array.set(newArray, j, newObject);
                     } else
-                        throw new JSONException("Incompatible types for property "
-                            + accessor.getName());
+                        throw new JSONException("Incompatible types for property " +
+                            accessor.getName());
                 }
             }
 
             return newArray;
         } else
-            throw new JSONException("Incompatible types for property "
-                + accessor.getName());
+            throw new JSONException("Incompatible types for property " +
+                accessor.getName());
     }
 
     /**
@@ -378,14 +409,14 @@ public class JSONInterceptor implements Interceptor {
             if (Boolean.TYPE.equals(clazz))
                 return Boolean.valueOf((String) value);
             else if (Character.TYPE.equals(clazz)) {
-				String sValue = (String) value;
-				if(sValue.length()>0) {
-					return sValue.charAt(0);
-				} else {
-					return (char)0;
-				}
-			}
-		}
+                String sValue = (String) value;
+                if (sValue.length() > 0) {
+                    return sValue.charAt(0);
+                } else {
+                    return (char) 0;
+                }
+            }
+        }
 
         return value;
     }
@@ -411,14 +442,14 @@ public class JSONInterceptor implements Interceptor {
         this.defaultEncoding = val;
     }
 
-	/**
-	 * Ignore properties defined on base classes of the root object.
-	 * @param ignoreHierarchy
-	 */
-	public void setIgnoreHierarchy(boolean ignoreHierarchy) {
+    /**
+     * Ignore properties defined on base classes of the root object.
+     * @param ignoreHierarchy
+     */
+    public void setIgnoreHierarchy(boolean ignoreHierarchy) {
         this.ignoreHierarchy = ignoreHierarchy;
     }
-    
+
     /**
      * Sets the root object to be deserialized, defaults to the Action
      * @param root OGNL expression of root object to be serialized
@@ -426,8 +457,7 @@ public class JSONInterceptor implements Interceptor {
     public void setRoot(String root) {
         this.root = root;
     }
-    
-    
+
     /**
      * Sets a comma-delimited list of regular expressions to match 
      * properties that should be excluded from the JSON output.
