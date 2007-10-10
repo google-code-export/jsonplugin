@@ -28,12 +28,15 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.regex.Pattern;
+import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import com.googlecode.jsonplugin.annotations.SMDMethod;
 
 /**
  *  Wrapper for JSONWriter with some utility methods.
@@ -165,4 +168,113 @@ public class JSONUtil {
         }
         return list;
     }
+
+    /**
+     *  List visible methods carrying the @SMDMethod annotation
+     **/
+    public static Method[] listSMDMethods(Class clazz, boolean ignoreSMDMethodHierarchy) {
+        final List<Method> methods = new LinkedList<Method>();
+        if (ignoreSMDMethodHierarchy) {
+            for (Method method : clazz.getMethods()) {
+                SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
+                if (smdMethodAnnotation != null) {
+                    methods.add(method);
+                }
+            }
+        } else {
+            // recurse the entire superclass/interface hierarchy and add in order encountered
+            JSONUtil.visitInterfaces(clazz, new JSONUtil.ClassVisitor() {
+                public boolean visit(Class aClass) {
+                    for (Method method : aClass.getMethods()) {
+                        SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
+                        if (smdMethodAnnotation != null) {
+                            if (!methods.contains(method)) {
+                                methods.add(method);
+                            }
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
+
+        Method[] methodResult = new Method[methods.size()];
+        return methods.toArray(methodResult);
+    }
+
+    /**
+     * Realizes the visit(Class) method called by vistInterfaces for all encountered classes/interfaces
+     */
+    public static interface ClassVisitor {
+
+        /**
+        * Called when a new interface/class is encountered
+        *
+        * @param       aClass the encountered class/interface
+        * @return true if the recursion should continue, false to stop recursion immediately
+        * */
+        boolean visit(Class aClass);
+    }
+
+    /**
+     * Visit all the interfaces realized by the specified object, its superclasses and its interfaces
+     *
+     * Visitation is performed in the following order:
+     *   aClass
+     *   aClass' interfaces
+     *   the interface's superclasses (interfaces)
+     *   aClass' superclass
+     *   superclass' interfaces
+     *   superclass' interface's superclasses (interfaces)
+     *   super-superclass
+     *   and so on
+     *
+     * The Object base class is base excluded.
+     * Classes/interfaces are only visited once each
+     *
+     * @param aClass    the class to start recursing upwards from
+     * @param visitor   this vistor is called for each class/interface encountered
+     * @return true if all classes/interfaces were visited, false if it was exited early as specified by a ClassVisitor result
+     */
+    public static boolean visitInterfaces(Class aClass, ClassVisitor visitor) {
+        List<Class> classesVisited = new LinkedList<Class>();
+        return visitUniqueInterfaces(aClass, visitor, classesVisited);
+    }
+
+    /**
+     * Recursive method to visit all the interfaces of a class (and its superclasses and super-interfaces) if they
+     * haven't already been visited.
+     *
+     * Always visits itself if it hasn't already been visited
+     *
+     * @param thisClass         the current class to visit (if not already done so)
+     * @param classesVisited    classes already visited
+     * @param visitor           this vistor is called for each class/interface encountered
+     * @return true if recursion can continue, false if it should be aborted
+     */
+    private static boolean visitUniqueInterfaces(Class thisClass, ClassVisitor visitor, List<Class> classesVisited) {
+        boolean okayToContinue = true;
+
+        if (!classesVisited.contains(thisClass)) {
+            classesVisited.add(thisClass);
+            okayToContinue = visitor.visit(thisClass);
+
+            if (okayToContinue) {
+                Class[] interfaces = thisClass.getInterfaces();
+                int index = 0;
+                while ((index < interfaces.length) && (okayToContinue)) {
+                    okayToContinue = visitUniqueInterfaces(interfaces[index++], visitor, classesVisited);
+                }
+
+                if (okayToContinue) {
+                    Class superClass = thisClass.getSuperclass();
+                    if ((superClass != null) && (!Object.class.equals(superClass))) {
+                        okayToContinue = visitUniqueInterfaces(superClass, visitor, classesVisited);
+                    }
+                }
+            }
+        }
+        return okayToContinue;
+    }
+
 }

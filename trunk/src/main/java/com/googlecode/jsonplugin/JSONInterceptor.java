@@ -49,7 +49,7 @@ public class JSONInterceptor implements Interceptor {
     private boolean ignoreHierarchy = true;
     private String root;
     private List<Pattern> excludeProperties = null;
-    private List<Pattern> smdMethodsHack = null;
+    private boolean ignoreSMDMethodInterfaces = true;
 
     public void destroy() {
     }
@@ -142,32 +142,6 @@ public class JSONInterceptor implements Interceptor {
         return invocation.invoke();
     }
 
-    /**
-     * Sets a comma-delimited list of regular expressions to match
-     * methods that should be included irrespective of the @SMDMethod annotation.
-     *
-     * @param commaDelim A comma-delimited list of regular expressions
-     */
-    public void setSMDMethodsHack(String commaDelim) {
-        List<String> includePatterns = JSONUtil.asList(commaDelim);
-        if (includePatterns != null) {
-            this.smdMethodsHack = new ArrayList<Pattern>(includePatterns.size());
-            for (String pattern : includePatterns) {
-                this.smdMethodsHack.add(Pattern.compile(pattern));
-            }
-        }
-    }
-
-    private boolean shouldIncludeMethod(String expr) {
-        if (this.smdMethodsHack != null) {
-            for (Pattern pattern : this.smdMethodsHack) {
-                if (pattern.matcher(expr).matches())
-                    return true;
-            }
-        }
-        return false;
-    }
-
     @SuppressWarnings("unchecked")
     public RPCResponse invoke(Object object, Map data) throws IllegalArgumentException,
         IllegalAccessException, InvocationTargetException, JSONException,
@@ -249,22 +223,33 @@ public class JSONInterceptor implements Interceptor {
 
     @SuppressWarnings("unchecked")
     private Method getMethod(Class clazz, String name, int parameterCount) {
-        Method[] methods = clazz.getMethods();
-        for (Method method : methods) {
-            SMDMethod smdMethodAnntotation = method.getAnnotation(SMDMethod.class);
-            if ((smdMethodAnntotation != null) || (shouldIncludeMethod(method.getName()))) {
-                String alias = name;
-                if (smdMethodAnntotation != null) {
-                    alias = smdMethodAnntotation.name();
-                }
-                boolean paramsMatch = method.getParameterTypes().length == parameterCount;
-                if ((alias.length() == 0 && method.getName().equals(name) && paramsMatch) ||
-                    (alias.equals(name) && paramsMatch)) {
-                    return method;
-                }
+        Method[] smdMethods = JSONUtil.listSMDMethods(clazz, ignoreSMDMethodInterfaces);
+
+        for (Method method : smdMethods) {
+            if (checkSMDMethodSignature(method, name, parameterCount)) {
+                return method;
             }
         }
         return null;
+    }
+
+    /**
+     * Look for a method in clazz carrying the SMDMethod annotation with matching name and parametersCount
+     * @return true if matches name and parameterCount
+     */
+    private boolean checkSMDMethodSignature(Method method, String name, int parameterCount) {
+
+        SMDMethod smdMethodAnntotation = method.getAnnotation(SMDMethod.class);
+        if (smdMethodAnntotation != null) {
+            String alias = smdMethodAnntotation.name();
+            boolean paramsMatch = method.getParameterTypes().length == parameterCount;
+            if ((alias.length() == 0 && method.getName().equals(name) && paramsMatch) ||
+                (alias.equals(name) && paramsMatch)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -427,6 +412,14 @@ public class JSONInterceptor implements Interceptor {
 
     public void setEnableSMD(boolean enableSMD) {
         this.enableSMD = enableSMD;
+    }
+
+    /**
+     * Ignore annotations on methods in interfaces
+     * You may need to set to this true if your action is a proxy/enhanced as annotations are not inherited
+     */
+    public void setIgnoreSMDMethodInterfaces(boolean ignoreSMDMethodInterfaces) {
+        this.ignoreSMDMethodInterfaces = ignoreSMDMethodInterfaces;
     }
 
     /**
