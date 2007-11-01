@@ -133,7 +133,7 @@ public class JSONUtil {
         return deserialize(buffer.toString());
     }
 
-    static void writeJSONToResponse(HttpServletResponse response, String encoding,
+    public static void writeJSONToResponse(HttpServletResponse response, String encoding,
         boolean wrapWithComments, String serializedJSON, boolean smd) throws IOException {
         String json = serializedJSON == null ? "" : serializedJSON;
         if (wrapWithComments) {
