@@ -300,6 +300,23 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
+    
+    @SuppressWarnings( { "unchecked", "unchecked" })
+    public void testReadEmpty() throws Exception {
+        //request
+        StringReader stringReader = new StringReader(TestUtils
+            .readContent(JSONInterceptorTest.class.getResource("json-6.txt")));
+        this.request.setupGetReader(new BufferedReader(stringReader));
+        this.request.setupAddHeader("content-type", "application/json");
+
+        //interceptor
+        JSONInterceptor interceptor = new JSONInterceptor();
+        TestAction action = new TestAction();
+
+        this.invocation.setAction(action);
+
+        interceptor.intercept(this.invocation);
+    }
 
     @SuppressWarnings( { "unchecked", "unchecked" })
     public void test() throws Exception {
