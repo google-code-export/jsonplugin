@@ -128,21 +128,24 @@ class JSONReader {
     @SuppressWarnings("unchecked")
     private Map object() throws JSONException {
         Map ret = new HashMap();
-        String key = (String) this.read();
+        Object next = this.read();
+        if (next != OBJECT_END) {
+            String key = (String) next;
+            while (this.token != OBJECT_END) {
+                this.read(); // should be a colon
 
-        while (this.token != OBJECT_END) {
-            this.read(); // should be a colon
+                if (this.token != OBJECT_END) {
+                    ret.put(key, this.read());
 
-            if (this.token != OBJECT_END) {
-                ret.put(key, this.read());
+                    if (this.read() == COMMA) {
+                        Object name = this.read();
 
-                if (this.read() == COMMA) {
-                    Object name = this.read();
-
-                    if (name instanceof String) {
-                        key = (String) name;
-                    } else
-                        throw new JSONException("Input string is not well formed JSON");
+                        if (name instanceof String) {
+                            key = (String) name;
+                        } else
+                            throw new JSONException(
+                                "Input string is not well formed JSON");
+                    }
                 }
             }
         }
