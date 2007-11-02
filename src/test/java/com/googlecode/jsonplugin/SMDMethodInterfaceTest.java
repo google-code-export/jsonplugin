@@ -1,11 +1,12 @@
 package com.googlecode.jsonplugin;
 
-import junit.framework.TestCase;
-import com.googlecode.jsonplugin.annotations.SMDMethod;
-
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.InvocationHandler;
+
+import junit.framework.TestCase;
+
+import com.googlecode.jsonplugin.annotations.SMDMethod;
 
 /**
  * Tests that the SMDMethod annotation can be found in interfaces when ignoreSMDMethodInterface is false
@@ -26,11 +27,11 @@ public class SMDMethodInterfaceTest extends TestCase {
     }
 
     public interface InterfaceD {
-       String getD();
+        String getD();
     }
 
     public interface InterfaceE {
-       String getE();
+        String getE();
     }
 
     public static class ClassA extends ClassB implements InterfaceA {
@@ -38,7 +39,8 @@ public class SMDMethodInterfaceTest extends TestCase {
         private String a;
         private String z;
 
-        public ClassA(String a, String b, String c, String d, String e, String x, String y, String z) {
+        public ClassA(String a, String b, String c, String d, String e, String x,
+            String y, String z) {
             super(b, c, d, e, x, y);
             this.a = a;
             this.z = z;
@@ -113,7 +115,7 @@ public class SMDMethodInterfaceTest extends TestCase {
         Method[] smdMethodsA = JSONUtil.listSMDMethods(ClassA.class, true);
         assertEquals(2, smdMethodsA.length);
         assertEquals("getZ", smdMethodsA[0].getName());
-        assertEquals("getX", smdMethodsA[1].getName());                
+        assertEquals("getX", smdMethodsA[1].getName());
 
         Method[] smdMethodsB = JSONUtil.listSMDMethods(ClassB.class, true);
         assertEquals(1, smdMethodsB.length);
@@ -152,14 +154,15 @@ public class SMDMethodInterfaceTest extends TestCase {
 
         InvocationHandler handler = new InvocationHandler() {
             // dummy implementation
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            public Object invoke(Object proxy, Method method, Object[] args)
+                throws Throwable {
                 return null;
             }
         };
         // proxy is proxy to an impl of ClassA
-        InterfaceA proxy = (InterfaceA) Proxy.newProxyInstance(ClassA.class.getClassLoader(),
-                                          new Class[] { InterfaceA.class, InterfaceB.class, InterfaceC.class  },
-                                          handler);
+        InterfaceA proxy = (InterfaceA) Proxy.newProxyInstance(ClassA.class
+            .getClassLoader(), new Class[] { InterfaceA.class, InterfaceB.class,
+                InterfaceC.class }, handler);
 
         // first, without the recursion
         Method[] smdMethodsA = JSONUtil.listSMDMethods(proxy.getClass(), true);

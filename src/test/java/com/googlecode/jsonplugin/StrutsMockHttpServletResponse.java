@@ -52,7 +52,6 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
         return contentType;
     }
 
-    
     @Override
     public void setContentType(String contentType) {
         this.contentType = contentType;

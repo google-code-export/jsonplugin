@@ -20,7 +20,7 @@
  */
 package com.googlecode.jsonplugin.smd;
 
-public class SMDMethodParameter implements Comparable  {
+public class SMDMethodParameter implements Comparable {
     private String name;
 
     public SMDMethodParameter(String name) {
@@ -35,17 +35,23 @@ public class SMDMethodParameter implements Comparable  {
         this.name = name;
     }
 
-	public int compareTo(Object o) {
-		if(!(o instanceof SMDMethodParameter)) return 1;
-		if(o==null) return 1;
-		if(name==null && ((SMDMethodParameter)o).name==null) return 0;
-		if(name==null) return -1;
-		return name.compareTo(((SMDMethodParameter)o).name);
-	}
+    public int compareTo(Object o) {
+        if (!(o instanceof SMDMethodParameter))
+            return 1;
+        if (o == null)
+            return 1;
+        if (name == null && ((SMDMethodParameter) o).name == null)
+            return 0;
+        if (name == null)
+            return -1;
+        return name.compareTo(((SMDMethodParameter) o).name);
+    }
 
-	public boolean equals(Object o) {
-		if(!(o instanceof SMDMethodParameter)) return false;
-		if(name==null && ((SMDMethodParameter)o).name==null) return true;
-		return name != null && name.equals(((SMDMethodParameter) o).name);
-	}
+    public boolean equals(Object o) {
+        if (!(o instanceof SMDMethodParameter))
+            return false;
+        if (name == null && ((SMDMethodParameter) o).name == null)
+            return true;
+        return name != null && name.equals(((SMDMethodParameter) o).name);
+    }
 }

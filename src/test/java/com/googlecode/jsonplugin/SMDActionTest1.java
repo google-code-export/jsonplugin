@@ -55,9 +55,9 @@ public class SMDActionTest1 {
     public void doSomething() {
 
     }
-    
+
     public void methodWithoutAnnotation() {
-        
+
     }
 
     public boolean isAddWasCalled() {

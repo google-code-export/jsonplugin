@@ -3,7 +3,8 @@ package com.googlecode.jsonplugin;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -89,7 +90,7 @@ public class JSONResult implements Result {
                 this.excludeProperties.add(Pattern.compile(pattern));
             }
         }
-    }  
+    }
 
     public void execute(ActionInvocation invocation) throws Exception {
         ActionContext actionContext = invocation.getInvocationContext();
@@ -111,7 +112,8 @@ public class JSONResult implements Result {
                     rootObject = invocation.getAction();
                 }
             }
-            json = JSONUtil.serialize(rootObject, this.excludeProperties, ignoreHierarchy);
+            json = JSONUtil
+                .serialize(rootObject, this.excludeProperties, ignoreHierarchy);
 
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                 isWrapWithComments(), json, false);
@@ -157,9 +159,10 @@ public class JSONResult implements Result {
             SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
 
             //SMDMethod annotation is required
-            if (((smdMethodAnnotation != null)
-                && !this.shouldExcludeProperty(method.getName())))  {
-                String methodName = smdMethodAnnotation.name().length() == 0 ? method.getName() : smdMethodAnnotation.name();
+            if (((smdMethodAnnotation != null) && !this.shouldExcludeProperty(method
+                .getName()))) {
+                String methodName = smdMethodAnnotation.name().length() == 0 ? method
+                    .getName() : smdMethodAnnotation.name();
 
                 com.googlecode.jsonplugin.smd.SMDMethod smdMethod = new com.googlecode.jsonplugin.smd.SMDMethod(
                     methodName);
