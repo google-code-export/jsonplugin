@@ -25,17 +25,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
-import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import com.googlecode.jsonplugin.annotations.SMDMethod;
 
 /**
@@ -62,7 +63,7 @@ public class JSONUtil {
      * any of the regular expressions in the given collection.
      * @param object to be serialized
      * @param excludeProperties Patterns matching properties to exclude
-	 * @param ignoreHierarchy whether to ignore properties defined on base classes of the root object 
+     * @param ignoreHierarchy whether to ignore properties defined on base classes of the root object 
      * @return JSON string
      * @throws JSONException
      */
@@ -186,7 +187,8 @@ public class JSONUtil {
             JSONUtil.visitInterfaces(clazz, new JSONUtil.ClassVisitor() {
                 public boolean visit(Class aClass) {
                     for (Method method : aClass.getMethods()) {
-                        SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
+                        SMDMethod smdMethodAnnotation = method
+                            .getAnnotation(SMDMethod.class);
                         if (smdMethodAnnotation != null) {
                             if (!methods.contains(method)) {
                                 methods.add(method);
@@ -252,7 +254,8 @@ public class JSONUtil {
      * @param visitor           this vistor is called for each class/interface encountered
      * @return true if recursion can continue, false if it should be aborted
      */
-    private static boolean visitUniqueInterfaces(Class thisClass, ClassVisitor visitor, List<Class> classesVisited) {
+    private static boolean visitUniqueInterfaces(Class thisClass, ClassVisitor visitor,
+        List<Class> classesVisited) {
         boolean okayToContinue = true;
 
         if (!classesVisited.contains(thisClass)) {
@@ -263,13 +266,15 @@ public class JSONUtil {
                 Class[] interfaces = thisClass.getInterfaces();
                 int index = 0;
                 while ((index < interfaces.length) && (okayToContinue)) {
-                    okayToContinue = visitUniqueInterfaces(interfaces[index++], visitor, classesVisited);
+                    okayToContinue = visitUniqueInterfaces(interfaces[index++], visitor,
+                        classesVisited);
                 }
 
                 if (okayToContinue) {
                     Class superClass = thisClass.getSuperclass();
                     if ((superClass != null) && (!Object.class.equals(superClass))) {
-                        okayToContinue = visitUniqueInterfaces(superClass, visitor, classesVisited);
+                        okayToContinue = visitUniqueInterfaces(superClass, visitor,
+                            classesVisited);
                     }
                 }
             }

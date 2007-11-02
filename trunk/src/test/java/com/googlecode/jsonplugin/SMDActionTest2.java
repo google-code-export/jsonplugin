@@ -7,7 +7,7 @@ import com.googlecode.jsonplugin.annotations.SMDMethodParameter;
 @SMD(objectName = "testaction", serviceType = "service", version = "10.0")
 public class SMDActionTest2 {
     private boolean doSomethingInvoked;
-    
+
     @SMDMethod
     public void add(@SMDMethodParameter(name = "a")
     int a, @SMDMethodParameter(name = "b")
@@ -18,7 +18,7 @@ public class SMDActionTest2 {
     public void doSomething() {
         doSomethingInvoked = true;
     }
-    
+
     @SMDMethod
     public Bean getBean() {
         Bean bean = new Bean();

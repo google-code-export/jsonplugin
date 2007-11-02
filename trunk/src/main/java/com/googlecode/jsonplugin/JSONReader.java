@@ -102,22 +102,23 @@ class JSONReader {
         } else if (this.c == ':') {
             ret = COLON;
             this.next();
-        } else if ((this.c == 't') && (this.next() == 'r') && (this.next() == 'u')
-            && (this.next() == 'e')) {
+        } else if ((this.c == 't') && (this.next() == 'r') && (this.next() == 'u') &&
+            (this.next() == 'e')) {
             ret = Boolean.TRUE;
             this.next();
-        } else if ((this.c == 'f') && (this.next() == 'a') && (this.next() == 'l')
-            && (this.next() == 's') && (this.next() == 'e')) {
+        } else if ((this.c == 'f') && (this.next() == 'a') && (this.next() == 'l') &&
+            (this.next() == 's') && (this.next() == 'e')) {
             ret = Boolean.FALSE;
             this.next();
-        } else if ((this.c == 'n') && (this.next() == 'u') && (this.next() == 'l')
-            && (this.next() == 'l')) {
+        } else if ((this.c == 'n') && (this.next() == 'u') && (this.next() == 'l') &&
+            (this.next() == 'l')) {
             ret = null;
             this.next();
         } else if (Character.isDigit(this.c) || (this.c == '-')) {
             ret = this.number();
         } else {
-            throw new JSONException("Input string is not well formed JSON");
+            throw new JSONException(
+                "Input string is not well formed JSON (invalid char " + this.c + ")");
         }
 
         this.token = ret;
@@ -144,7 +145,8 @@ class JSONReader {
                             key = (String) name;
                         } else
                             throw new JSONException(
-                                "Input string is not well formed JSON");
+                                "Input string is not well formed JSON (invalid char " +
+                                    this.c + ")");
                     }
                 }
             }
@@ -243,39 +245,39 @@ class JSONReader {
 
         for (int i = 0; i < 4; ++i) {
             switch (this.next()) {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                value = ((value << 4) + this.c) - '0';
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    value = ((value << 4) + this.c) - '0';
 
-                break;
+                    break;
 
-            case 'a':
-            case 'b':
-            case 'c':
-            case 'd':
-            case 'e':
-            case 'f':
-                value = ((value << 4) + this.c) - 'k';
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                    value = ((value << 4) + this.c) - 'k';
 
-                break;
+                    break;
 
-            case 'A':
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'E':
-            case 'F':
-                value = ((value << 4) + this.c) - 'K';
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                    value = ((value << 4) + this.c) - 'K';
 
-                break;
+                    break;
             }
         }
 

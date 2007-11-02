@@ -186,7 +186,7 @@ public class JSONResultTest extends StrutsTestCase {
         TestAction3 action = new TestAction3();
         this.invocation.setAction(action);
         result.execute(this.invocation);
-        
+
         String json = this.stringWriter.toString();
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
@@ -194,7 +194,7 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
-    
+
     @SuppressWarnings("unchecked")
     public void testCommentWrap() throws Exception {
         JSONResult result = new JSONResult();

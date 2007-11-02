@@ -26,23 +26,23 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testBadJSON1() throws Exception {
         tryBadJSON("bad-1.txt");
     }
-    
+
     public void testBadJSON2() throws Exception {
         tryBadJSON("bad-2.txt");
     }
-    
+
     public void testBadJSON3() throws Exception {
         tryBadJSON("bad-3.txt");
     }
-    
+
     public void testBadJSON4() throws Exception {
         tryBadJSON("bad-4.txt");
     }
-    
+
     public void testBadJSON5() throws Exception {
         tryBadJSON("bad-5.txt");
     }
-    
+
     public void testBadToTheBoneJSON4() throws Exception {
         tryBadJSON("bad-to-the-bone.txt");
     }
@@ -64,12 +64,12 @@ public class JSONInterceptorTest extends StrutsTestCase {
         try {
             interceptor.intercept(this.invocation);
             fail("Should have thrown an exception");
-        }  catch (JSONException e) {
+        } catch (JSONException e) {
             //I can't get JUnit to ignore the exception
             // @Test(expected = JSONException.class)
         }
     }
-    
+
     public void testSMDDisabledSMD() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
@@ -82,15 +82,11 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         this.invocation.setAction(action);
 
-        //SMD was not enabled so expect exception
-
         //SMD was not enabled so invocation must happen
         try {
             interceptor.intercept(this.invocation);
-            fail("Should have thrown an exception");
-        }  catch (JSONException e) {
-            //I can't get JUnit to ignore the exception
-            // @Test(expected = JSONException.class)
+        } catch (JSONException e) {
+            fail("Should have not thrown an exception");
         }
 
     }
@@ -300,7 +296,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
-    
+
     @SuppressWarnings( { "unchecked", "unchecked" })
     public void testReadEmpty() throws Exception {
         //request
@@ -442,7 +438,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         //test desrialize=false
         assertNull(action.getFoo2());
     }
-    
+
     public void testRoot() throws Exception {
         StringReader stringReader = new StringReader(TestUtils
             .readContent(JSONInterceptorTest.class.getResource("json-5.txt")));
@@ -458,7 +454,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
         this.invocation.getStack().push(action);
 
         interceptor.intercept(this.invocation);
-        
+
         Bean bean2 = action.getBean();
 
         assertNotNull(bean2);
