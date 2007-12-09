@@ -3,8 +3,14 @@
 	"byteField": 0,
 	"charField": "s",
 	"doubleField": 10.1,
-	"enumBean": "One",
-	"enumField": "ValueA",	
+	"enumBean": {
+	    "propA":"A",
+	    "propB":"B",
+	    "_name":"One"
+	 },
+	"enumField": {
+	    "_name":"ValueA"
+   },
 	"floatField": 1.5,
 	"intField": 10,
 	"longField": 100,

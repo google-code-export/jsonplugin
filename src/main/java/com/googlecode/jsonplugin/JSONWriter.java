@@ -49,6 +49,10 @@ import com.googlecode.jsonplugin.annotations.JSON;
 @SuppressWarnings("unchecked")
 class JSONWriter {
     private static final Log log = LogFactory.getLog(JSONWriter.class);
+
+    /** By default, enums are serialzied as name=value pairs */
+    public static final boolean ENUM_AS_BEAN_DEFAULT = false;
+
     static char[] hex = "0123456789ABCDEF".toCharArray();
     private StringBuilder buf = new StringBuilder();
     private Stack stack = new Stack();
@@ -58,6 +62,7 @@ class JSONWriter {
     private String exprStack = "";
     private Collection<Pattern> excludeProperties;
     private DateFormat formatter;
+    private boolean enumAsBean = ENUM_AS_BEAN_DEFAULT;
 
     /**
      * @param object Object to be serialized into JSON
@@ -141,6 +146,8 @@ class JSONWriter {
             this.date((Date) object, method);
         } else if (object instanceof Calendar) {
             this.date(((Calendar) object).getTime(), method);
+        } else if (object instanceof Enum) {
+            this.enumeration((Enum) object);
         } else {
             this.bean(object);
         }
@@ -217,6 +224,15 @@ class JSONWriter {
                     }
                 }
             }
+
+            // special-case handling for an Enumeration - include the name() as a property */
+            if (object instanceof Enum) {
+                if (hasData) {
+                    this.add(',');
+                }
+                Object value = ((Enum) object).name();
+                this.add("_name", value, object.getClass().getMethod("name"));
+            }
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -225,12 +241,26 @@ class JSONWriter {
     }
 
     /**
+     * Instrospect an Enum and serialize it as a name/value pair or as a bean including all its own properties
+     */
+    private void enumeration(Enum enumeration) throws JSONException {
+        if (enumAsBean) {
+            this.bean(enumeration);
+        } else {
+            this.string(enumeration.name());
+        }
+    }
+
+    /**
      * Ignore "class" field
      */
     private boolean shouldExcludeProperty(Class clazz, PropertyDescriptor prop)
         throws SecurityException, NoSuchFieldException {
-        if (prop.getName().equals("class"))
+        String name = prop.getName();
+
+        if (name.equals("class") || name.equals("declaringClass")) {
             return true;
+        }
 
         return false;
     }
@@ -463,5 +493,15 @@ class JSONWriter {
 
     public void setIgnoreHierarchy(boolean ignoreHierarchy) {
         this.ignoreHierarchy = ignoreHierarchy;
+    }
+
+    /**
+     * If true, an Enum is serialized as a bean with a special property _name=name() as all as all other properties defined within the enum.<br/>
+     * If false, an Enum is serialized as a name=value pair (name=name())
+     *
+     * @param enumAsBean true to serialize an enum as a bean instead of as a name=value pair (default=false)
+     */
+    public void setEnumAsBean(boolean enumAsBean) {
+        this.enumAsBean = enumAsBean;
     }
 }

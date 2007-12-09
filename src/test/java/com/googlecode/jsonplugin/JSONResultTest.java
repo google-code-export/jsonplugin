@@ -129,6 +129,8 @@ public class JSONResultTest extends StrutsTestCase {
         bean1.setFloatField(1.5f);
         bean1.setIntField(10);
         bean1.setLongField(100);
+        bean1.setEnumField(AnEnum.ValueA);
+        bean1.setEnumBean(AnEnumBean.One);
 
         Bean bean2 = new Bean();
 
@@ -136,7 +138,9 @@ public class JSONResultTest extends StrutsTestCase {
         bean2.setBooleanField(false);
         bean2.setFloatField(1.1f);
         bean2.setDoubleField(2.2);
-
+        bean2.setEnumField(AnEnum.ValueB);
+        bean2.setEnumBean(AnEnumBean.Two);
+        
         //circular reference
         bean1.setObjectField(bean2);
         bean2.setObjectField(bean1);
@@ -223,6 +227,8 @@ public class JSONResultTest extends StrutsTestCase {
         bean1.setFloatField(1.5f);
         bean1.setIntField(10);
         bean1.setLongField(100);
+        bean1.setEnumField(null);
+        bean1.setEnumBean(null);
 
         Bean bean2 = new Bean();
 
@@ -230,7 +236,9 @@ public class JSONResultTest extends StrutsTestCase {
         bean2.setBooleanField(false);
         bean2.setFloatField(1.1f);
         bean2.setDoubleField(2.2);
-
+        bean2.setEnumField(AnEnum.ValueC);
+        bean2.setEnumBean(AnEnumBean.Three);
+        
         //circular reference
         bean1.setObjectField(bean2);
         bean2.setObjectField(bean1);
@@ -273,9 +281,7 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
-    public void test2() throws Exception {
-        JSONResult result = new JSONResult();
-
+    private void executeTest2Action(JSONResult result) throws Exception {
         TestAction action = new TestAction();
 
         //beans
@@ -288,6 +294,8 @@ public class JSONResultTest extends StrutsTestCase {
         bean1.setFloatField(1.5f);
         bean1.setIntField(10);
         bean1.setLongField(100);
+        bean1.setEnumField(AnEnum.ValueA);
+        bean1.setEnumBean(AnEnumBean.One);
 
         //set root
         action.setBean(bean1);
@@ -299,12 +307,33 @@ public class JSONResultTest extends StrutsTestCase {
         this.invocation.setAction(action);
 
         result.execute(this.invocation);
+    }
 
+    public void test2() throws Exception {
+        JSONResult result = new JSONResult();
+
+        executeTest2Action(result);
         String json = this.stringWriter.toString();
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
             .getResource("json-2.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
+    }
+
+    /** Repeats test2 but with the Enum serialized as a bean */
+    public void test2WithEnumBean() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setEnumAsBean(true);
+
+        executeTest2Action(result);
+
+        String json = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class
+            .getResource("json-2-enum.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
