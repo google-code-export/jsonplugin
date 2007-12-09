@@ -190,10 +190,13 @@ public class JSONUtil {
 
     /**
      *  List visible methods carrying the @SMDMethod annotation
+     *
+     * @param ignoreInterfaces if true, only the methods of the class are examined.  If false, annotations on
+     *  every interfaces' methods are examined.
      **/
-    public static Method[] listSMDMethods(Class clazz, boolean ignoreSMDMethodHierarchy) {
+    public static Method[] listSMDMethods(Class clazz, boolean ignoreInterfaces) {
         final List<Method> methods = new LinkedList<Method>();
-        if (ignoreSMDMethodHierarchy) {
+        if (ignoreInterfaces) {
             for (Method method : clazz.getMethods()) {
                 SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
                 if (smdMethodAnnotation != null) {
