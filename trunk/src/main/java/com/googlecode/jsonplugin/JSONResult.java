@@ -59,7 +59,7 @@ public class JSONResult implements Result {
     private boolean wrapWithComments;
     private boolean enableSMD = false;
     private boolean ignoreHierarchy = true;
-    private boolean ignoreSMDMethodInterfaces = true;
+    private boolean ignoreInterfaces = true;
     private boolean enumAsBean = JSONWriter.ENUM_AS_BEAN_DEFAULT;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
@@ -154,7 +154,7 @@ public class JSONResult implements Result {
         }
 
         //get public methods
-        Method[] methods = JSONUtil.listSMDMethods(clazz, ignoreSMDMethodInterfaces);
+        Method[] methods = JSONUtil.listSMDMethods(clazz, ignoreInterfaces);
 
         for (Method method : methods) {
             SMDMethod smdMethodAnnotation = method.getAnnotation(SMDMethod.class);
@@ -293,11 +293,11 @@ public class JSONResult implements Result {
     }
 
     /**
-     * Ignore annotations on methods in interfaces
-     * You may need to set to this true if your action is a proxy as annotations are not inherited
+     * Controls whether interfaces should be inspected for method annotations
+     * You may need to set to this true if your action is a proxy as annotations on methods are not inherited
      */
-    public void setIgnoreSMDMethodInterfaces(boolean ignoreSMDMethodInterfaces) {
-        this.ignoreSMDMethodInterfaces = ignoreSMDMethodInterfaces;
+    public void setIgnoreInterfaces(boolean ignoreInterfaces) {
+        this.ignoreInterfaces = ignoreInterfaces;
     }
 
     /**
