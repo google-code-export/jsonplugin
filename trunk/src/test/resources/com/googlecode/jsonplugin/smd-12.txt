@@ -6,6 +6,8 @@
         "byteField": 0,
         "charField": "s",
         "doubleField": 10.1,
+        "enumBean": null,
+        "enumField": null,        
         "floatField": 1.5,
         "intField": 10,
         "longField": 100,

@@ -60,6 +60,7 @@ public class JSONResult implements Result {
     private boolean enableSMD = false;
     private boolean ignoreHierarchy = true;
     private boolean ignoreSMDMethodInterfaces = true;
+    private boolean enumAsBean = JSONWriter.ENUM_AS_BEAN_DEFAULT;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -113,7 +114,7 @@ public class JSONResult implements Result {
                 }
             }
             json = JSONUtil
-                .serialize(rootObject, this.excludeProperties, ignoreHierarchy);
+                .serialize(rootObject, this.excludeProperties, ignoreHierarchy, enumAsBean);
 
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                 isWrapWithComments(), json, false);
@@ -297,5 +298,16 @@ public class JSONResult implements Result {
      */
     public void setIgnoreSMDMethodInterfaces(boolean ignoreSMDMethodInterfaces) {
         this.ignoreSMDMethodInterfaces = ignoreSMDMethodInterfaces;
+    }
+
+    /**
+     * Controls how Enum's are serialized :
+     *    If true, an Enum is serialized as a name=value pair (name=name()) (default)
+     *    If false, an Enum is serialized as a bean with a special property _name=name()
+     *
+     * @param enumAsBean
+     */
+    public void setEnumAsBean(boolean enumAsBean) {
+        this.enumAsBean = enumAsBean;
     }
 }

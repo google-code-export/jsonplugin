@@ -10,6 +10,8 @@ public class Bean {
     private double doubleField;
     private Object objectField;
     private byte byteField;
+    private AnEnum enumField;
+    private AnEnumBean enumBean;
 
     /**
      * @return the byteField
@@ -87,5 +89,21 @@ public class Bean {
 
     public void setStringField(String stringField) {
         this.stringField = stringField;
+    }
+
+    public AnEnum getEnumField() {
+        return enumField;
+    }
+
+    public void setEnumField(AnEnum enumField) {
+        this.enumField = enumField;
+    }
+
+    public AnEnumBean getEnumBean() {
+        return enumBean;
+    }
+
+    public void setEnumBean(AnEnumBean enumBean) {
+        this.enumBean = enumBean;
     }
 }

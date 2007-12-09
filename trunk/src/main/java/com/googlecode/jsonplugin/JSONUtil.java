@@ -63,7 +63,7 @@ public class JSONUtil {
      * any of the regular expressions in the given collection.
      * @param object to be serialized
      * @param excludeProperties Patterns matching properties to exclude
-     * @param ignoreHierarchy whether to ignore properties defined on base classes of the root object 
+     * @param ignoreHierarchy whether to ignore properties defined on base classes of the root object
      * @return JSON string
      * @throws JSONException
      */
@@ -71,6 +71,24 @@ public class JSONUtil {
         boolean ignoreHierarchy) throws JSONException {
         JSONWriter writer = new JSONWriter();
         writer.setIgnoreHierarchy(ignoreHierarchy);
+        return writer.write(object, excludeProperties);
+    }
+
+    /**
+     * Serilizes an object into JSON, excluding any properties matching
+     * any of the regular expressions in the given collection.
+     * @param object to be serialized
+     * @param excludeProperties Patterns matching properties to exclude
+     * @param ignoreHierarchy whether to ignore properties defined on base classes of the root object
+     * @param enumAsBean whether to serialized enums a Bean or name=value pair
+     * @return JSON string
+     * @throws JSONException
+     */
+    public static String serialize(Object object, Collection<Pattern> excludeProperties,
+        boolean ignoreHierarchy, boolean enumAsBean) throws JSONException {
+        JSONWriter writer = new JSONWriter();
+        writer.setIgnoreHierarchy(ignoreHierarchy);
+        writer.setEnumAsBean(enumAsBean);
         return writer.write(object, excludeProperties);
     }
 
