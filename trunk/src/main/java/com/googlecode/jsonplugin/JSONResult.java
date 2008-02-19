@@ -58,6 +58,7 @@ public class JSONResult implements Result {
     private String root;
     private boolean wrapWithComments;
     private boolean enableSMD = false;
+    private boolean enableGZIP = false;
     private boolean ignoreHierarchy = true;
     private boolean ignoreInterfaces = true;
     private boolean enumAsBean = JSONWriter.ENUM_AS_BEAN_DEFAULT;
@@ -95,6 +96,8 @@ public class JSONResult implements Result {
 
     public void execute(ActionInvocation invocation) throws Exception {
         ActionContext actionContext = invocation.getInvocationContext();
+        HttpServletRequest request = (HttpServletRequest) actionContext
+            .get(StrutsStatics.HTTP_REQUEST);
         HttpServletResponse response = (HttpServletResponse) actionContext
             .get(StrutsStatics.HTTP_RESPONSE);
 
@@ -116,15 +119,17 @@ public class JSONResult implements Result {
             json = JSONUtil
                 .serialize(rootObject, this.excludeProperties, ignoreHierarchy, enumAsBean);
 
+            boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
+           
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                isWrapWithComments(), json, false);
+                isWrapWithComments(), json, false, writeGzip);
 
         } catch (IOException exception) {
             log.error(exception);
             throw exception;
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     private com.googlecode.jsonplugin.smd.SMD writeSMD(ActionInvocation invocation) {
         ActionContext actionContext = invocation.getInvocationContext();
@@ -309,5 +314,13 @@ public class JSONResult implements Result {
      */
     public void setEnumAsBean(boolean enumAsBean) {
         this.enumAsBean = enumAsBean;
+    }
+
+    public boolean isEnableGZIP() {
+        return enableGZIP;
+    }
+
+    public void setEnableGZIP(boolean enableGZIP) {
+        this.enableGZIP = enableGZIP;
     }
 }

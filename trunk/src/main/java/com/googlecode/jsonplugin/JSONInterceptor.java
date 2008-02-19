@@ -33,6 +33,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 public class JSONInterceptor implements Interceptor {
     private static final Log log = LogFactory.getLog(JSONInterceptor.class);
     private boolean enableSMD = false;
+    private boolean enableGZIP = false;
     private boolean wrapWithComments;
     private String defaultEncoding = "ISO-8859-1";
     private boolean ignoreHierarchy = true;
@@ -112,7 +113,7 @@ public class JSONInterceptor implements Interceptor {
                 String json = JSONUtil.serialize(result, excludeProperties,
                     ignoreHierarchy);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                    this.wrapWithComments, json, true);
+                    this.wrapWithComments, json, true, false);
 
                 return Action.NONE;
             } else {
@@ -125,8 +126,9 @@ public class JSONInterceptor implements Interceptor {
             }
 
             String json = JSONUtil.serialize(result, excludeProperties, ignoreHierarchy);
+            boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                this.wrapWithComments, json, true);
+                this.wrapWithComments, json, true, writeGzip);
 
             return Action.NONE;
         } else {
@@ -310,5 +312,18 @@ public class JSONInterceptor implements Interceptor {
                 this.excludeProperties.add(Pattern.compile(pattern));
             }
         }
+    }
+
+    public boolean isEnableGZIP() {
+        return enableGZIP;
+    }
+
+	/**
+     * Setting this property to "true" will compress the output.
+     * 
+     * @param enableGZIP Enable compressed output
+     */
+    public void setEnableGZIP(boolean enableGZIP) {
+        this.enableGZIP = enableGZIP;
     }
 }
