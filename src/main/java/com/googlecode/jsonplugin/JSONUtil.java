@@ -20,18 +20,16 @@
  */
 package com.googlecode.jsonplugin;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -153,7 +151,7 @@ public class JSONUtil {
     }
 
     public static void writeJSONToResponse(HttpServletResponse response, String encoding,
-        boolean wrapWithComments, String serializedJSON, boolean smd) throws IOException {
+                                           boolean wrapWithComments, String serializedJSON, boolean smd, boolean gzip) throws IOException {
         String json = serializedJSON == null ? "" : serializedJSON;
         if (wrapWithComments) {
             StringBuilder sb = new StringBuilder("/* ");
@@ -169,9 +167,31 @@ public class JSONUtil {
         response.setContentType((smd ? "application/json-rpc;charset="
             : "application/json;charset=") +
             encoding);
+        if (gzip) {
+			response.addHeader("Content-Encoding", "gzip");
+			GZIPOutputStream out = null;
+			InputStream in = null;
+			try {
+				out = new GZIPOutputStream(response.getOutputStream());
+				in = new ByteArrayInputStream(json.getBytes());
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = in.read(buf)) > 0) {
+					out.write(buf, 0, len);
+				}
+			} finally {
+				if (in != null)
+					in.close();
+				if (out != null) {
+					out.finish();
+					out.close();
+				}
+			}
 
-        PrintWriter out = response.getWriter();
-        out.print(json);
+		} else {
+			PrintWriter out = response.getWriter();
+			out.print(json);
+		}
     }
 
     public static List<String> asList(String commaDelim) {
@@ -303,4 +323,8 @@ public class JSONUtil {
         return okayToContinue;
     }
 
+    static boolean isGzipInRequest(HttpServletRequest request) {
+        String header = request.getHeader("Accept-Encoding");
+        return header != null && header.indexOf("gzip") >= 0;
+    }
 }
