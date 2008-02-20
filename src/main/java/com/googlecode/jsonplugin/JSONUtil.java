@@ -163,7 +163,6 @@ public class JSONUtil {
             log.debug("[JSON]" + json);
         }
 
-        response.setContentLength(json.getBytes(encoding).length);
         response.setContentType((smd ? "application/json-rpc;charset="
             : "application/json;charset=") +
             encoding);
@@ -189,6 +188,7 @@ public class JSONUtil {
 			}
 
 		} else {
+			response.setContentLength(json.getBytes(encoding).length);
 			PrintWriter out = response.getWriter();
 			out.print(json);
 		}
