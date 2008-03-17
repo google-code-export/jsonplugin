@@ -52,6 +52,11 @@ public class JSONInterceptor implements Interceptor {
         HttpServletRequest request = ServletActionContext.getRequest();
         HttpServletResponse response = ServletActionContext.getResponse();
         String contentType = request.getHeader("content-type");
+        if (contentType != null) {
+            int iSemicolonIdx;
+            if ((iSemicolonIdx = contentType.indexOf(";")) != -1)
+                contentType = contentType.substring(0, iSemicolonIdx);
+        }
 
         Object rootObject = null;
         if (this.root != null) {
