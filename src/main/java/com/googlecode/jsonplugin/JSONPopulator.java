@@ -109,7 +109,7 @@ public class JSONPopulator {
             clazz.equals(Byte.class) || clazz.equals(Character.class) ||
             clazz.equals(Double.class) || clazz.equals(Float.class) ||
             clazz.equals(Integer.class) || clazz.equals(Long.class) ||
-            clazz.equals(Short.class);
+            clazz.equals(Short.class) || clazz.isEnum();
     }
 
     @SuppressWarnings("unchecked")
@@ -199,7 +199,10 @@ public class JSONPopulator {
                 log.error(e);
                 throw new JSONException("Unable to parse date from: " + value);
             }
-        } else if (value instanceof String) {
+        } else if (clazz.isEnum()) {
+            String sValue = (String) value;
+			return Enum.valueOf(clazz, sValue);
+		} else if (value instanceof String) {
             String sValue = (String) value;
             if (Boolean.TYPE.equals(clazz))
                 return Boolean.valueOf(sValue);
