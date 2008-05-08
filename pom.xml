@@ -1,170 +1,199 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.googlecode.code.jsonplugin</groupId>
-    <artifactId>jsonplugin</artifactId>
-    <packaging>jar</packaging>
-    <version>0.26-SNAPSHOT</version>
-    <name>Struts 2 JSON Plugin</name>
-    <url>http://code.google.com/p/jsonplugin/</url>
-    <description>
-        The Struts 2 JSON plugin provides a result and an interceptor that can serialize/deserialize
-        an object to/from JSON
-    </description>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.googlecode</groupId>
+	<artifactId>jsonplugin</artifactId>
+	<packaging>jar</packaging>
+	<version>0.27-SNAPSHOT</version>
+	<name>Struts 2 JSON Plugin</name>
+	<url>http://code.google.com/p/jsonplugin/</url>
+	<description>
+		The Struts 2 JSON plugin provides a result and an interceptor
+		that can serialize/deserialize an object to/from JSON
+	</description>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.5</source>
-                        <target>1.5</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.1.3</version>
-                    <configuration>
-                        <includes>
-                            <include>**/*Test.java</include>
-                        </includes>
-                        <excludes>
-                            <exclude>**/TestBean.java</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <defaultGoal>install</defaultGoal>
-    </build>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.5</source>
+						<target>1.5</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.1.3</version>
+					<configuration>
+						<includes>
+							<include>**/*Test.java</include>
+						</includes>
+						<excludes>
+							<exclude>**/TestBean.java</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<extensions>
+			<extension>
+				<groupId>org.jvnet.wagon-svn</groupId>
+				<artifactId>wagon-svn</artifactId>
+				<version>1.6</version>
+			</extension>
+		</extensions>
+		<defaultGoal>install</defaultGoal>
+	</build>
 
-    <distributionManagement>
-        <downloadUrl>http://code.google.com/p/jsonplugin/downloads/list</downloadUrl>
-    </distributionManagement>
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>struts2plugin-maven-repo</id>
+			<url>
+				svn:https://struts2plugin-maven-repo.googlecode.com/svn/trunk/
+			</url>
+		</repository>
+		<downloadUrl>
+			http://code.google.com/p/jsonplugin/downloads/list
+		</downloadUrl>
+	</distributionManagement>
 
-    <issueManagement>
-        <system>Google Code</system>
-        <url>http://code.google.com/p/jsonplugin/issues/list</url>
-    </issueManagement>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/jsonplugin/issues/list</url>
+	</issueManagement>
 
-    <scm>
-        <connection>scm:svn:http://jsonplugin.googlecode.com/svn/</connection>
-        <developerConnection>scm:svn:https://jsonplugin.googlecode.com/svn/</developerConnection>
-        <url>http://code.google.com/p/jsonplugin/source</url>
-    </scm>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.3</version>
-            <scope>test</scope>
-        </dependency>
+	<scm>
+		<connection>
+			scm:svn:http://jsonplugin.googlecode.com/svn/
+		</connection>
+		<developerConnection>
+			scm:svn:https://jsonplugin.googlecode.com/svn/
+		</developerConnection>
+		<url>http://code.google.com/p/jsonplugin/source</url>
+	</scm>
 
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
-        </dependency>
+	<repositories>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/2/</url>
+        </repository>
+    </repositories>
 
-        <dependency>
-            <groupId>org.apache.struts</groupId>
-            <artifactId>struts2-core</artifactId>
-            <version>2.0.6</version>
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.3</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jsp-api</artifactId>
-            <version>2.0</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-core</artifactId>
+			<version>2.0.6</version>
+		</dependency>
 
-        <dependency>
-            <groupId>jmock</groupId>
-            <artifactId>jmock</artifactId>
-            <version>1.0.1</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+			<scope>provided</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>2.0</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.0</version>
+			<scope>provided</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>jmock</groupId>
-            <artifactId>jmock-cglib</artifactId>
-            <version>1.0.1</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>jmock</groupId>
+			<artifactId>jmock</artifactId>
+			<version>1.0.1</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>mockobjects</groupId>
-            <artifactId>mockobjects-core</artifactId>
-            <version>0.09</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>2.0</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>mockobjects</groupId>
-            <artifactId>mockobjects-jdk1.3</artifactId>
-            <version>0.09</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>jmock</groupId>
+			<artifactId>jmock-cglib</artifactId>
+			<version>1.0.1</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>mockobjects</groupId>
-            <artifactId>mockobjects-alt-jdk1.3</artifactId>
-            <version>0.09</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>mockobjects</groupId>
+			<artifactId>mockobjects-core</artifactId>
+			<version>0.09</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>mockobjects</groupId>
-            <artifactId>mockobjects-alt-jdk1.3-j2ee1.3</artifactId>
-            <version>0.09</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>mockobjects</groupId>
+			<artifactId>mockobjects-jdk1.3</artifactId>
+			<version>0.09</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>mockobjects</groupId>
-            <artifactId>mockobjects-jdk1.3-j2ee1.3</artifactId>
-            <version>0.09</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>mockobjects</groupId>
+			<artifactId>mockobjects-alt-jdk1.3</artifactId>
+			<version>0.09</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
-            <version>1.2.8</version>
-            <optional>true</optional>
-        </dependency>
+		<dependency>
+			<groupId>mockobjects</groupId>
+			<artifactId>mockobjects-alt-jdk1.3-j2ee1.3</artifactId>
+			<version>0.09</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>1.2.8</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>mockobjects</groupId>
+			<artifactId>mockobjects-jdk1.3-j2ee1.3</artifactId>
+			<version>0.09</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-mock</artifactId>
+			<version>1.2.8</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>1.2.8</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
