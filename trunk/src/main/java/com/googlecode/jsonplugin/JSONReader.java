@@ -52,7 +52,7 @@ class JSONReader {
     private CharacterIterator it;
     private char c;
     private Object token;
-    private StringBuffer buf = new StringBuffer();
+    private StringBuilder buf = new StringBuilder();
 
     private char next() {
         this.c = this.it.next();
@@ -117,8 +117,7 @@ class JSONReader {
         } else if (Character.isDigit(this.c) || (this.c == '-')) {
             ret = this.number();
         } else {
-            throw new JSONException(
-                "Input string is not well formed JSON (invalid char " + this.c + ")");
+            throw buildInvalidInputException();
         }
 
         this.token = ret;
@@ -144,15 +143,19 @@ class JSONReader {
                         if (name instanceof String) {
                             key = (String) name;
                         } else
-                            throw new JSONException(
-                                "Input string is not well formed JSON (invalid char " +
-                                    this.c + ")");
+                            throw buildInvalidInputException();
                     }
                 }
             }
         }
 
         return ret;
+    }
+
+    private JSONException buildInvalidInputException() {
+        return new JSONException(
+                "Input string is not well formed JSON (invalid char " +
+                this.c + ")");
     }
 
     @SuppressWarnings("unchecked")
@@ -163,8 +166,11 @@ class JSONReader {
         while (this.token != ARRAY_END) {
             ret.add(value);
 
-            if (this.read() == COMMA) {
+            Object read = this.read();
+            if (read == COMMA) {
                 value = this.read();
+            } else if (read != ARRAY_END){
+                throw buildInvalidInputException();
             }
         }
 
