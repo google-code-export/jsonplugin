@@ -202,7 +202,7 @@ class JSONReader {
     private Object string(char quote) {
         this.buf.setLength(0);
 
-        while (this.c != quote) {
+        while (this.c != quote && this.c != StringCharacterIterator.DONE) {
             if (this.c == '\\') {
                 this.next();
 

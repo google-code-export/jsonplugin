@@ -3,6 +3,8 @@ package com.googlecode.jsonplugin;
 import java.io.StringReader;
 import java.util.Map;
 
+import com.opensymphony.xwork2.validator.annotations.ExpressionValidator;
+
 import junit.framework.TestCase;
 
 public class JSONPopulatorTest extends TestCase {
@@ -42,5 +44,16 @@ public class JSONPopulatorTest extends TestCase {
         assertEquals(new Double(10.1d), bean.getDoubleField());
         assertEquals(new Byte((byte) 3), bean.getByteField());
 
+    }
+
+    public void testInfiniteLoop() throws JSONException {
+        try {
+            JSONReader reader = new JSONReader();
+            reader.read("[1,\"a]");
+            fail("Should have thrown an exception");
+        } catch (JSONException e) {
+            //I can't get JUnit to ignore the exception
+            // @Test(expected = JSONException.class)
+        }
     }
 }
