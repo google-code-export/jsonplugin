@@ -2,27 +2,3 @@
 See documentation and examples here:
 
 http://cwiki.apache.org/S2PLUGINS/json-plugin.html
-
-Installation
-
-Add this to your pom:
-
-<dependencies>
-   ...
-   <dependency>
-       <groupId>com.googlecode</groupId>
-       <artifactId>jsonplugin</artifactId>
-       <version>0.26</version>
-   </dependency>
-   ...
-</dependencies>
-<repository>
-    <id>Maven Plugin Repository</id>
-    <url>http://struts2plugin-maven-repo.googlecode.com/svn/trunk/</url>
-    <snapshots>
-      <enabled>false</enabled>
-    </snapshots>
-    <releases>
-      <enabled>true</enabled>
-    </releases>
-</repository>
