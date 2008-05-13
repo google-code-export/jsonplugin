@@ -2,7 +2,8 @@
     "error": {
         "code":100,
         "message": "'method' is required for JSON RPC",
-        "name":null
+        "name":null,
+        "stack":null
     },
     "id":"1",
     "result":null

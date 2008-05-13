@@ -125,7 +125,7 @@ public class JSONResult implements Result {
                 isWrapWithComments(), json, false, writeGzip);
 
         } catch (IOException exception) {
-            log.error(exception);
+            log.error(exception.getMessage(), exception);
             throw exception;
         }
     }
