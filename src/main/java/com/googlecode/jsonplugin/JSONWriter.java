@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Pattern;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -146,6 +147,8 @@ class JSONWriter {
             this.date((Date) object, method);
         } else if (object instanceof Calendar) {
             this.date(((Calendar) object).getTime(), method);
+        } else if (object instanceof Locale) {
+            this.string(object);
         } else if (object instanceof Enum) {
             this.enumeration((Enum) object);
         } else {
@@ -185,7 +188,7 @@ class JSONWriter {
                             .getDeclaredMethod(accessor.getName(),
                                 accessor.getParameterTypes());
                     } catch (Exception ex) {
-                        log.debug(ex.getMessage());
+                        log.debug(ex.getMessage(), ex);
                     }
                 } else
                     baseAccessor = accessor;

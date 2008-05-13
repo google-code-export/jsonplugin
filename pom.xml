@@ -5,7 +5,7 @@
 	<groupId>com.googlecode</groupId>
 	<artifactId>jsonplugin</artifactId>
 	<packaging>jar</packaging>
-	<version>0.27-SNAPSHOT</version>
+	<version>0.29-SNAPSHOT</version>
 	<name>Struts 2 JSON Plugin</name>
 	<url>http://code.google.com/p/jsonplugin/</url>
 	<description>
@@ -85,12 +85,12 @@
 	</scm>
 
 	<repositories>
-        <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net Repository for Maven</name>
-            <url>http://download.java.net/maven/2/</url>
-        </repository>
-    </repositories>
+		<repository>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven</name>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -196,4 +196,32 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>net.sourceforge.maven-taglib</groupId>
+				<artifactId>maven-taglib-plugin</artifactId>
+				<configuration>
+					<taglib.src.dir>src/main/resources/META-INF</taglib.src.dir>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<configuration>
+					<targetJdk>1.5</targetJdk>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>

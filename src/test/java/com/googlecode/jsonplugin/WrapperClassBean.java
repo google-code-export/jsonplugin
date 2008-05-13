@@ -1,5 +1,8 @@
 package com.googlecode.jsonplugin;
 
+import java.util.List;
+import java.util.Map;
+
 public class WrapperClassBean {
 
     private String stringField;
@@ -11,6 +14,42 @@ public class WrapperClassBean {
     private Double doubleField;
     private Object objectField;
     private Byte byteField;
+    private List<SimpleValue> listField;
+    private List<Map<String,Long>> listMapField;
+    private Map<String,List<Long>> mapListField;
+    private Map<String,Long>[] arrayMapField;
+
+    public List<SimpleValue> getListField() {
+        return listField;
+    }
+
+    public void setListField(List<SimpleValue> listField) {
+        this.listField = listField;
+    }
+
+    public List<Map<String,Long>> getListMapField() {
+        return listMapField;
+    }
+
+    public void setListMapField(List<Map<String,Long>> listMapField) {
+        this.listMapField = listMapField;
+    }
+
+    public Map<String,List<Long>> getMapListField() {
+        return mapListField;
+    }
+
+    public void setMapListField(Map<String,List<Long>> mapListField) {
+        this.mapListField = mapListField;
+    }
+
+    public Map<String,Long>[] getArrayMapField() {
+        return arrayMapField;
+    }
+
+    public void setArrayMapField(Map<String,Long>[] arrayMapField) {
+        this.arrayMapField = arrayMapField;
+    }
 
     public Boolean getBooleanField() {
         return booleanField;

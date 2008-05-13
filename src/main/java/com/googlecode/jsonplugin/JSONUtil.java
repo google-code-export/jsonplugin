@@ -230,10 +230,9 @@ public class JSONUtil {
                     for (Method method : aClass.getMethods()) {
                         SMDMethod smdMethodAnnotation = method
                             .getAnnotation(SMDMethod.class);
-                        if (smdMethodAnnotation != null) {
-                            if (!methods.contains(method)) {
-                                methods.add(method);
-                            }
+                        if (smdMethodAnnotation != null &&
+                            !methods.contains(method)) {
+                            methods.add(method);
                         }
                     }
                     return true;

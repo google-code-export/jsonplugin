@@ -6,5 +6,9 @@
         "doubleField": 10.1,
         "byteField": 3,
         "objectField": { "empty": "to test issue 28 (http://code.google.com/p/jsonplugin/issues/detail?id=28) the value of objectField should be simply empty curly braces { } " },
-        "enumField": "ValueA" 
+        "enumField": "ValueA",
+        "listField": [{"value":"1"},{"value":"2"}],
+        "listMapField": [{"id1":2073501,"id2":3}],
+        "mapListField": {"id1":[1,2,3],"id2":[4,3,2,1]},
+        "arrayMapField": [{"id1":2073501,"id2":3}]
 }
