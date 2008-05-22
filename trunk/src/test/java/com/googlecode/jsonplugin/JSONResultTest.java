@@ -337,6 +337,29 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
+    
+    /**
+     * Ensures that properties of given root object are read as shallow 
+     * (non-recursive) unless specifically included.
+     * 
+     */
+    public void testIncludeProperties() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setIncludeProperties("foo");
+        TestAction action = new TestAction();
+        action.setFoo("fooValue");
+        action.setBean(new Bean());
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String json = this.stringWriter.toString();
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = 
+        	TestUtils.normalize(JSONResultTest.class.getResource("json-9.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
+    }
+
 
     @Override
     protected void setUp() throws Exception {

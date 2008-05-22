@@ -52,9 +52,11 @@ import com.opensymphony.xwork2.util.ValueStack;
  *
  */
 public class JSONResult implements Result {
+    private static final long serialVersionUID = 8624350183189931165L;
     private static final Log log = LogFactory.getLog(JSONResult.class);
     private String defaultEncoding = "ISO-8859-1";
-    private List<Pattern> excludeProperties = null;
+    private List<Pattern> includeProperties;
+    private List<Pattern> excludeProperties;
     private String root;
     private boolean wrapWithComments;
     private boolean enableSMD = false;
@@ -93,6 +95,26 @@ public class JSONResult implements Result {
             }
         }
     }
+    
+	/**
+	 * @return the includeProperties
+	 */
+	public List<Pattern> getIncludePropertiesList() {
+		return includeProperties;
+	}
+
+	/**
+	 * @param includedProperties the includeProperties to set
+	 */
+	public void setIncludeProperties(String commaDelim) {
+       List<String> includePatterns = JSONUtil.asList(commaDelim);
+       if (includePatterns != null) {
+           this.includeProperties = new ArrayList<Pattern>(includePatterns.size());
+           for (String pattern : includePatterns) {
+               this.includeProperties.add(Pattern.compile(pattern));
+           }
+       }
+	}
 
     public void execute(ActionInvocation invocation) throws Exception {
         ActionContext actionContext = invocation.getInvocationContext();
@@ -116,8 +138,7 @@ public class JSONResult implements Result {
                     rootObject = invocation.getAction();
                 }
             }
-            json = JSONUtil
-                .serialize(rootObject, this.excludeProperties, ignoreHierarchy, enumAsBean);
+            json = JSONUtil.serialize(rootObject, excludeProperties, includeProperties, ignoreHierarchy, enumAsBean);
 
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
            

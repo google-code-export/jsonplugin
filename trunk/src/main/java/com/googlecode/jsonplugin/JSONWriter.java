@@ -62,6 +62,7 @@ class JSONWriter {
     private boolean buildExpr = true;
     private String exprStack = "";
     private Collection<Pattern> excludeProperties;
+    private Collection<Pattern> includeProperties;
     private DateFormat formatter;
     private boolean enumAsBean = ENUM_AS_BEAN_DEFAULT;
 
@@ -71,7 +72,7 @@ class JSONWriter {
      * @throws JSONException
      */
     public String write(Object object) throws JSONException {
-        return this.write(object, null);
+    	return this.write(object, null, null);
     }
 
     /**
@@ -79,20 +80,21 @@ class JSONWriter {
      * @return JSON string for object
      * @throws JSONException
      */
-    public String write(Object object, Collection<Pattern> excludeProperties)
+    public String write(Object object, Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties)
         throws JSONException {
         this.buf.setLength(0);
         this.root = object;
         this.exprStack = "";
         this.buildExpr = (excludeProperties != null) && !excludeProperties.isEmpty();
         this.excludeProperties = excludeProperties;
+        this.includeProperties = includeProperties;
         this.value(object, null);
 
         return this.buf.toString();
     }
 
     /**
-     * Detect yclic references
+     * Detect cyclic references
      */
     private void value(Object object, Method method) throws JSONException {
         if (object == null) {
@@ -204,7 +206,8 @@ class JSONWriter {
                     }
 
                     //ignore "class" and others
-                    if (this.shouldExcludeProperty(clazz, prop)) {
+                    if (this.shouldExcludeProperty(clazz, prop) || 
+                    		(this.includeProperties != null && !shouldIncludeProperty(name))) {
                         continue;
                     }
                     String expr = null;
@@ -241,6 +244,30 @@ class JSONWriter {
         }
 
         this.add("}");
+    }
+
+    private boolean shouldIncludeProperty(String expr) {
+        for (Pattern pattern : this.includeProperties) {
+        	// the below is a temporary solution that mostly works, but is not optimal
+        	// the problem here is that given a regex like this:
+        	// ^pageEntries\[\d+\]\.user.userId
+        	// this method should validate true for the following:
+        	//  pageEntries
+        	//  pageEntries[0].user
+        	//  pageEntries[4].user.userId
+        	// but not for this:
+        	//  pageEntries[0].userId
+
+//            if (pattern.matcher(expr).matches()) {
+//                if (log.isDebugEnabled())
+//                    log.debug("Including property " + expr);
+//                return true;
+//            }
+        	if (pattern.pattern().indexOf(expr) > -1){
+        		return true;
+        	}
+        }
+        return false;
     }
 
     /**
