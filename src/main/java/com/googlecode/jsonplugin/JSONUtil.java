@@ -45,7 +45,7 @@ public class JSONUtil {
     private static final Log log = LogFactory.getLog(JSONUtil.class);
 
     /**
-     * Serilizes an object into JSON.
+     * Serializes an object into JSON.
      * @param object to be serialized
      * @return JSON string
      * @throws JSONException
@@ -57,7 +57,7 @@ public class JSONUtil {
     }
 
     /**
-     * Serilizes an object into JSON, excluding any properties matching
+     * Serializes an object into JSON, excluding any properties matching
      * any of the regular expressions in the given collection.
      * @param object to be serialized
      * @param excludeProperties Patterns matching properties to exclude
@@ -65,15 +65,15 @@ public class JSONUtil {
      * @return JSON string
      * @throws JSONException
      */
-    public static String serialize(Object object, Collection<Pattern> excludeProperties,
+    public static String serialize(Object object, Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties,
         boolean ignoreHierarchy) throws JSONException {
         JSONWriter writer = new JSONWriter();
         writer.setIgnoreHierarchy(ignoreHierarchy);
-        return writer.write(object, excludeProperties);
+        return writer.write(object, excludeProperties, includeProperties);
     }
 
     /**
-     * Serilizes an object into JSON, excluding any properties matching
+     * Serializes an object into JSON, excluding any properties matching
      * any of the regular expressions in the given collection.
      * @param object to be serialized
      * @param excludeProperties Patterns matching properties to exclude
@@ -83,15 +83,15 @@ public class JSONUtil {
      * @throws JSONException
      */
     public static String serialize(Object object, Collection<Pattern> excludeProperties,
-        boolean ignoreHierarchy, boolean enumAsBean) throws JSONException {
+    		Collection<Pattern> includeProperties, boolean ignoreHierarchy, boolean enumAsBean) throws JSONException {
         JSONWriter writer = new JSONWriter();
         writer.setIgnoreHierarchy(ignoreHierarchy);
         writer.setEnumAsBean(enumAsBean);
-        return writer.write(object, excludeProperties);
+        return writer.write(object, excludeProperties, includeProperties);
     }
 
     /**
-     * Serilizes an object into JSON to the given writer.
+     * Serializes an object into JSON to the given writer.
      * @param writer Writer to serialize the object to
      * @param object object to be serialized
      * @throws IOException
@@ -103,7 +103,7 @@ public class JSONUtil {
     }
 
     /**
-     * Serilizes an object into JSON to the given writer, excluding any properties matching
+     * Serializes an object into JSON to the given writer, excluding any properties matching
      * any of the regular expressions in the given collection.
      * @param writer Writer to serialize the object to
      * @param object object to be serialized
@@ -112,12 +112,12 @@ public class JSONUtil {
      * @throws JSONException
      */
     public static void serialize(Writer writer, Object object,
-        Collection<Pattern> excludeProperties) throws IOException, JSONException {
-        writer.write(serialize(object, excludeProperties, true));
+    		 Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties) throws IOException, JSONException {
+    	 writer.write(serialize(object, excludeProperties, includeProperties, true));
     }
 
     /**
-     * Deserilizes a object from JSON
+     * Deserializes a object from JSON
      * @param json string in JSON
      * @return desrialized object
      * @throws JSONException
@@ -128,9 +128,9 @@ public class JSONUtil {
     }
 
     /**
-     * Deserilizes a object from JSON
+     * Deserializes a object from JSON
      * @param reader Reader to read a JSON string from
-     * @return desrialized object
+     * @return deserialized object
      * @throws JSONException when IOException happens
      */
     public static Object deserialize(Reader reader) throws JSONException {
@@ -214,6 +214,7 @@ public class JSONUtil {
      * @param ignoreInterfaces if true, only the methods of the class are examined.  If false, annotations on
      *  every interfaces' methods are examined.
      **/
+    @SuppressWarnings("unchecked")
     public static Method[] listSMDMethods(Class clazz, boolean ignoreInterfaces) {
         final List<Method> methods = new LinkedList<Method>();
         if (ignoreInterfaces) {
@@ -255,7 +256,8 @@ public class JSONUtil {
         * @param       aClass the encountered class/interface
         * @return true if the recursion should continue, false to stop recursion immediately
         * */
-        boolean visit(Class aClass);
+        @SuppressWarnings("unchecked")
+		boolean visit(Class aClass);
     }
 
     /**
@@ -278,7 +280,8 @@ public class JSONUtil {
      * @param visitor   this vistor is called for each class/interface encountered
      * @return true if all classes/interfaces were visited, false if it was exited early as specified by a ClassVisitor result
      */
-    public static boolean visitInterfaces(Class aClass, ClassVisitor visitor) {
+    @SuppressWarnings("unchecked")
+	public static boolean visitInterfaces(Class aClass, ClassVisitor visitor) {
         List<Class> classesVisited = new LinkedList<Class>();
         return visitUniqueInterfaces(aClass, visitor, classesVisited);
     }

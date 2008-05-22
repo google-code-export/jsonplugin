@@ -32,6 +32,7 @@ import com.opensymphony.xwork2.util.ValueStack;
  *
  */
 public class JSONInterceptor implements Interceptor {
+	private static final long serialVersionUID = 4950170304212158803L;
     private static final Log log = LogFactory.getLog(JSONInterceptor.class);
     private boolean enableSMD = false;
     private boolean enableGZIP = false;
@@ -39,7 +40,8 @@ public class JSONInterceptor implements Interceptor {
     private String defaultEncoding = "ISO-8859-1";
     private boolean ignoreHierarchy = true;
     private String root;
-    private List<Pattern> excludeProperties = null;
+    private List<Pattern> excludeProperties;
+    private List<Pattern> includeProperties;
     private boolean ignoreSMDMethodInterfaces = true;
     private JSONPopulator populator = new JSONPopulator();
     private JSONCleaner dataCleaner = null;
@@ -115,7 +117,7 @@ public class JSONInterceptor implements Interceptor {
                     result = rpcResponse;
                 }
 
-                String json = JSONUtil.serialize(result, excludeProperties,
+                String json = JSONUtil.serialize(result, excludeProperties, includeProperties,
                     ignoreHierarchy);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                     this.wrapWithComments, json, true, false);
@@ -130,7 +132,7 @@ public class JSONInterceptor implements Interceptor {
                 result = rpcResponse;
             }
 
-            String json = JSONUtil.serialize(result, excludeProperties, ignoreHierarchy);
+            String json = JSONUtil.serialize(result, excludeProperties, includeProperties, ignoreHierarchy);
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                 this.wrapWithComments, json, true, writeGzip);
@@ -342,6 +344,22 @@ public class JSONInterceptor implements Interceptor {
             this.excludeProperties = new ArrayList<Pattern>(excludePatterns.size());
             for (String pattern : excludePatterns) {
                 this.excludeProperties.add(Pattern.compile(pattern));
+            }
+        }
+    }
+
+    /**
+ 	 * Sets a comma-delimited list of regular expressions to match 
+ 	 * properties that should be included from the JSON output.
+ 	 * 
+ 	 * @param commaDelim A comma-delimited list of regular expressions
+ 	 */
+    public void setIncludeProperties(String commaDelim) {
+        List<String> includePatterns = JSONUtil.asList(commaDelim);
+        if (includePatterns != null) {
+            this.includeProperties = new ArrayList<Pattern>(includePatterns.size());
+            for (String pattern : includePatterns) {
+                this.includeProperties.add(Pattern.compile(pattern));
             }
         }
     }
