@@ -140,7 +140,7 @@ public class JSONResultTest extends StrutsTestCase {
         bean2.setDoubleField(2.2);
         bean2.setEnumField(AnEnum.ValueB);
         bean2.setEnumBean(AnEnumBean.Two);
-        
+
         //circular reference
         bean1.setObjectField(bean2);
         bean2.setObjectField(bean1);
@@ -238,7 +238,7 @@ public class JSONResultTest extends StrutsTestCase {
         bean2.setDoubleField(2.2);
         bean2.setEnumField(AnEnum.ValueC);
         bean2.setEnumBean(AnEnumBean.Three);
-        
+
         //circular reference
         bean1.setObjectField(bean2);
         bean2.setObjectField(bean1);
@@ -337,11 +337,11 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
-    
+
     /**
-     * Ensures that properties of given root object are read as shallow 
+     * Ensures that properties of given root object are read as shallow
      * (non-recursive) unless specifically included.
-     * 
+     *
      */
     public void testIncludeProperties() throws Exception {
         JSONResult result = new JSONResult();
@@ -354,12 +354,35 @@ public class JSONResultTest extends StrutsTestCase {
 
         String json = this.stringWriter.toString();
         String normalizedActual = TestUtils.normalize(json, true);
-        String normalizedExpected = 
+        String normalizedExpected =
         	TestUtils.normalize(JSONResultTest.class.getResource("json-9.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
+    public void testIncludePropertiesWithList() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setIncludeProperties("^list\\[\\d+\\]\\.booleanField");
+        TestAction action = new TestAction();
+
+        List list = new ArrayList();
+
+        list.add(new Bean());
+        list.add(new Bean());
+        list.add(new Bean());
+
+        action.setList(list);
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String json = this.stringWriter.toString();
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected =
+            TestUtils.normalize(JSONResultTest.class.getResource("json-10.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
+    }
 
     @Override
     protected void setUp() throws Exception {

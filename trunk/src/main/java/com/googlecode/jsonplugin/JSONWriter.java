@@ -85,7 +85,7 @@ class JSONWriter {
         this.buf.setLength(0);
         this.root = object;
         this.exprStack = "";
-        this.buildExpr = (excludeProperties != null) && !excludeProperties.isEmpty();
+        this.buildExpr = ((excludeProperties != null) && !excludeProperties.isEmpty()) || ((includeProperties != null) && !includeProperties.isEmpty());
         this.excludeProperties = excludeProperties;
         this.includeProperties = includeProperties;
         this.value(object, null);
@@ -205,8 +205,7 @@ class JSONWriter {
                     }
 
                     //ignore "class" and others
-                    if (this.shouldExcludeProperty(clazz, prop) ||
-                    		(this.includeProperties != null && !shouldIncludeProperty(name))) {
+                    if (this.shouldExcludeProperty(clazz, prop)) {
                         continue;
                     }
                     String expr = null;
@@ -243,30 +242,6 @@ class JSONWriter {
         }
 
         this.add("}");
-    }
-
-    private boolean shouldIncludeProperty(String expr) {
-        for (Pattern pattern : this.includeProperties) {
-        	// the below is a temporary solution that mostly works, but is not optimal
-        	// the problem here is that given a regex like this:
-        	// ^pageEntries\[\d+\]\.user.userId
-        	// this method should validate true for the following:
-        	//  pageEntries
-        	//  pageEntries[0].user
-        	//  pageEntries[4].user.userId
-        	// but not for this:
-        	//  pageEntries[0].userId
-
-//            if (pattern.matcher(expr).matches()) {
-//                if (log.isDebugEnabled())
-//                    log.debug("Including property " + expr);
-//                return true;
-//            }
-        	if (pattern.pattern().indexOf(expr) > -1){
-        		return true;
-        	}
-        }
-        return false;
     }
 
     /**
@@ -311,13 +286,28 @@ class JSONWriter {
     }
 
     private boolean shouldExcludeProperty(String expr) {
-        for (Pattern pattern : this.excludeProperties) {
-            if (pattern.matcher(expr).matches()) {
-                if (log.isDebugEnabled())
-                    log.debug("Ignoring property " + expr);
-                return true;
+        if (this.excludeProperties != null) {
+            for (Pattern pattern : this.excludeProperties) {
+                if (pattern.matcher(expr).matches()) {
+                    if (log.isDebugEnabled())
+                        log.debug("Ignoring property because of exclude rule: " + expr);
+                    return true;
+                }
             }
         }
+
+        if (this.includeProperties != null) {
+            for (Pattern pattern : this.includeProperties) {
+                if (pattern.matcher(expr).matches()) {
+                    return false;
+                }
+            }
+
+            if (log.isDebugEnabled())
+                log.debug("Ignoring property because of include rule:  " + expr);
+            return true;
+        }
+
         return false;
     }
 
