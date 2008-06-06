@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -27,7 +28,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 /**
  * <!-- START SNIPPET: description -->
  *
- * This result serializes an action into JSON. 
+ * This result serializes an action into JSON.
  *
  * <!-- END SNIPPET: description -->
  *
@@ -73,7 +74,7 @@ public class JSONResult implements Result {
     /**
      * Gets a list of regular expressions of properties to exclude
      * from the JSON output.
-     * 
+     *
      * @return A list of compiled regular expression patterns
      */
     public List<Pattern> getExcludePropertiesList() {
@@ -81,9 +82,9 @@ public class JSONResult implements Result {
     }
 
     /**
-     * Sets a comma-delimited list of regular expressions to match 
+     * Sets a comma-delimited list of regular expressions to match
      * properties that should be excluded from the JSON output.
-     * 
+     *
      * @param commaDelim A comma-delimited list of regular expressions
      */
     public void setExcludeProperties(String commaDelim) {
@@ -95,7 +96,7 @@ public class JSONResult implements Result {
             }
         }
     }
-    
+
 	/**
 	 * @return the includeProperties
 	 */
@@ -107,13 +108,44 @@ public class JSONResult implements Result {
 	 * @param includedProperties the includeProperties to set
 	 */
 	public void setIncludeProperties(String commaDelim) {
-       List<String> includePatterns = JSONUtil.asList(commaDelim);
-       if (includePatterns != null) {
-           this.includeProperties = new ArrayList<Pattern>(includePatterns.size());
-           for (String pattern : includePatterns) {
-               this.includeProperties.add(Pattern.compile(pattern));
-           }
-       }
+        List<String> includePatterns = JSONUtil.asList(commaDelim);
+        if (includePatterns != null) {
+            this.includeProperties = new ArrayList<Pattern>(includePatterns.size());
+
+            HashMap existingPatterns = new HashMap();
+
+            for (String pattern : includePatterns) {
+                // Compile a pattern for each *unique* "level" of the object
+                // hierarchy specified in the regex.
+                String[] patternPieces = pattern.split("\\\\\\.");
+
+                String patternExpr = "";
+                for (String patternPiece : patternPieces) {
+                    if (patternExpr.length() > 0) {
+                        patternExpr += "\\.";
+                    }
+                    patternExpr += patternPiece;
+
+                    // Check for duplicate patterns so that there is no overlap.
+                    if (!existingPatterns.containsKey(patternExpr)) {
+                        existingPatterns.put(patternExpr, patternExpr);
+
+                        // Add a pattern that does not have the indexed property matching (ie. list\[\d+\] becomes list).
+                        if (patternPiece.endsWith("\\]")) {
+                            this.includeProperties.add(Pattern.compile(patternExpr.substring(0, patternPiece.lastIndexOf("\\["))));
+
+                            if (log.isDebugEnabled())
+                                log.debug("Adding include property expression:  " + patternExpr.substring(0, patternPiece.lastIndexOf("\\[")));
+                        }
+
+                        this.includeProperties.add(Pattern.compile(patternExpr));
+
+                        if (log.isDebugEnabled())
+                            log.debug("Adding include property expression:  " + patternExpr);
+                    }
+                }
+            }
+        }
 	}
 
     public void execute(ActionInvocation invocation) throws Exception {
@@ -141,7 +173,7 @@ public class JSONResult implements Result {
             json = JSONUtil.serialize(rootObject, excludeProperties, includeProperties, ignoreHierarchy, enumAsBean);
 
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
-           
+
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                 isWrapWithComments(), json, false, writeGzip);
 
@@ -150,7 +182,7 @@ public class JSONResult implements Result {
             throw exception;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private com.googlecode.jsonplugin.smd.SMD writeSMD(ActionInvocation invocation) {
         ActionContext actionContext = invocation.getInvocationContext();
@@ -202,7 +234,7 @@ public class JSONResult implements Result {
                         .getParameterAnnotations();
 
                     for (int i = 0; i < parametersCount; i++) {
-                        //are you ever going to pick shorter names? nope                    
+                        //are you ever going to pick shorter names? nope
                         SMDMethodParameter smdMethodParameterAnnotation = this
                             .getSMDMethodParameterAnnotation(parameterAnnotations[i]);
 
@@ -210,7 +242,7 @@ public class JSONResult implements Result {
                             .name()
                             : "p" + i;
 
-                        //goog thing this is the end of the hierarchy, oitherwise I would need that 21'' LCD ;)    
+                        //goog thing this is the end of the hierarchy, oitherwise I would need that 21'' LCD ;)
                         smdMethod
                             .addSMDMethodParameter(new com.googlecode.jsonplugin.smd.SMDMethodParameter(
                                 paramName));
@@ -277,7 +309,7 @@ public class JSONResult implements Result {
 
     /**
      * Sets the root object to be serialized, defaults to the Action
-     * 
+     *
      * @param root OGNL expression of root object to be serialized
      */
     public void setRoot(String root) {
