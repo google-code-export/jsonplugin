@@ -187,8 +187,7 @@ class JSONWriter {
                     try {
                         baseAccessor = Class.forName(
                             clazz.getName().substring(0, clazz.getName().indexOf("$$")))
-                            .getDeclaredMethod(accessor.getName(),
-                                accessor.getParameterTypes());
+                            .getMethod(accessor.getName(), accessor.getParameterTypes());
                     } catch (Exception ex) {
                         log.debug(ex.getMessage(), ex);
                     }
@@ -206,7 +205,7 @@ class JSONWriter {
                     }
 
                     //ignore "class" and others
-                    if (this.shouldExcludeProperty(clazz, prop) || 
+                    if (this.shouldExcludeProperty(clazz, prop) ||
                     		(this.includeProperties != null && !shouldIncludeProperty(name))) {
                         continue;
                     }
