@@ -174,13 +174,18 @@ public class JSONResult implements Result {
 
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
 
-            JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                isWrapWithComments(), json, false, writeGzip);
+            writeToResponse(response, json, writeGzip);
 
         } catch (IOException exception) {
             log.error(exception.getMessage(), exception);
             throw exception;
         }
+    }
+
+    protected void writeToResponse(HttpServletResponse response,
+                                   String json, boolean gzip) throws IOException {
+        JSONUtil.writeJSONToResponse(response, getEncoding(),
+            isWrapWithComments(), json, false, gzip);
     }
 
     @SuppressWarnings("unchecked")
