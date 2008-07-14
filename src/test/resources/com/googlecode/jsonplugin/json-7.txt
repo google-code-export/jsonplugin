@@ -1,7 +1,11 @@
 {
         "booleanField": true,
+        "primitiveBooleanField1": true,
+        "primitiveBooleanField2": false,
+        "primitiveBooleanField3": null,
         "stringField" : "test",
         "intField" : 10,
+        "nullIntField" : null,
         "charField": "s",
         "doubleField": 10.1,
         "byteField": 3,

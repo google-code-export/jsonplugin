@@ -3,8 +3,6 @@ package com.googlecode.jsonplugin;
 import java.io.StringReader;
 import java.util.Map;
 
-import com.opensymphony.xwork2.validator.annotations.ExpressionValidator;
-
 import junit.framework.TestCase;
 
 public class JSONPopulatorTest extends TestCase {
@@ -28,9 +26,8 @@ public class JSONPopulatorTest extends TestCase {
     }
 
     public void testObjectBean() throws Exception {
-        StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("json-7.txt")));
-        Object json = JSONUtil.deserialize(stringReader);
+        String text = TestUtils.readContent(JSONInterceptorTest.class.getResource("json-7.txt"));
+        Object json = JSONUtil.deserialize(text);
         assertNotNull(json);
         assertTrue(json instanceof Map);
         Map jsonMap = (Map) json;
@@ -38,10 +35,14 @@ public class JSONPopulatorTest extends TestCase {
         WrapperClassBean bean = new WrapperClassBean();
         populator.populateObject(bean, jsonMap);
         assertEquals(Boolean.TRUE, bean.getBooleanField());
+        assertEquals(true, bean.isPrimitiveBooleanField1());
+        assertEquals(false, bean.isPrimitiveBooleanField2());
+        assertEquals(false, bean.isPrimitiveBooleanField3());
         assertEquals("test", bean.getStringField());
         assertEquals(new Integer(10), bean.getIntField());
+        assertEquals(0, bean.getNullIntField());
         assertEquals(new Character('s'), bean.getCharField());
-        assertEquals(new Double(10.1d), bean.getDoubleField());
+        assertEquals(10.1d, bean.getDoubleField());
         assertEquals(new Byte((byte) 3), bean.getByteField());
 
         assertEquals(2, bean.getListField().size());
@@ -79,7 +80,7 @@ public class JSONPopulatorTest extends TestCase {
         assertEquals("test", bean.getStringField());
         assertEquals(new Integer(10), bean.getIntField());
         assertEquals(new Character('s'), bean.getCharField());
-        assertEquals(new Double(10.1d), bean.getDoubleField());
+        assertEquals(10.1d, bean.getDoubleField());
         assertEquals(new Byte((byte) 3), bean.getByteField());
 
         assertEquals(null, bean.getListField());

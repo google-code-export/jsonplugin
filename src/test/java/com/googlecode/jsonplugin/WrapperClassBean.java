@@ -7,7 +7,11 @@ public class WrapperClassBean {
 
     private String stringField;
     private Integer intField;
+    private int nullIntField;
     private Boolean booleanField;
+    private boolean primitiveBooleanField1;
+    private boolean primitiveBooleanField2;
+    private boolean primitiveBooleanField3;
     private Character charField;
     private Long longField;
     private Float floatField;
@@ -59,6 +63,30 @@ public class WrapperClassBean {
         this.booleanField = booleanField;
     }
 
+    public boolean isPrimitiveBooleanField1() {
+        return primitiveBooleanField1;
+    }
+
+    public void setPrimitiveBooleanField1(boolean primitiveBooleanField1) {
+        this.primitiveBooleanField1 = primitiveBooleanField1;
+    }
+
+    public boolean isPrimitiveBooleanField2() {
+        return primitiveBooleanField2;
+    }
+
+    public void setPrimitiveBooleanField2(boolean primitiveBooleanField2) {
+        this.primitiveBooleanField2 = primitiveBooleanField2;
+    }
+
+    public boolean isPrimitiveBooleanField3() {
+        return primitiveBooleanField3;
+    }
+
+    public void setPrimitiveBooleanField3(boolean primitiveBooleanField3) {
+        this.primitiveBooleanField3 = primitiveBooleanField3;
+    }
+
     public Byte getByteField() {
         return byteField;
     }
@@ -99,6 +127,14 @@ public class WrapperClassBean {
         this.intField = intField;
     }
 
+    public int getNullIntField() {
+        return nullIntField;
+    }
+
+    public void setNullIntField(int nullIntField) {
+        this.nullIntField = nullIntField;
+    }
+
     public Long getLongField() {
         return longField;
     }
@@ -122,5 +158,4 @@ public class WrapperClassBean {
     public void setStringField(String stringField) {
         this.stringField = stringField;
     }
-
 }

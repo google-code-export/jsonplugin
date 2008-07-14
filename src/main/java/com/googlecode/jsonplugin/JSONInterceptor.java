@@ -64,10 +64,14 @@ public class JSONInterceptor implements Interceptor {
                 contentType = contentType.substring(0, iSemicolonIdx);
         }
 
-        Object rootObject = null;
+        Object rootObject;
         if (this.root != null) {
             ValueStack stack = invocation.getStack();
             rootObject = stack.findValue(this.root);
+
+            if(rootObject == null) {
+                throw new RuntimeException("Invalid root expression: '" + this.root + "'.");
+            }
         } else {
             rootObject = invocation.getAction();
         }
@@ -91,7 +95,7 @@ public class JSONInterceptor implements Interceptor {
             }
         } else if ((contentType != null) &&
             contentType.equalsIgnoreCase("application/json-rpc")) {
-            Object result = null;
+            Object result;
             if (this.enableSMD) {
                 //load JSON object
                 Object obj = JSONUtil.deserialize(request.getReader());
@@ -156,7 +160,7 @@ public class JSONInterceptor implements Interceptor {
 
         RPCResponse response = new RPCResponse();
 
-        //validate id 
+        //validate id
         Object id = data.get("id");
         if (id == null) {
             String message = "'id' is required for JSON RPC";
@@ -333,9 +337,9 @@ public class JSONInterceptor implements Interceptor {
     }
 
     /**
-     * Sets a comma-delimited list of regular expressions to match 
+     * Sets a comma-delimited list of regular expressions to match
      * properties that should be excluded from the JSON output.
-     * 
+     *
      * @param commaDelim A comma-delimited list of regular expressions
      */
     public void setExcludeProperties(String commaDelim) {
@@ -349,9 +353,9 @@ public class JSONInterceptor implements Interceptor {
     }
 
     /**
- 	 * Sets a comma-delimited list of regular expressions to match 
+ 	 * Sets a comma-delimited list of regular expressions to match
  	 * properties that should be included from the JSON output.
- 	 * 
+ 	 *
  	 * @param commaDelim A comma-delimited list of regular expressions
  	 */
     public void setIncludeProperties(String commaDelim) {
@@ -370,7 +374,7 @@ public class JSONInterceptor implements Interceptor {
 
 	/**
      * Setting this property to "true" will compress the output.
-     * 
+     *
      * @param enableGZIP Enable compressed output
      */
     public void setEnableGZIP(boolean enableGZIP) {
