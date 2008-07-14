@@ -8,21 +8,21 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,10 +99,10 @@ public class JSONPopulator {
         throws IllegalArgumentException, JSONException, IllegalAccessException,
         InvocationTargetException, InstantiationException, NoSuchMethodException,
         IntrospectionException {
-        if (value == null)
-            return null;
-        else if (isJSONPrimitive(clazz))
+        if (isJSONPrimitive(clazz))
             return convertPrimitive(clazz, value, method);
+        else if (value == null)
+            return null;
         else if (Collection.class.isAssignableFrom(clazz))
             return convertToCollection(clazz, type, value, method);
         else if (Map.class.isAssignableFrom(clazz))
@@ -114,7 +114,7 @@ public class JSONPopulator {
             Object convertedValue = clazz.newInstance();
             this.populateObject(convertedValue, (Map) value);
             return convertedValue;
-        } else
+        }  else
             throw new JSONException("Incompatible types for property " + method.getName());
     }
 
@@ -226,7 +226,7 @@ public class JSONPopulator {
                     Object newObject = convertToCollection(itemClass, itemType, listValue, accessor);
                     newCollection.add(newObject);
                 } else if (listValue instanceof Map) {
-                    //array of beans                  
+                    //array of beans
                     Object newObject = itemClass.newInstance();
                     this.populateObject(newObject, (Map) listValue);
                     newCollection.add(newObject);
@@ -313,9 +313,24 @@ public class JSONPopulator {
     @SuppressWarnings("unchecked")
     private Object convertPrimitive(Class clazz, Object value, Method method)
         throws JSONException {
-        if (value == null)
-            return null;
-        else if (value instanceof Number) {
+        if (value == null) {
+            if (Short.TYPE.equals(clazz) || Short.class.equals(clazz))
+                return (short) 0;
+            else if (Byte.TYPE.equals(clazz) || Byte.class.equals(clazz))
+                return (byte) 0;
+            else if (Integer.TYPE.equals(clazz) || Integer.class.equals(clazz))
+                return 0;
+            else if (Long.TYPE.equals(clazz) || Long.class.equals(clazz))
+                return 0L;
+            else if (Float.TYPE.equals(clazz) || Float.class.equals(clazz))
+                return 0f;
+            else if (Double.TYPE.equals(clazz) || Double.class.equals(clazz))
+                return 0d;
+            else if (Boolean.TYPE.equals(clazz) || Boolean.class.equals(clazz))
+                return Boolean.FALSE;
+            else
+                return null;
+        } else if (value instanceof Number) {
             Number number = (Number) value;
 
             if (Short.TYPE.equals(clazz))
