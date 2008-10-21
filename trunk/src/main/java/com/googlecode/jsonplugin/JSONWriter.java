@@ -391,6 +391,7 @@ class JSONWriter {
             if (this.buildExpr) {
                 expr = this.expandExpr(i);
                 if (this.shouldExcludeProperty(expr)) {
+                    it.next();
                     continue;
                 }
                 expr = this.setExprStack(expr);

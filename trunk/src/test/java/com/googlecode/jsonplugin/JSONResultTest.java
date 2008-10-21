@@ -23,12 +23,16 @@ package com.googlecode.jsonplugin;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
+import jj2000.j2k.util.ArrayUtil;
 
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.StrutsTestCase;
@@ -54,7 +58,7 @@ public class JSONResultTest extends StrutsTestCase {
     ValueStack stack;
     private StrutsMockHttpServletRequest request;
 
-    public void testJSONUtil(){
+    public void testJSONUtilNPEOnNullMehtod(){
         Map map = new HashMap();
         map.put("createtime", new Date());
         try {
@@ -62,6 +66,13 @@ public class JSONResultTest extends StrutsTestCase {
         } catch (JSONException e) {
             fail(e.getMessage());
         }
+    }
+
+    public void testJSONWriterEndlessLoopOnExludedProperties() throws JSONException{
+        Pattern all = Pattern.compile(".*");
+
+        JSONWriter writer = new JSONWriter();
+        writer.write(Arrays.asList("a", "b"), Arrays.asList(all), null);
     }
 
     public void testSMDDisabledSMD() throws Exception {
