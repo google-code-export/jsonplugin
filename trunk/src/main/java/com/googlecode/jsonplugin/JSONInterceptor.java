@@ -47,6 +47,7 @@ public class JSONInterceptor implements Interceptor {
     private JSONCleaner dataCleaner = null;
     private boolean debug = false;
     private boolean noCache = false;
+    private boolean excludeNullProperties;
 
     public void destroy() {
     }
@@ -123,7 +124,7 @@ public class JSONInterceptor implements Interceptor {
                 }
 
                 String json = JSONUtil.serialize(result, excludeProperties, includeProperties,
-                    ignoreHierarchy);
+                    ignoreHierarchy, excludeNullProperties);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                     this.wrapWithComments, json, true, false, noCache);
 
@@ -137,7 +138,7 @@ public class JSONInterceptor implements Interceptor {
                 result = rpcResponse;
             }
 
-            String json = JSONUtil.serialize(result, excludeProperties, includeProperties, ignoreHierarchy);
+            String json = JSONUtil.serialize(result, excludeProperties, includeProperties, ignoreHierarchy, excludeNullProperties);
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
                 this.wrapWithComments, json, true, writeGzip, noCache);
@@ -392,5 +393,17 @@ public class JSONInterceptor implements Interceptor {
      */
     public void setNoCache(boolean noCache) {
         this.noCache = noCache;
+    }
+
+    public boolean isExcludeNullProperties() {
+        return excludeNullProperties;
+    }
+
+    /**
+     * Do not serialize properties with a null value
+     * @param excludeNullProperties
+     */
+    public void setExcludeNullProperties(boolean excludeNullProperties) {
+        this.excludeNullProperties = excludeNullProperties;
     }
 }

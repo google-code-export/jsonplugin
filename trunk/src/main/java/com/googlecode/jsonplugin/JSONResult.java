@@ -66,6 +66,7 @@ public class JSONResult implements Result {
     private boolean ignoreInterfaces = true;
     private boolean enumAsBean = JSONWriter.ENUM_AS_BEAN_DEFAULT;
     private boolean noCache = false;
+    private boolean excludeNullProperties = false;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -171,7 +172,7 @@ public class JSONResult implements Result {
                     rootObject = invocation.getAction();
                 }
             }
-            json = JSONUtil.serialize(rootObject, excludeProperties, includeProperties, ignoreHierarchy, enumAsBean);
+            json = JSONUtil.serialize(rootObject, excludeProperties, includeProperties, ignoreHierarchy, enumAsBean, excludeNullProperties );
 
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
 
@@ -401,5 +402,17 @@ public class JSONResult implements Result {
 
     public boolean isIgnoreHierarchy() {
         return ignoreHierarchy;
+    }
+
+    public boolean isExcludeNullProperties() {
+        return excludeNullProperties;
+    }
+
+    /**
+     * Do not serialize properties with a null value
+     * @param excludeNullProperties
+     */
+    public void setExcludeNullProperties(boolean excludeNullProperties) {
+        this.excludeNullProperties = excludeNullProperties;
     }
 }

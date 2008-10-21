@@ -72,7 +72,7 @@ public class JSONResultTest extends StrutsTestCase {
         Pattern all = Pattern.compile(".*");
 
         JSONWriter writer = new JSONWriter();
-        writer.write(Arrays.asList("a", "b"), Arrays.asList(all), null);
+        writer.write(Arrays.asList("a", "b"), Arrays.asList(all), null, false);
     }
 
     public void testSMDDisabledSMD() throws Exception {
@@ -122,6 +122,24 @@ public class JSONResultTest extends StrutsTestCase {
             .getResource("smd-2.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
+    }
+
+    public void testExcludeNullPropeties() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setExcludeNullProperties(true);
+        TestAction action = new TestAction();
+        action.setFoo("fool");
+
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String smd = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(smd, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class
+            .getResource("nulls-1.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
     }
 
     @SuppressWarnings("unchecked")
