@@ -367,7 +367,9 @@ class JSONWriter {
      * Add date to buffer
      */
     private void date(Date date, Method method) {
-        JSON json = method.getAnnotation(JSON.class);
+        JSON json = null;
+        if (method != null)
+            json = method.getAnnotation(JSON.class);
         if (this.formatter == null)
             this.formatter = new SimpleDateFormat(JSONUtil.RFC3339_FORMAT);
 
