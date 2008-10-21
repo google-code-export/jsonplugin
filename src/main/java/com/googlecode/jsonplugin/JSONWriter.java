@@ -65,6 +65,7 @@ class JSONWriter {
     private Collection<Pattern> includeProperties;
     private DateFormat formatter;
     private boolean enumAsBean = ENUM_AS_BEAN_DEFAULT;
+    private boolean excludeNullProperties;
 
     /**
      * @param object Object to be serialized into JSON
@@ -72,7 +73,7 @@ class JSONWriter {
      * @throws JSONException
      */
     public String write(Object object) throws JSONException {
-    	return this.write(object, null, null);
+    	return this.write(object, null, null, false);
     }
 
     /**
@@ -80,8 +81,9 @@ class JSONWriter {
      * @return JSON string for object
      * @throws JSONException
      */
-    public String write(Object object, Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties)
+    public String write(Object object, Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties, boolean excludeNullProperties)
         throws JSONException {
+        this.excludeNullProperties = excludeNullProperties;
         this.buf.setLength(0);
         this.root = object;
         this.exprStack = "";
@@ -216,13 +218,10 @@ class JSONWriter {
                         }
                         expr = this.setExprStack(expr);
                     }
-                    if (hasData) {
-                        this.add(',');
-                    }
-                    hasData = true;
 
                     Object value = accessor.invoke(object, new Object[0]);
-                    this.add(name, value, accessor);
+                    boolean propertyPrinted = this.add(name, value, accessor, hasData);
+                    hasData = hasData || propertyPrinted;
                     if (this.buildExpr) {
                         this.setExprStack(expr);
                     }
@@ -231,11 +230,8 @@ class JSONWriter {
 
             // special-case handling for an Enumeration - include the name() as a property */
             if (object instanceof Enum) {
-                if (hasData) {
-                    this.add(',');
-                }
                 Object value = ((Enum) object).name();
-                this.add("_name", value, object.getClass().getMethod("name"));
+                this.add("_name", value, object.getClass().getMethod("name"), hasData);
             }
         } catch (Exception e) {
             throw new JSONException(e);
@@ -314,11 +310,19 @@ class JSONWriter {
     /**
      * Add name/value pair to buffer
      */
-    private void add(String name, Object value, Method method) throws JSONException {
-        this.add('"');
-        this.add(name);
-        this.add("\":");
-        this.value(value, method);
+    private boolean add(String name, Object value, Method method, boolean hasData) throws JSONException {
+        if (!excludeNullProperties || value != null) {
+            if (hasData) {
+                this.add(',');
+            }
+            this.add('"');
+            this.add(name);
+            this.add("\":");
+            this.value(value, method);
+            return true;
+        }
+
+        return false;
     }
 
     /**

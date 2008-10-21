@@ -72,10 +72,10 @@ public class JSONUtil {
      * @throws JSONException
      */
     public static String serialize(Object object, Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties,
-        boolean ignoreHierarchy) throws JSONException {
+        boolean ignoreHierarchy, boolean excludeNullProperties) throws JSONException {
         JSONWriter writer = new JSONWriter();
         writer.setIgnoreHierarchy(ignoreHierarchy);
-        return writer.write(object, excludeProperties, includeProperties);
+        return writer.write(object, excludeProperties, includeProperties, excludeNullProperties);
     }
 
     /**
@@ -89,11 +89,11 @@ public class JSONUtil {
      * @throws JSONException
      */
     public static String serialize(Object object, Collection<Pattern> excludeProperties,
-    		Collection<Pattern> includeProperties, boolean ignoreHierarchy, boolean enumAsBean) throws JSONException {
+    		Collection<Pattern> includeProperties, boolean ignoreHierarchy, boolean enumAsBean,  boolean excludeNullProperties) throws JSONException {
         JSONWriter writer = new JSONWriter();
         writer.setIgnoreHierarchy(ignoreHierarchy);
         writer.setEnumAsBean(enumAsBean);
-        return writer.write(object, excludeProperties, includeProperties);
+        return writer.write(object, excludeProperties, includeProperties, excludeNullProperties);
     }
 
     /**
@@ -118,8 +118,8 @@ public class JSONUtil {
      * @throws JSONException
      */
     public static void serialize(Writer writer, Object object,
-    		 Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties) throws IOException, JSONException {
-    	 writer.write(serialize(object, excludeProperties, includeProperties, true));
+    		 Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties, boolean excludeNullProperties) throws IOException, JSONException {
+    	 writer.write(serialize(object, excludeProperties, includeProperties, true, excludeNullProperties));
     }
 
     /**
