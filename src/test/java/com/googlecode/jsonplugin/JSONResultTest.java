@@ -334,6 +334,19 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
 
+    public void testNoCache() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setNoCache(true);
+
+        executeTest2Action(result);
+
+
+        Map<String, String> headers = response.getHeaders();
+        assertEquals("no-cache", headers.get("Cache-Control"));
+        assertEquals("0", headers.get("Expires"));
+        assertEquals("No-cache", headers.get("Pragma"));
+    }
+
     /** Repeats test2 but with the Enum serialized as a bean */
     public void test2WithEnumBean() throws Exception {
         JSONResult result = new JSONResult();

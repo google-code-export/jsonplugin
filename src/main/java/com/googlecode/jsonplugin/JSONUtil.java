@@ -157,7 +157,8 @@ public class JSONUtil {
     }
 
     public static void writeJSONToResponse(HttpServletResponse response, String encoding,
-                                           boolean wrapWithComments, String serializedJSON, boolean smd, boolean gzip) throws IOException {
+                                           boolean wrapWithComments, String serializedJSON,
+                                           boolean smd, boolean gzip, boolean noCache) throws IOException {
         String json = serializedJSON == null ? "" : serializedJSON;
         if (wrapWithComments) {
             StringBuilder sb = new StringBuilder("/* ");
@@ -172,6 +173,13 @@ public class JSONUtil {
         response.setContentType((smd ? "application/json-rpc;charset="
             : "application/json;charset=") +
             encoding);
+
+        if (noCache) {
+            response.setHeader("Cache-Control", "no-cache");
+            response.setHeader("Expires", "0");
+            response.setHeader("Pragma", "No-cache");
+        }
+
         if (gzip) {
 			response.addHeader("Content-Encoding", "gzip");
 			GZIPOutputStream out = null;

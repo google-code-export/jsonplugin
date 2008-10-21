@@ -46,6 +46,7 @@ public class JSONInterceptor implements Interceptor {
     private JSONPopulator populator = new JSONPopulator();
     private JSONCleaner dataCleaner = null;
     private boolean debug = false;
+    private boolean noCache = false;
 
     public void destroy() {
     }
@@ -124,7 +125,7 @@ public class JSONInterceptor implements Interceptor {
                 String json = JSONUtil.serialize(result, excludeProperties, includeProperties,
                     ignoreHierarchy);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                    this.wrapWithComments, json, true, false);
+                    this.wrapWithComments, json, true, false, noCache);
 
                 return Action.NONE;
             } else {
@@ -139,7 +140,7 @@ public class JSONInterceptor implements Interceptor {
             String json = JSONUtil.serialize(result, excludeProperties, includeProperties, ignoreHierarchy);
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                this.wrapWithComments, json, true, writeGzip);
+                this.wrapWithComments, json, true, writeGzip, noCache);
 
             return Action.NONE;
         } else {
@@ -379,5 +380,17 @@ public class JSONInterceptor implements Interceptor {
      */
     public void setEnableGZIP(boolean enableGZIP) {
         this.enableGZIP = enableGZIP;
+    }
+
+    public boolean isNoCache() {
+        return noCache;
+    }
+
+    /**
+     * Add headers to response to prevent the browser from caching the response
+     * @param noCache
+     */
+    public void setNoCache(boolean noCache) {
+        this.noCache = noCache;
     }
 }
