@@ -23,7 +23,9 @@ package com.googlecode.jsonplugin;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import com.mockobjects.servlet.MockHttpServletResponse;
 
@@ -37,6 +39,12 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
     private int status;
     private String redirectURL;
     private String contentType;
+    private Map<String, String> headers = new HashMap<String, String>();
+
+    @Override
+    public void setHeader(String arg1, String arg2) {
+        headers.put(arg1, arg2);
+    }
 
     @Override
     public Locale getLocale() {
@@ -106,5 +114,9 @@ public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
     public void sendRedirect(String redirectURL) throws IOException {
         this.redirectURL = redirectURL;
         super.sendRedirect(redirectURL);
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 }
