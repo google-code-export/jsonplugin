@@ -24,6 +24,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +53,16 @@ public class JSONResultTest extends StrutsTestCase {
     ActionContext context;
     ValueStack stack;
     private StrutsMockHttpServletRequest request;
+
+    public void testJSONUtil(){
+        Map map = new HashMap();
+        map.put("createtime", new Date());
+        try {
+            JSONUtil.serialize(map);
+        } catch (JSONException e) {
+            fail(e.getMessage());
+        }
+    }
 
     public void testSMDDisabledSMD() throws Exception {
         JSONResult result = new JSONResult();
