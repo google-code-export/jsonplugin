@@ -65,6 +65,7 @@ public class JSONResult implements Result {
     private boolean ignoreHierarchy = true;
     private boolean ignoreInterfaces = true;
     private boolean enumAsBean = JSONWriter.ENUM_AS_BEAN_DEFAULT;
+    private boolean noCache = false;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -185,11 +186,11 @@ public class JSONResult implements Result {
     protected void writeToResponse(HttpServletResponse response,
                                    String json, boolean gzip) throws IOException {
         JSONUtil.writeJSONToResponse(response, getEncoding(),
-            isWrapWithComments(), json, false, gzip);
+            isWrapWithComments(), json, false, gzip, noCache);
     }
 
     @SuppressWarnings("unchecked")
-    private com.googlecode.jsonplugin.smd.SMD writeSMD(ActionInvocation invocation) {
+    protected com.googlecode.jsonplugin.smd.SMD writeSMD(ActionInvocation invocation) {
         ActionContext actionContext = invocation.getInvocationContext();
         HttpServletRequest request = (HttpServletRequest) actionContext
             .get(StrutsStatics.HTTP_REQUEST);
@@ -374,11 +375,31 @@ public class JSONResult implements Result {
         this.enumAsBean = enumAsBean;
     }
 
+    public boolean isEnumAsBean() {
+        return enumAsBean;
+    }
+
     public boolean isEnableGZIP() {
         return enableGZIP;
     }
 
     public void setEnableGZIP(boolean enableGZIP) {
         this.enableGZIP = enableGZIP;
+    }
+
+    public boolean isNoCache() {
+        return noCache;
+    }
+
+    /**
+     * Add headers to response to prevent the browser from caching the response
+     * @param noCache
+     */
+    public void setNoCache(boolean noCache) {
+        this.noCache = noCache;
+    }
+
+    public boolean isIgnoreHierarchy() {
+        return ignoreHierarchy;
     }
 }

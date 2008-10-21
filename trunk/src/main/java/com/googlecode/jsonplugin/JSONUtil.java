@@ -339,7 +339,7 @@ public class JSONUtil {
         return okayToContinue;
     }
 
-    static boolean isGzipInRequest(HttpServletRequest request) {
+    public static boolean isGzipInRequest(HttpServletRequest request) {
         String header = request.getHeader("Accept-Encoding");
         return header != null && header.indexOf("gzip") >= 0;
     }
