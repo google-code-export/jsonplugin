@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import jj2000.j2k.util.ArrayUtil;
-
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.StrutsTestCase;
 import org.jmock.Mock;
