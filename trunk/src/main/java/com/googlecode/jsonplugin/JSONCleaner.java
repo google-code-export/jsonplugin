@@ -34,7 +34,7 @@ public abstract class JSONCleaner {
         Iterator iter = map.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry e = (Map.Entry) iter.next();
-            e.setValue(clean(ognlPrefix+"."+e.getKey(), e.getValue()));
+            e.setValue(clean((ognlPrefix.length() > 0 ? ognlPrefix+"." : "")+e.getKey(), e.getValue()));
         }
         return map;
     }
