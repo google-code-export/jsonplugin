@@ -1,5 +1,8 @@
 package com.googlecode.jsonplugin;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public class Bean {
     private String stringField;
     private int intField;
@@ -12,6 +15,8 @@ public class Bean {
     private byte byteField;
     private AnEnum enumField;
     private AnEnumBean enumBean;
+    private BigDecimal bigDecimal;
+    private BigInteger bigInteger;
 
     /**
      * @return the byteField
@@ -105,5 +110,21 @@ public class Bean {
 
     public void setEnumBean(AnEnumBean enumBean) {
         this.enumBean = enumBean;
+    }
+
+    public BigInteger getBigInteger() {
+        return bigInteger;
+    }
+
+    public void setBigInteger(BigInteger bigInteger) {
+        this.bigInteger = bigInteger;
+    }
+
+    public BigDecimal getBigDecimal() {
+        return bigDecimal;
+    }
+
+    public void setBigDecimal(BigDecimal bigDecimal) {
+        this.bigDecimal = bigDecimal;
     }
 }

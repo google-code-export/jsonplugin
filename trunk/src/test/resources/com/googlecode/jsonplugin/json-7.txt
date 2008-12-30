@@ -1,4 +1,6 @@
 {
+        "bigDecimal": 111111.5,
+        "bigInteger": 111111,
         "booleanField": true,
         "primitiveBooleanField1": true,
         "primitiveBooleanField2": false,

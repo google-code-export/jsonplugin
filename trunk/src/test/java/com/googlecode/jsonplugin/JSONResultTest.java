@@ -40,6 +40,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * JSONResultTest
@@ -160,6 +162,8 @@ public class JSONResultTest extends StrutsTestCase {
         List collection2 = new ArrayList();
         Bean bean1 = new Bean();
 
+        bean1.setBigDecimal(new BigDecimal("111111.111111"));
+        bean1.setBigInteger(new BigInteger("111111111111"));
         bean1.setStringField("str");
         bean1.setBooleanField(true);
         bean1.setCharField('s');

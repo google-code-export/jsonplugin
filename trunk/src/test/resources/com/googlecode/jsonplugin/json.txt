@@ -3,6 +3,8 @@
 	"bean": null,
 	"collection": ["b", 1, [10, 12]],
 	"collection2": [{
+	                    "bigDecimal": 111111.111111,
+                        "bigInteger": 111111111111,
 						"booleanField": true,
 						"byteField": 0,
 						"charField": "s",
@@ -13,6 +15,8 @@
 						"intField": 10,
 						"longField": 100,
 						"objectField": {
+						    "bigDecimal": null,
+                            "bigInteger": null,
 							"booleanField": false,
 							"byteField": 0,
 							"charField": "\u0000",

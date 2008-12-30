@@ -1,9 +1,11 @@
 package com.googlecode.jsonplugin;
 
-import java.io.StringReader;
-import java.util.Map;
-
 import junit.framework.TestCase;
+
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Map;
 
 public class JSONPopulatorTest extends TestCase {
 
@@ -23,6 +25,8 @@ public class JSONPopulatorTest extends TestCase {
         assertEquals('s', bean.getCharField());
         assertEquals(10.1d, bean.getDoubleField(), 0d);
         assertEquals(3, bean.getByteField());
+        assertEquals(new BigDecimal(111111.5d), bean.getBigDecimal());
+        assertEquals(new BigInteger("111111"), bean.getBigInteger());
     }
 
     public void testObjectBean() throws Exception {
