@@ -2,6 +2,8 @@
     "error":null,
     "id":"15",
     "result": {
+        "bigDecimal": null,
+        "bigInteger": null,
         "booleanField": true,
         "byteField": 0,
         "charField": "s",

@@ -1,5 +1,9 @@
 package com.googlecode.jsonplugin;
 
+import com.googlecode.jsonplugin.annotations.JSON;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -23,11 +27,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.googlecode.jsonplugin.annotations.JSON;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Isolate the process of populating JSON objects from the Interceptor class itself.
@@ -113,7 +114,12 @@ public class JSONPopulator {
             Object convertedValue = clazz.newInstance();
             this.populateObject(convertedValue, (Map) value);
             return convertedValue;
-        } else
+        } else if (BigDecimal.class.equals(clazz)) {
+            return new BigDecimal(value != null ? value.toString() : "0");
+        } else if (BigInteger.class.equals(clazz)) {
+            return new BigInteger(value != null ? value.toString() : "0");
+        }
+        else
             throw new JSONException("Incompatible types for property " + method.getName());
     }
 
