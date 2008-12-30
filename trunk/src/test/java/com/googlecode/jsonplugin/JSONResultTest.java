@@ -411,6 +411,15 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals("No-cache", headers.get("Pragma"));
     }
 
+    public void testContentType() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setContentType("some_super_content");
+
+        executeTest2Action(result);
+
+        assertEquals("some_super_content;charset=ISO-8859-1", response.getContentType());
+    }
+
     public void testStatusCode() throws Exception {
         JSONResult result = new JSONResult();
         result.setStatusCode(HttpServletResponse.SC_CONTINUE);

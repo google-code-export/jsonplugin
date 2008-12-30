@@ -21,6 +21,7 @@
 package com.googlecode.jsonplugin;
 
 import com.googlecode.jsonplugin.annotations.SMDMethod;
+import com.opensymphony.xwork2.util.TextUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -161,17 +162,12 @@ public class JSONUtil {
         return deserialize(buffer.toString());
     }
 
-    public static void writeJSONToResponse(HttpServletResponse response, String encoding,
-                                           boolean wrapWithComments, String serializedJSON,
-                                           boolean smd, boolean gzip, boolean noCache, boolean prefix) throws IOException {
-        writeJSONToResponse(response, encoding, wrapWithComments, serializedJSON, smd, gzip, noCache, -1, -1, prefix);
-
-    }
-
+    //TODO: extract this megazillion parameters into some class
     public static void writeJSONToResponse(HttpServletResponse response, String encoding,
                                            boolean wrapWithComments, String serializedJSON,
                                            boolean smd, boolean gzip, boolean noCache,
-                                           int statusCode, int errorCode, boolean prefix) throws IOException {
+                                           int statusCode, int errorCode, boolean prefix,
+                                           String contentType) throws IOException {
         String json = serializedJSON == null ? "" : serializedJSON;
         if (wrapWithComments) {
             StringBuilder sb = new StringBuilder("/* ");
@@ -194,9 +190,13 @@ public class JSONUtil {
         else if (errorCode > 0)
             response.sendError(errorCode);
 
-        response.setContentType((smd ? "application/json-rpc;charset="
-                : "application/json;charset=") +
-                encoding);
+        //content type
+        if (smd)
+            response.setContentType("application/json-rpc;charset=" + encoding);
+        else {
+            contentType = TextUtils.noNull(contentType, "application/json");
+            response.setContentType(contentType + ";charset=" + encoding);
+        }
 
         if (noCache) {
             response.setHeader("Cache-Control", "no-cache");
