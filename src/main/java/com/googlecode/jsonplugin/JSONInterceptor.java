@@ -34,6 +34,7 @@ public class JSONInterceptor implements Interceptor {
     private boolean enableSMD = false;
     private boolean enableGZIP = false;
     private boolean wrapWithComments;
+    private boolean prefix;
     private String defaultEncoding = "ISO-8859-1";
     private boolean ignoreHierarchy = true;
     private String root;
@@ -125,7 +126,7 @@ public class JSONInterceptor implements Interceptor {
                         ignoreHierarchy, excludeNullProperties);
                 json = addCallbackIfApplicable(request, json);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                        this.wrapWithComments, json, true, false, noCache);
+                        this.wrapWithComments, json, true, false, noCache, prefix);
 
                 return Action.NONE;
             } else {
@@ -141,7 +142,7 @@ public class JSONInterceptor implements Interceptor {
             json = addCallbackIfApplicable(request, json);
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                    this.wrapWithComments, json, true, writeGzip, noCache);
+                    this.wrapWithComments, json, true, writeGzip, noCache, prefix);
 
             return Action.NONE;
         } else {
@@ -432,5 +433,13 @@ public class JSONInterceptor implements Interceptor {
 
     public String getCallbackParameter() {
         return callbackParameter;
+    }
+
+    /**
+     * Add "{} && " to generated JSON
+     * @param prefix
+     */
+    public void setPrefix(boolean prefix) {
+        this.prefix = prefix;
     }
 }
