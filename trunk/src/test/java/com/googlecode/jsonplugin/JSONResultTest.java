@@ -20,6 +20,15 @@
  */
 package com.googlecode.jsonplugin;
 
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.mock.MockActionInvocation;
+import com.opensymphony.xwork2.util.ValueStack;
+import com.opensymphony.xwork2.util.ValueStackFactory;
+import org.apache.struts2.StrutsStatics;
+import org.apache.struts2.StrutsTestCase;
+import org.jmock.Mock;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -31,15 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.apache.struts2.StrutsStatics;
-import org.apache.struts2.StrutsTestCase;
-import org.jmock.Mock;
-
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.mock.MockActionInvocation;
-import com.opensymphony.xwork2.util.ValueStack;
-import com.opensymphony.xwork2.util.ValueStackFactory;
 
 /**
  * JSONResultTest
@@ -372,6 +372,15 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals("no-cache", headers.get("Cache-Control"));
         assertEquals("0", headers.get("Expires"));
         assertEquals("No-cache", headers.get("Pragma"));
+    }
+
+    public void testStatusCode() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setStatusCode(HttpServletResponse.SC_CONTINUE);
+
+        executeTest2Action(result);
+
+        assertEquals(HttpServletResponse.SC_CONTINUE, response.getStatus());
     }
 
     /** Repeats test2 but with the Enum serialized as a bean */

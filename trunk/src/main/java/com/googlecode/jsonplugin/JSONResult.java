@@ -1,21 +1,5 @@
 package com.googlecode.jsonplugin;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts2.StrutsConstants;
-import org.apache.struts2.StrutsStatics;
-
 import com.googlecode.jsonplugin.annotations.SMD;
 import com.googlecode.jsonplugin.annotations.SMDMethod;
 import com.googlecode.jsonplugin.annotations.SMDMethodParameter;
@@ -24,6 +8,20 @@ import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.Result;
 import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.util.ValueStack;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts2.StrutsConstants;
+import org.apache.struts2.StrutsStatics;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * <!-- START SNIPPET: description -->
@@ -67,6 +65,8 @@ public class JSONResult implements Result {
     private boolean enumAsBean = JSONWriter.ENUM_AS_BEAN_DEFAULT;
     private boolean noCache = false;
     private boolean excludeNullProperties = false;
+    private int statusCode;
+    private int errorCode;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -187,7 +187,7 @@ public class JSONResult implements Result {
     protected void writeToResponse(HttpServletResponse response,
                                    String json, boolean gzip) throws IOException {
         JSONUtil.writeJSONToResponse(response, getEncoding(),
-            isWrapWithComments(), json, false, gzip, noCache);
+            isWrapWithComments(), json, false, gzip, noCache, statusCode, errorCode);
     }
 
     @SuppressWarnings("unchecked")
@@ -414,5 +414,21 @@ public class JSONResult implements Result {
      */
     public void setExcludeNullProperties(boolean excludeNullProperties) {
         this.excludeNullProperties = excludeNullProperties;
+    }
+
+    /**
+     * Status code to be set in the response
+     * @param statusCode
+     */
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    /**
+     * Error code to be set in the response
+     * @param errorCode
+     */
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
     }
 }
