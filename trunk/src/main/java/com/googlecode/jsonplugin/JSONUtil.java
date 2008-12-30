@@ -163,22 +163,27 @@ public class JSONUtil {
 
     public static void writeJSONToResponse(HttpServletResponse response, String encoding,
                                            boolean wrapWithComments, String serializedJSON,
-                                           boolean smd, boolean gzip, boolean noCache) throws IOException {
-        writeJSONToResponse(response, encoding, wrapWithComments, serializedJSON, smd, gzip, noCache, -1, -1);
+                                           boolean smd, boolean gzip, boolean noCache, boolean prefix) throws IOException {
+        writeJSONToResponse(response, encoding, wrapWithComments, serializedJSON, smd, gzip, noCache, -1, -1, prefix);
 
     }
 
     public static void writeJSONToResponse(HttpServletResponse response, String encoding,
                                            boolean wrapWithComments, String serializedJSON,
                                            boolean smd, boolean gzip, boolean noCache,
-                                           int statusCode, int errorCode) throws IOException {
+                                           int statusCode, int errorCode, boolean prefix) throws IOException {
         String json = serializedJSON == null ? "" : serializedJSON;
         if (wrapWithComments) {
             StringBuilder sb = new StringBuilder("/* ");
             sb.append(json);
             sb.append(" */");
             json = sb.toString();
+        } else if (prefix) {
+            StringBuilder sb = new StringBuilder("{}&& ");
+            sb.append(json);
+            json = sb.toString();
         }
+
         if (log.isDebugEnabled()) {
             log.debug("[JSON]" + json);
         }
