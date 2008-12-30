@@ -47,6 +47,7 @@ public class JSONInterceptor implements Interceptor {
     private boolean noCache = false;
     private boolean excludeNullProperties;
     private String callbackParameter;
+    private String contentType;
 
     public void destroy() {
     }
@@ -126,7 +127,7 @@ public class JSONInterceptor implements Interceptor {
                         ignoreHierarchy, excludeNullProperties);
                 json = addCallbackIfApplicable(request, json);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                        this.wrapWithComments, json, true, false, noCache, prefix);
+                        this.wrapWithComments, json, true, false, noCache, -1, -1, prefix, contentType);
 
                 return Action.NONE;
             } else {
@@ -142,7 +143,7 @@ public class JSONInterceptor implements Interceptor {
             json = addCallbackIfApplicable(request, json);
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                    this.wrapWithComments, json, true, writeGzip, noCache, prefix);
+                    this.wrapWithComments, json, true, writeGzip, noCache, -1, -1, prefix, contentType);
 
             return Action.NONE;
         } else {
@@ -441,5 +442,9 @@ public class JSONInterceptor implements Interceptor {
      */
     public void setPrefix(boolean prefix) {
         this.prefix = prefix;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 }

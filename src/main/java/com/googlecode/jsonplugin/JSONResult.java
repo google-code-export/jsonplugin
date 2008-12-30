@@ -68,6 +68,7 @@ public class JSONResult implements Result {
     private int statusCode;
     private int errorCode;
     private String callbackParameter;
+    private String contentType;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -189,7 +190,7 @@ public class JSONResult implements Result {
     protected void writeToResponse(HttpServletResponse response,
                                    String json, boolean gzip) throws IOException {
         JSONUtil.writeJSONToResponse(response, getEncoding(),
-                isWrapWithComments(), json, false, gzip, noCache, statusCode, errorCode, prefix);
+                isWrapWithComments(), json, false, gzip, noCache, statusCode, errorCode, prefix, contentType);
     }
 
     @SuppressWarnings("unchecked")
@@ -464,5 +465,13 @@ public class JSONResult implements Result {
      */
     public void setPrefix(boolean prefix) {
         this.prefix = prefix;
+    }
+
+    /**
+     * Content type to be set in the response
+     * @param contentType
+     */
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 }
