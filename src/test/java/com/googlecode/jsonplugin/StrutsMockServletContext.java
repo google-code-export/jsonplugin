@@ -36,7 +36,6 @@ import javax.servlet.ServletException;
 
 /**
  * StrutsMockServletContext
- *
  */
 public class StrutsMockServletContext implements ServletContext {
     String realPath;

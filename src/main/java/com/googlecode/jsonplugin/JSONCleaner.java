@@ -23,8 +23,8 @@ public abstract class JSONCleaner {
     protected Object cleanList(String ognlPrefix, Object data) throws JSONException {
         List list = (List) data;
         int count = list.size();
-        for (int i=0; i<count; i++) {
-            list.set(i, clean(ognlPrefix+"["+i+"]", list.get(i)));
+        for (int i = 0; i < count; i++) {
+            list.set(i, clean(ognlPrefix + "[" + i + "]", list.get(i)));
         }
         return list;
     }
@@ -34,7 +34,7 @@ public abstract class JSONCleaner {
         Iterator iter = map.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry e = (Map.Entry) iter.next();
-            e.setValue(clean((ognlPrefix.length() > 0 ? ognlPrefix+"." : "")+e.getKey(), e.getValue()));
+            e.setValue(clean((ognlPrefix.length() > 0 ? ognlPrefix + "." : "") + e.getKey(), e.getValue()));
         }
         return map;
     }

@@ -6,7 +6,7 @@ public enum RPCErrorCode {
     INVALID_PROCEDURE_CALL(0, "Invalid procedure call"),
     METHOD_NOT_FOUND(101, "Procedure not found"),
     PARAMETERS_MISMATCH(102,
-        "Parameters count in request does not patch parameters count on method"),
+            "Parameters count in request does not patch parameters count on method"),
     EXCEPTION(103, "An exception was thrown"),
     SMD_DISABLED(104, "SMD is disabled");
 

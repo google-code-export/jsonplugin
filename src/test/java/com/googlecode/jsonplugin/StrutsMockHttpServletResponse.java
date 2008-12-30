@@ -31,7 +31,6 @@ import com.mockobjects.servlet.MockHttpServletResponse;
 
 /**
  * StrutsMockHttpServletResponse
- *
  */
 public class StrutsMockHttpServletResponse extends MockHttpServletResponse {
     private Locale locale;

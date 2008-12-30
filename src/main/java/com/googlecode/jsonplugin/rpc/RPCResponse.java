@@ -2,7 +2,6 @@ package com.googlecode.jsonplugin.rpc;
 
 /**
  * Class that will be serialized as a response to an RPC call
- *
  */
 public class RPCResponse {
     private String id;

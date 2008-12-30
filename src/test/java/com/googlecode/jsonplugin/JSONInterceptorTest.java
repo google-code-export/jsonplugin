@@ -1,5 +1,12 @@
 package com.googlecode.jsonplugin;
 
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.mock.MockActionInvocation;
+import com.opensymphony.xwork2.util.ValueStack;
+import com.opensymphony.xwork2.util.ValueStackFactory;
+import org.apache.struts2.StrutsStatics;
+import org.apache.struts2.StrutsTestCase;
+
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -7,14 +14,6 @@ import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.struts2.StrutsStatics;
-import org.apache.struts2.StrutsTestCase;
-
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.mock.MockActionInvocation;
-import com.opensymphony.xwork2.util.ValueStack;
-import com.opensymphony.xwork2.util.ValueStackFactory;
 
 public class JSONInterceptorTest extends StrutsTestCase {
     private MockActionInvocationEx invocation;
@@ -50,7 +49,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     private void tryBadJSON(String fileName) throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource(fileName)));
+                .readContent(JSONInterceptorTest.class.getResource(fileName)));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -73,7 +72,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDDisabledSMD() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-3.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-3.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -94,7 +93,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDAliasedMethodCall1() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-14.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-14.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -114,7 +113,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDAliasedMethodCall2() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-15.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-15.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -134,7 +133,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDNoMethod() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-4.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-4.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -152,7 +151,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd-13.txt"));
+                .getResource("smd-13.txt"));
         assertEquals(normalizedExpected, normalizedActual);
 
         assertFalse(this.invocation.isInvoked());
@@ -161,7 +160,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDMethodWithoutAnnotations() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-9.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-9.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -184,7 +183,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDPrimitivesNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-6.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-6.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -213,7 +212,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd-11.txt"));
+                .getResource("smd-11.txt"));
         assertEquals(normalizedExpected, normalizedActual);
 
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
@@ -222,7 +221,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDReturnObject() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-10.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-10.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -240,7 +239,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd-12.txt"));
+                .getResource("smd-12.txt"));
         assertEquals(normalizedExpected, normalizedActual);
 
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
@@ -250,7 +249,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
     public void testSMDObjectsNoResult() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("smd-7.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("smd-7.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json-rpc");
 
@@ -291,17 +290,17 @@ public class JSONInterceptorTest extends StrutsTestCase {
         String json = this.stringWriter.toString();
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd-11.txt"));
+                .getResource("smd-11.txt"));
         assertEquals(normalizedExpected, normalizedActual);
 
         assertEquals("application/json-rpc;charset=ISO-8859-1", response.getContentType());
     }
 
-    @SuppressWarnings( { "unchecked", "unchecked" })
+    @SuppressWarnings({"unchecked", "unchecked"})
     public void testReadEmpty() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("json-6.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("json-6.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json");
 
@@ -314,11 +313,11 @@ public class JSONInterceptorTest extends StrutsTestCase {
         interceptor.intercept(this.invocation);
     }
 
-    @SuppressWarnings( { "unchecked", "unchecked" })
+    @SuppressWarnings({"unchecked", "unchecked"})
     public void test() throws Exception {
         //request
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("json-1.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("json-1.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json");
 
@@ -441,7 +440,7 @@ public class JSONInterceptorTest extends StrutsTestCase {
 
     public void testRoot() throws Exception {
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("json-5.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("json-5.txt")));
         this.request.setupGetReader(new BufferedReader(stringReader));
         this.request.setupAddHeader("content-type", "application/json");
 

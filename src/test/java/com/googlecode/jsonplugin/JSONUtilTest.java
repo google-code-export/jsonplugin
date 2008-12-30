@@ -7,7 +7,9 @@ import java.util.Map;
 public class JSONUtilTest extends TestCase {
 
 
-    /** Asserts that a bean can be serialized to JSON and restored as a map */
+    /**
+     * Asserts that a bean can be serialized to JSON and restored as a map
+     */
     public void testSerializeDeserialize() throws Exception {
         Bean bean1 = new Bean();
 

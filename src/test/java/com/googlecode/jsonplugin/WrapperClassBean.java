@@ -19,9 +19,9 @@ public class WrapperClassBean {
     private Object objectField;
     private Byte byteField;
     private List<SimpleValue> listField;
-    private List<Map<String,Long>> listMapField;
-    private Map<String,List<Long>> mapListField;
-    private Map<String,Long>[] arrayMapField;
+    private List<Map<String, Long>> listMapField;
+    private Map<String, List<Long>> mapListField;
+    private Map<String, Long>[] arrayMapField;
 
     public List<SimpleValue> getListField() {
         return listField;
@@ -31,27 +31,27 @@ public class WrapperClassBean {
         this.listField = listField;
     }
 
-    public List<Map<String,Long>> getListMapField() {
+    public List<Map<String, Long>> getListMapField() {
         return listMapField;
     }
 
-    public void setListMapField(List<Map<String,Long>> listMapField) {
+    public void setListMapField(List<Map<String, Long>> listMapField) {
         this.listMapField = listMapField;
     }
 
-    public Map<String,List<Long>> getMapListField() {
+    public Map<String, List<Long>> getMapListField() {
         return mapListField;
     }
 
-    public void setMapListField(Map<String,List<Long>> mapListField) {
+    public void setMapListField(Map<String, List<Long>> mapListField) {
         this.mapListField = mapListField;
     }
 
-    public Map<String,Long>[] getArrayMapField() {
+    public Map<String, Long>[] getArrayMapField() {
         return arrayMapField;
     }
 
-    public void setArrayMapField(Map<String,Long>[] arrayMapField) {
+    public void setArrayMapField(Map<String, Long>[] arrayMapField) {
         this.arrayMapField = arrayMapField;
     }
 

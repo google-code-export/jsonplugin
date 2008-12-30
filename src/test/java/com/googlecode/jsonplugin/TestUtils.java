@@ -26,14 +26,13 @@ import java.util.StringTokenizer;
 
 /**
  * Utility methods for test classes
- *
  */
 public class TestUtils {
     /**
      * normalizes a string so that strings generated on different platforms can be compared.  any group of one or more
      * space, tab, \r, and \n characters are converted to a single space character
      *
-     * @param obj the object to be normalized.  normalize will perform its operation on obj.toString().trim() ;
+     * @param obj         the object to be normalized.  normalize will perform its operation on obj.toString().trim() ;
      * @param appendSpace
      * @return the normalized string
      */

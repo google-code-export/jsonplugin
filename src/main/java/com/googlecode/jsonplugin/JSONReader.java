@@ -29,7 +29,6 @@ import java.util.Map;
 
 /**
  * <p>Deserializes and object from a JSON string</p>
- *
  */
 class JSONReader {
     private static final Object OBJECT_END = new Object();
@@ -103,15 +102,15 @@ class JSONReader {
             ret = COLON;
             this.next();
         } else if ((this.c == 't') && (this.next() == 'r') && (this.next() == 'u') &&
-            (this.next() == 'e')) {
+                (this.next() == 'e')) {
             ret = Boolean.TRUE;
             this.next();
         } else if ((this.c == 'f') && (this.next() == 'a') && (this.next() == 'l') &&
-            (this.next() == 's') && (this.next() == 'e')) {
+                (this.next() == 's') && (this.next() == 'e')) {
             ret = Boolean.FALSE;
             this.next();
         } else if ((this.c == 'n') && (this.next() == 'u') && (this.next() == 'l') &&
-            (this.next() == 'l')) {
+                (this.next() == 'l')) {
             ret = null;
             this.next();
         } else if (Character.isDigit(this.c) || (this.c == '-')) {
@@ -155,7 +154,7 @@ class JSONReader {
     private JSONException buildInvalidInputException() {
         return new JSONException(
                 "Input string is not well formed JSON (invalid char " +
-                this.c + ")");
+                        this.c + ")");
     }
 
     @SuppressWarnings("unchecked")
@@ -169,7 +168,7 @@ class JSONReader {
             Object read = this.read();
             if (read == COMMA) {
                 value = this.read();
-            } else if (read != ARRAY_END){
+            } else if (read != ARRAY_END) {
                 throw buildInvalidInputException();
             }
         }
@@ -202,7 +201,7 @@ class JSONReader {
         }
 
         return (this.buf.indexOf(".") >= 0) ? (Object) Double.parseDouble(this.buf
-            .toString()) : (Object) Long.parseLong(this.buf.toString());
+                .toString()) : (Object) Long.parseLong(this.buf.toString());
     }
 
     private Object string(char quote) {

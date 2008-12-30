@@ -9,7 +9,7 @@ public class JSONPopulatorTest extends TestCase {
 
     public void testPrimitiveBean() throws Exception {
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("json-7.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("json-7.txt")));
         Object json = JSONUtil.deserialize(stringReader);
         assertNotNull(json);
         assertTrue(json instanceof Map);
@@ -68,7 +68,7 @@ public class JSONPopulatorTest extends TestCase {
 
     public void testObjectBeanWithStrings() throws Exception {
         StringReader stringReader = new StringReader(TestUtils
-            .readContent(JSONInterceptorTest.class.getResource("json-8.txt")));
+                .readContent(JSONInterceptorTest.class.getResource("json-8.txt")));
         Object json = JSONUtil.deserialize(stringReader);
         assertNotNull(json);
         assertTrue(json instanceof Map);

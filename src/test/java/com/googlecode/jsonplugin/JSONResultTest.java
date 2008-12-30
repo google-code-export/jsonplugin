@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
 
 /**
  * JSONResultTest
- *
  */
 public class JSONResultTest extends StrutsTestCase {
     MockActionInvocation invocation;
@@ -56,7 +55,7 @@ public class JSONResultTest extends StrutsTestCase {
     ValueStack stack;
     private StrutsMockHttpServletRequest request;
 
-    public void testJSONUtilNPEOnNullMehtod(){
+    public void testJSONUtilNPEOnNullMehtod() {
         Map map = new HashMap();
         map.put("createtime", new Date());
         try {
@@ -66,7 +65,7 @@ public class JSONResultTest extends StrutsTestCase {
         }
     }
 
-    public void testJSONWriterEndlessLoopOnExludedProperties() throws JSONException{
+    public void testJSONWriterEndlessLoopOnExludedProperties() throws JSONException {
         Pattern all = Pattern.compile(".*");
 
         JSONWriter writer = new JSONWriter();
@@ -84,7 +83,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd-8.txt"));
+                .getResource("smd-8.txt"));
         assertEquals(normalizedExpected, normalizedActual);
     }
 
@@ -100,7 +99,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd-1.txt"));
+                .getResource("smd-1.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -117,7 +116,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("smd-2.txt"));
+                .getResource("smd-2.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -136,7 +135,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(smd, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("nulls-1.txt"));
+                .getResource("nulls-1.txt"));
         assertEquals(normalizedExpected, normalizedActual);
     }
 
@@ -147,14 +146,14 @@ public class JSONResultTest extends StrutsTestCase {
         TestAction action = new TestAction();
 
         //test scape characters
-        action.setArray(new String[] { "a", "a", "\"", "\\", "/", "\b", "\f", "\n", "\r",
-                "\t" });
+        action.setArray(new String[]{"a", "a", "\"", "\\", "/", "\b", "\f", "\n", "\r",
+                "\t"});
 
         List list = new ArrayList();
 
         list.add("b");
         list.add(1);
-        list.add(new int[] { 10, 12 });
+        list.add(new int[]{10, 12});
         action.setCollection(list);
 
         //beans
@@ -191,7 +190,7 @@ public class JSONResultTest extends StrutsTestCase {
         Map map = new LinkedHashMap();
 
         map.put("a", 1);
-        map.put("c", new float[] { 1.0f, 2.0f });
+        map.put("c", new float[]{1.0f, 2.0f});
         action.setMap(map);
 
         action.setFoo("foo");
@@ -216,7 +215,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("json.txt"));
+                .getResource("json.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -233,7 +232,7 @@ public class JSONResultTest extends StrutsTestCase {
         String json = this.stringWriter.toString();
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("json-4.txt"));
+                .getResource("json-4.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -245,14 +244,14 @@ public class JSONResultTest extends StrutsTestCase {
         TestAction action = new TestAction();
 
         //test scape characters
-        action.setArray(new String[] { "a", "a", "\"", "\\", "/", "\b", "\f", "\n", "\r",
-                "\t" });
+        action.setArray(new String[]{"a", "a", "\"", "\\", "/", "\b", "\f", "\n", "\r",
+                "\t"});
 
         List list = new ArrayList();
 
         list.add("b");
         list.add(1);
-        list.add(new int[] { 10, 12 });
+        list.add(new int[]{10, 12});
         action.setCollection(list);
 
         //beans
@@ -289,7 +288,7 @@ public class JSONResultTest extends StrutsTestCase {
         Map map = new LinkedHashMap();
 
         map.put("a", 1);
-        map.put("c", new float[] { 1.0f, 2.0f });
+        map.put("c", new float[]{1.0f, 2.0f});
         action.setMap(map);
 
         action.setFoo("foo");
@@ -315,7 +314,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("json-3.txt"));
+                .getResource("json-3.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -356,7 +355,22 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("json-2.txt"));
+                .getResource("json-2.txt"));
+        assertEquals(normalizedExpected, normalizedActual);
+        assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
+    }
+
+    public void testJSONP() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setCallbackParameter("callback");
+        request.getParameterMap().put("callback", "exec");
+
+        executeTest2Action(result);
+        String json = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(json, true);
+        String normalizedExpected = TestUtils.normalize(JSONResultTest.class
+                .getResource("jsonp-1.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -383,7 +397,9 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(HttpServletResponse.SC_CONTINUE, response.getStatus());
     }
 
-    /** Repeats test2 but with the Enum serialized as a bean */
+    /**
+     * Repeats test2 but with the Enum serialized as a bean
+     */
     public void test2WithEnumBean() throws Exception {
         JSONResult result = new JSONResult();
         result.setEnumAsBean(true);
@@ -394,7 +410,7 @@ public class JSONResultTest extends StrutsTestCase {
 
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected = TestUtils.normalize(JSONResultTest.class
-            .getResource("json-2-enum.txt"));
+                .getResource("json-2-enum.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -402,7 +418,6 @@ public class JSONResultTest extends StrutsTestCase {
     /**
      * Ensures that properties of given root object are read as shallow
      * (non-recursive) unless specifically included.
-     *
      */
     public void testIncludeProperties() throws Exception {
         JSONResult result = new JSONResult();
@@ -416,7 +431,7 @@ public class JSONResultTest extends StrutsTestCase {
         String json = this.stringWriter.toString();
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected =
-        	TestUtils.normalize(JSONResultTest.class.getResource("json-9.txt"));
+                TestUtils.normalize(JSONResultTest.class.getResource("json-9.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }
@@ -440,7 +455,7 @@ public class JSONResultTest extends StrutsTestCase {
         String json = this.stringWriter.toString();
         String normalizedActual = TestUtils.normalize(json, true);
         String normalizedExpected =
-            TestUtils.normalize(JSONResultTest.class.getResource("json-10.txt"));
+                TestUtils.normalize(JSONResultTest.class.getResource("json-10.txt"));
         assertEquals(normalizedExpected, normalizedActual);
         assertEquals("application/json;charset=ISO-8859-1", response.getContentType());
     }

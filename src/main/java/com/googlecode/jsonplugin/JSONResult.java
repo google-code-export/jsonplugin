@@ -1,20 +1,5 @@
 package com.googlecode.jsonplugin;
 
-import com.googlecode.jsonplugin.annotations.SMD;
-import com.googlecode.jsonplugin.annotations.SMDMethod;
-import com.googlecode.jsonplugin.annotations.SMDMethodParameter;
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.ActionInvocation;
-import com.opensymphony.xwork2.Result;
-import com.opensymphony.xwork2.inject.Inject;
-import com.opensymphony.xwork2.util.ValueStack;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts2.StrutsConstants;
-import org.apache.struts2.StrutsStatics;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -23,32 +8,48 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts2.StrutsConstants;
+import org.apache.struts2.StrutsStatics;
+
+import com.googlecode.jsonplugin.annotations.SMD;
+import com.googlecode.jsonplugin.annotations.SMDMethod;
+import com.googlecode.jsonplugin.annotations.SMDMethodParameter;
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.ActionInvocation;
+import com.opensymphony.xwork2.Result;
+import com.opensymphony.xwork2.inject.Inject;
+import com.opensymphony.xwork2.util.ValueStack;
+
 /**
  * <!-- START SNIPPET: description -->
- *
+ * <p/>
  * This result serializes an action into JSON.
- *
+ * <p/>
  * <!-- END SNIPPET: description -->
- *
+ * <p/>
  * <p/> <u>Result parameters:</u>
- *
+ * <p/>
  * <!-- START SNIPPET: parameters -->
- *
+ * <p/>
  * <ul>
- *
+ * <p/>
  * <li>excludeProperties - list of regular expressions matching the properties to be excluded.
  * The regular expressions are evaluated against the OGNL expression representation of the properties. </li>
- *
+ * <p/>
  * </ul>
- *
+ * <p/>
  * <!-- END SNIPPET: parameters -->
- *
+ * <p/>
  * <b>Example:</b>
- *
+ * <p/>
  * <pre><!-- START SNIPPET: example -->
  * &lt;result name="success" type="json" /&gt;
  * <!-- END SNIPPET: example --></pre>
- *
  */
 public class JSONResult implements Result {
     private static final long serialVersionUID = 8624350183189931165L;
@@ -67,6 +68,7 @@ public class JSONResult implements Result {
     private boolean excludeNullProperties = false;
     private int statusCode;
     private int errorCode;
+    private String callbackParameter;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -99,17 +101,17 @@ public class JSONResult implements Result {
         }
     }
 
-	/**
-	 * @return the includeProperties
-	 */
-	public List<Pattern> getIncludePropertiesList() {
-		return includeProperties;
-	}
+    /**
+     * @return the includeProperties
+     */
+    public List<Pattern> getIncludePropertiesList() {
+        return includeProperties;
+    }
 
-	/**
-	 * @param includedProperties the includeProperties to set
-	 */
-	public void setIncludeProperties(String commaDelim) {
+    /**
+     * @param includedProperties the includeProperties to set
+     */
+    public void setIncludeProperties(String commaDelim) {
         List<String> includePatterns = JSONUtil.asList(commaDelim);
         if (includePatterns != null) {
             this.includeProperties = new ArrayList<Pattern>(includePatterns.size());
@@ -148,14 +150,14 @@ public class JSONResult implements Result {
                 }
             }
         }
-	}
+    }
 
     public void execute(ActionInvocation invocation) throws Exception {
         ActionContext actionContext = invocation.getInvocationContext();
         HttpServletRequest request = (HttpServletRequest) actionContext
-            .get(StrutsStatics.HTTP_REQUEST);
+                .get(StrutsStatics.HTTP_REQUEST);
         HttpServletResponse response = (HttpServletResponse) actionContext
-            .get(StrutsStatics.HTTP_RESPONSE);
+                .get(StrutsStatics.HTTP_RESPONSE);
 
         try {
             String json;
@@ -172,7 +174,8 @@ public class JSONResult implements Result {
                     rootObject = invocation.getAction();
                 }
             }
-            json = JSONUtil.serialize(rootObject, excludeProperties, includeProperties, ignoreHierarchy, enumAsBean, excludeNullProperties );
+            json = JSONUtil.serialize(rootObject, excludeProperties, includeProperties, ignoreHierarchy, enumAsBean, excludeNullProperties);
+            json = addCallbackIfApplicable(request, json);
 
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
 
@@ -187,14 +190,14 @@ public class JSONResult implements Result {
     protected void writeToResponse(HttpServletResponse response,
                                    String json, boolean gzip) throws IOException {
         JSONUtil.writeJSONToResponse(response, getEncoding(),
-            isWrapWithComments(), json, false, gzip, noCache, statusCode, errorCode);
+                isWrapWithComments(), json, false, gzip, noCache, statusCode, errorCode);
     }
 
     @SuppressWarnings("unchecked")
     protected com.googlecode.jsonplugin.smd.SMD writeSMD(ActionInvocation invocation) {
         ActionContext actionContext = invocation.getInvocationContext();
         HttpServletRequest request = (HttpServletRequest) actionContext
-            .get(StrutsStatics.HTTP_REQUEST);
+                .get(StrutsStatics.HTTP_REQUEST);
 
         //root is based on OGNL expression (action by default)
         Object rootObject = null;
@@ -226,33 +229,33 @@ public class JSONResult implements Result {
 
             //SMDMethod annotation is required
             if (((smdMethodAnnotation != null) && !this.shouldExcludeProperty(method
-                .getName()))) {
+                    .getName()))) {
                 String methodName = smdMethodAnnotation.name().length() == 0 ? method
-                    .getName() : smdMethodAnnotation.name();
+                        .getName() : smdMethodAnnotation.name();
 
                 com.googlecode.jsonplugin.smd.SMDMethod smdMethod = new com.googlecode.jsonplugin.smd.SMDMethod(
-                    methodName);
+                        methodName);
                 smd.addSMDMethod(smdMethod);
 
                 //find params for this method
                 int parametersCount = method.getParameterTypes().length;
                 if (parametersCount > 0) {
                     Annotation[][] parameterAnnotations = method
-                        .getParameterAnnotations();
+                            .getParameterAnnotations();
 
                     for (int i = 0; i < parametersCount; i++) {
                         //are you ever going to pick shorter names? nope
                         SMDMethodParameter smdMethodParameterAnnotation = this
-                            .getSMDMethodParameterAnnotation(parameterAnnotations[i]);
+                                .getSMDMethodParameterAnnotation(parameterAnnotations[i]);
 
                         String paramName = smdMethodParameterAnnotation != null ? smdMethodParameterAnnotation
-                            .name()
-                            : "p" + i;
+                                .name()
+                                : "p" + i;
 
                         //goog thing this is the end of the hierarchy, oitherwise I would need that 21'' LCD ;)
                         smdMethod
-                            .addSMDMethodParameter(new com.googlecode.jsonplugin.smd.SMDMethodParameter(
-                                paramName));
+                                .addSMDMethodParameter(new com.googlecode.jsonplugin.smd.SMDMethodParameter(
+                                        paramName));
                     }
                 }
 
@@ -268,7 +271,7 @@ public class JSONResult implements Result {
      * Find an SMDethodParameter annotation on this array
      */
     private com.googlecode.jsonplugin.annotations.SMDMethodParameter getSMDMethodParameterAnnotation(
-        Annotation[] annotations) {
+            Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             if (annotation instanceof com.googlecode.jsonplugin.annotations.SMDMethodParameter)
                 return (com.googlecode.jsonplugin.annotations.SMDMethodParameter) annotation;
@@ -307,8 +310,18 @@ public class JSONResult implements Result {
         return encoding;
     }
 
+    protected String addCallbackIfApplicable(HttpServletRequest request,
+                                             String json) {
+        if (callbackParameter != null && callbackParameter.length() > 0) {
+            String callbackName = request.getParameter(callbackParameter);
+            if (callbackName != null && callbackName.length() > 0)
+                json = callbackName + "(" + json + ")";
+        }
+        return json;
+    }
+
     /**
-     * @return  OGNL expression of root object to be serialized
+     * @return OGNL expression of root object to be serialized
      */
     public String getRoot() {
         return this.root;
@@ -332,6 +345,7 @@ public class JSONResult implements Result {
 
     /**
      * Wrap generated JSON with comments
+     *
      * @param wrapWithComments
      */
     public void setWrapWithComments(boolean wrapWithComments) {
@@ -347,6 +361,7 @@ public class JSONResult implements Result {
 
     /**
      * Enable SMD generation for action, which can be used for JSON-RPC
+     *
      * @param enableSMD
      */
     public void setEnableSMD(boolean enableSMD) {
@@ -367,8 +382,8 @@ public class JSONResult implements Result {
 
     /**
      * Controls how Enum's are serialized :
-     *    If true, an Enum is serialized as a name=value pair (name=name()) (default)
-     *    If false, an Enum is serialized as a bean with a special property _name=name()
+     * If true, an Enum is serialized as a name=value pair (name=name()) (default)
+     * If false, an Enum is serialized as a bean with a special property _name=name()
      *
      * @param enumAsBean
      */
@@ -394,6 +409,7 @@ public class JSONResult implements Result {
 
     /**
      * Add headers to response to prevent the browser from caching the response
+     *
      * @param noCache
      */
     public void setNoCache(boolean noCache) {
@@ -410,6 +426,7 @@ public class JSONResult implements Result {
 
     /**
      * Do not serialize properties with a null value
+     *
      * @param excludeNullProperties
      */
     public void setExcludeNullProperties(boolean excludeNullProperties) {
@@ -418,6 +435,7 @@ public class JSONResult implements Result {
 
     /**
      * Status code to be set in the response
+     *
      * @param statusCode
      */
     public void setStatusCode(int statusCode) {
@@ -426,9 +444,18 @@ public class JSONResult implements Result {
 
     /**
      * Error code to be set in the response
+     *
      * @param errorCode
      */
     public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
+    }
+
+    public void setCallbackParameter(String callbackParameter) {
+        this.callbackParameter = callbackParameter;
+    }
+
+    public String getCallbackParameter() {
+        return callbackParameter;
     }
 }

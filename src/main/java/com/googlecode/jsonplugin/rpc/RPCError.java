@@ -37,14 +37,13 @@ public class RPCError {
         this.message = t.getMessage();
         this.name = t.getClass().getName();
 
-		if (debug)
-		{
-			StringWriter s = new StringWriter();
-			PrintWriter w = new PrintWriter(s);
-			t.printStackTrace(w);
-			w.flush();
-			this.stack = s.toString();
-		}
+        if (debug) {
+            StringWriter s = new StringWriter();
+            PrintWriter w = new PrintWriter(s);
+            t.printStackTrace(w);
+            w.flush();
+            this.stack = s.toString();
+        }
 
         log.error(t.getMessage(), t);
     }
