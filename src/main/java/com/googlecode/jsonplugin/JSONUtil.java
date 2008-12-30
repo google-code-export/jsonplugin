@@ -20,6 +20,12 @@
  */
 package com.googlecode.jsonplugin;
 
+import com.googlecode.jsonplugin.annotations.SMDMethod;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,14 +40,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.googlecode.jsonplugin.annotations.SMDMethod;
 
 /**
  *  Wrapper for JSONWriter with some utility methods.
@@ -159,6 +157,14 @@ public class JSONUtil {
     public static void writeJSONToResponse(HttpServletResponse response, String encoding,
                                            boolean wrapWithComments, String serializedJSON,
                                            boolean smd, boolean gzip, boolean noCache) throws IOException {
+        writeJSONToResponse(response, encoding, wrapWithComments, serializedJSON, smd, gzip, noCache, -1, -1);
+
+    }
+
+    public static void writeJSONToResponse(HttpServletResponse response, String encoding,
+                                           boolean wrapWithComments, String serializedJSON,
+                                           boolean smd, boolean gzip, boolean noCache,
+                                           int statusCode, int errorCode) throws IOException {
         String json = serializedJSON == null ? "" : serializedJSON;
         if (wrapWithComments) {
             StringBuilder sb = new StringBuilder("/* ");
@@ -169,6 +175,12 @@ public class JSONUtil {
         if (log.isDebugEnabled()) {
             log.debug("[JSON]" + json);
         }
+
+        //status or error code
+        if (statusCode > 0)
+            response.setStatus(statusCode);
+        else if (errorCode > 0)
+            response.sendError(errorCode);
 
         response.setContentType((smd ? "application/json-rpc;charset="
             : "application/json;charset=") +
