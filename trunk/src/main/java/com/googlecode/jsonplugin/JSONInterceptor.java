@@ -1,22 +1,5 @@
 package com.googlecode.jsonplugin;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts2.ServletActionContext;
-import org.apache.struts2.StrutsConstants;
-
 import com.googlecode.jsonplugin.annotations.SMDMethod;
 import com.googlecode.jsonplugin.rpc.RPCError;
 import com.googlecode.jsonplugin.rpc.RPCErrorCode;
@@ -26,13 +9,27 @@ import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.interceptor.Interceptor;
 import com.opensymphony.xwork2.util.ValueStack;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.StrutsConstants;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Populates an action from a JSON string
- *
  */
 public class JSONInterceptor implements Interceptor {
-	private static final long serialVersionUID = 4950170304212158803L;
+    private static final long serialVersionUID = 4950170304212158803L;
     private static final Log log = LogFactory.getLog(JSONInterceptor.class);
     private boolean enableSMD = false;
     private boolean enableGZIP = false;
@@ -48,6 +45,7 @@ public class JSONInterceptor implements Interceptor {
     private boolean debug = false;
     private boolean noCache = false;
     private boolean excludeNullProperties;
+    private String callbackParameter;
 
     public void destroy() {
     }
@@ -71,7 +69,7 @@ public class JSONInterceptor implements Interceptor {
             ValueStack stack = invocation.getStack();
             rootObject = stack.findValue(this.root);
 
-            if(rootObject == null) {
+            if (rootObject == null) {
                 throw new RuntimeException("Invalid root expression: '" + this.root + "'.");
             }
         } else {
@@ -96,7 +94,7 @@ public class JSONInterceptor implements Interceptor {
                 throw new JSONException("Unable to deserialize JSON object from request");
             }
         } else if ((contentType != null) &&
-            contentType.equalsIgnoreCase("application/json-rpc")) {
+                contentType.equalsIgnoreCase("application/json-rpc")) {
             Object result;
             if (this.enableSMD) {
                 //load JSON object
@@ -124,14 +122,15 @@ public class JSONInterceptor implements Interceptor {
                 }
 
                 String json = JSONUtil.serialize(result, excludeProperties, includeProperties,
-                    ignoreHierarchy, excludeNullProperties);
+                        ignoreHierarchy, excludeNullProperties);
+                json = addCallbackIfApplicable(request, json);
                 JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                    this.wrapWithComments, json, true, false, noCache);
+                        this.wrapWithComments, json, true, false, noCache);
 
                 return Action.NONE;
             } else {
                 String message = "Request with content type of 'application/json-rpc' was received but SMD is "
-                    + "not enabled for this interceptor. Set 'enableSMD' to true to enable it";
+                        + "not enabled for this interceptor. Set 'enableSMD' to true to enable it";
 
                 RPCResponse rpcResponse = new RPCResponse();
                 rpcResponse.setError(new RPCError(message, RPCErrorCode.SMD_DISABLED));
@@ -139,16 +138,17 @@ public class JSONInterceptor implements Interceptor {
             }
 
             String json = JSONUtil.serialize(result, excludeProperties, includeProperties, ignoreHierarchy, excludeNullProperties);
+            json = addCallbackIfApplicable(request, json);
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
             JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                this.wrapWithComments, json, true, writeGzip, noCache);
+                    this.wrapWithComments, json, true, writeGzip, noCache);
 
             return Action.NONE;
         } else {
             if (log.isDebugEnabled()) {
                 log
-                    .debug("Content type must be 'application/json' or 'application/json-rpc'. Ignoring request with content type " +
-                        contentType);
+                        .debug("Content type must be 'application/json' or 'application/json-rpc'. Ignoring request with content type " +
+                                contentType);
             }
         }
 
@@ -157,8 +157,8 @@ public class JSONInterceptor implements Interceptor {
 
     @SuppressWarnings("unchecked")
     public RPCResponse invoke(Object object, Map data) throws IllegalArgumentException,
-        IllegalAccessException, InvocationTargetException, JSONException,
-        InstantiationException, NoSuchMethodException, IntrospectionException {
+            IllegalAccessException, InvocationTargetException, JSONException,
+            InstantiationException, NoSuchMethodException, IntrospectionException {
 
         RPCResponse response = new RPCResponse();
 
@@ -190,7 +190,7 @@ public class JSONInterceptor implements Interceptor {
         Method method = this.getMethod(clazz, methodName, parameterCount);
         if (method == null) {
             String message = "Method " + methodName +
-                " could not be found in action class.";
+                    " could not be found in action class.";
             response.setError(new RPCError(message, RPCErrorCode.METHOD_NOT_FOUND));
             return response;
         }
@@ -205,8 +205,8 @@ public class JSONInterceptor implements Interceptor {
             if (parameterTypes.length != parameterCount) {
                 //size mismatch
                 String message = "Parameter count in request, " + parameterCount +
-                    " do not match expected parameter count for " + methodName + ", " +
-                    parameterTypes.length;
+                        " do not match expected parameter count for " + methodName + ", " +
+                        parameterTypes.length;
 
                 response.setError(new RPCError(message, RPCErrorCode.PARAMETERS_MISMATCH));
                 return response;
@@ -220,7 +220,7 @@ public class JSONInterceptor implements Interceptor {
 
                 //clean up the values
                 if (dataCleaner != null)
-                    parameter = dataCleaner.clean("["+i+"]", parameter);
+                    parameter = dataCleaner.clean("[" + i + "]", parameter);
 
                 Object converted = populator.convert(paramType, genericType, parameter, method);
                 invocationParameters.add(converted);
@@ -248,6 +248,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Look for a method in clazz carrying the SMDMethod annotation with matching name and parametersCount
+     *
      * @return true if matches name and parameterCount
      */
     private boolean checkSMDMethodSignature(Method method, String name, int parameterCount) {
@@ -257,12 +258,22 @@ public class JSONInterceptor implements Interceptor {
             String alias = smdMethodAnntotation.name();
             boolean paramsMatch = method.getParameterTypes().length == parameterCount;
             if ((alias.length() == 0 && method.getName().equals(name) && paramsMatch) ||
-                (alias.equals(name) && paramsMatch)) {
+                    (alias.equals(name) && paramsMatch)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    protected String addCallbackIfApplicable(HttpServletRequest request,
+                                             String json) {
+        if (callbackParameter != null && callbackParameter.length() > 0) {
+            String callbackName = request.getParameter(callbackParameter);
+            if (callbackName != null && callbackName.length() > 0)
+                json = callbackName + "(" + json + ")";
+        }
+        return json;
     }
 
     public boolean isEnableSMD() {
@@ -283,6 +294,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Wrap generated JSON with comments. Only used if SMD is enabled.
+     *
      * @param wrapWithComments
      */
     public void setWrapWithComments(boolean wrapWithComments) {
@@ -296,6 +308,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Ignore properties defined on base classes of the root object.
+     *
      * @param ignoreHierarchy
      */
     public void setIgnoreHierarchy(boolean ignoreHierarchy) {
@@ -304,6 +317,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Sets the root object to be deserialized, defaults to the Action
+     *
      * @param root OGNL expression of root object to be serialized
      */
     public void setRoot(String root) {
@@ -312,6 +326,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Sets the JSONPopulator to be used
+     *
      * @param populator JSONPopulator
      */
     public void setJSONPopulator(JSONPopulator populator) {
@@ -320,6 +335,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Sets the JSONCleaner to be used
+     *
      * @param dataCleaner JSONCleaner
      */
     public void setJSONCleaner(JSONCleaner dataCleaner) {
@@ -328,6 +344,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Turns debugging on or off
+     *
      * @param debug true or false
      */
     public boolean getDebug() {
@@ -355,11 +372,11 @@ public class JSONInterceptor implements Interceptor {
     }
 
     /**
- 	 * Sets a comma-delimited list of regular expressions to match
- 	 * properties that should be included from the JSON output.
- 	 *
- 	 * @param commaDelim A comma-delimited list of regular expressions
- 	 */
+     * Sets a comma-delimited list of regular expressions to match
+     * properties that should be included from the JSON output.
+     *
+     * @param commaDelim A comma-delimited list of regular expressions
+     */
     public void setIncludeProperties(String commaDelim) {
         List<String> includePatterns = JSONUtil.asList(commaDelim);
         if (includePatterns != null) {
@@ -374,7 +391,7 @@ public class JSONInterceptor implements Interceptor {
         return enableGZIP;
     }
 
-	/**
+    /**
      * Setting this property to "true" will compress the output.
      *
      * @param enableGZIP Enable compressed output
@@ -389,6 +406,7 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Add headers to response to prevent the browser from caching the response
+     *
      * @param noCache
      */
     public void setNoCache(boolean noCache) {
@@ -401,9 +419,18 @@ public class JSONInterceptor implements Interceptor {
 
     /**
      * Do not serialize properties with a null value
+     *
      * @param excludeNullProperties
      */
     public void setExcludeNullProperties(boolean excludeNullProperties) {
         this.excludeNullProperties = excludeNullProperties;
+    }
+
+    public void setCallbackParameter(String callbackParameter) {
+        this.callbackParameter = callbackParameter;
+    }
+
+    public String getCallbackParameter() {
+        return callbackParameter;
     }
 }

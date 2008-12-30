@@ -51,7 +51,9 @@ import com.googlecode.jsonplugin.annotations.JSON;
 class JSONWriter {
     private static final Log log = LogFactory.getLog(JSONWriter.class);
 
-    /** By default, enums are serialzied as name=value pairs */
+    /**
+     * By default, enums are serialzied as name=value pairs
+     */
     public static final boolean ENUM_AS_BEAN_DEFAULT = false;
 
     static char[] hex = "0123456789ABCDEF".toCharArray();
@@ -73,7 +75,7 @@ class JSONWriter {
      * @throws JSONException
      */
     public String write(Object object) throws JSONException {
-    	return this.write(object, null, null, false);
+        return this.write(object, null, null, false);
     }
 
     /**
@@ -82,7 +84,7 @@ class JSONWriter {
      * @throws JSONException
      */
     public String write(Object object, Collection<Pattern> excludeProperties, Collection<Pattern> includeProperties, boolean excludeNullProperties)
-        throws JSONException {
+            throws JSONException {
         this.excludeNullProperties = excludeNullProperties;
         this.buf.setLength(0);
         this.root = object;
@@ -174,8 +176,8 @@ class JSONWriter {
             Class clazz = object.getClass();
 
             info = ((object == this.root) && this.ignoreHierarchy) ? Introspector
-                .getBeanInfo(clazz, clazz.getSuperclass()) : Introspector
-                .getBeanInfo(clazz);
+                    .getBeanInfo(clazz, clazz.getSuperclass()) : Introspector
+                    .getBeanInfo(clazz);
 
             PropertyDescriptor[] props = info.getPropertyDescriptors();
 
@@ -188,8 +190,8 @@ class JSONWriter {
                 if (clazz.getName().indexOf("$$EnhancerByCGLIB$$") > -1) {
                     try {
                         baseAccessor = Class.forName(
-                            clazz.getName().substring(0, clazz.getName().indexOf("$$")))
-                            .getMethod(accessor.getName(), accessor.getParameterTypes());
+                                clazz.getName().substring(0, clazz.getName().indexOf("$$")))
+                                .getMethod(accessor.getName(), accessor.getParameterTypes());
                     } catch (Exception ex) {
                         log.debug(ex.getMessage(), ex);
                     }
@@ -255,7 +257,7 @@ class JSONWriter {
      * Ignore "class" field
      */
     private boolean shouldExcludeProperty(Class clazz, PropertyDescriptor prop)
-        throws SecurityException, NoSuchFieldException {
+            throws SecurityException, NoSuchFieldException {
         String name = prop.getName();
 
         if (name.equals("class") || name.equals("declaringClass")) {
@@ -341,8 +343,8 @@ class JSONWriter {
             if (this.buildExpr) {
                 if (key == null) {
                     log
-                        .error("Cannot build expression for null key in " +
-                            this.exprStack);
+                            .error("Cannot build expression for null key in " +
+                                    this.exprStack);
                     continue;
                 } else {
                     expr = this.expandExpr(key.toString());
@@ -378,8 +380,8 @@ class JSONWriter {
             this.formatter = new SimpleDateFormat(JSONUtil.RFC3339_FORMAT);
 
         DateFormat formatter = (json != null) && (json.format().length() > 0) ? new SimpleDateFormat(
-            json.format())
-            : this.formatter;
+                json.format())
+                : this.formatter;
         this.string(formatter.format(date));
     }
 
@@ -502,6 +504,7 @@ class JSONWriter {
 
     /**
      * Represent as unicode
+     *
      * @param c character to be encoded
      */
     private void unicode(char c) {

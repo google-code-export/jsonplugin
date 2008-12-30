@@ -55,9 +55,9 @@ public class JSONPopulator {
 
     @SuppressWarnings("unchecked")
     public void populateObject(Object object, final Map elements)
-        throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-        IntrospectionException, IllegalArgumentException, JSONException,
-        InstantiationException {
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
+            IntrospectionException, IllegalArgumentException, JSONException,
+            InstantiationException {
         Class clazz = object.getClass();
 
         BeanInfo info = Introspector.getBeanInfo(clazz);
@@ -72,8 +72,7 @@ public class JSONPopulator {
                 Object value = elements.get(name);
                 Method method = prop.getWriteMethod();
 
-                if (method != null)
-                {
+                if (method != null) {
                     JSON json = method.getAnnotation(JSON.class);
                     if ((json != null) && !json.deserialize()) {
                         continue;
@@ -86,7 +85,7 @@ public class JSONPopulator {
 
                         if (paramTypes.length == 1) {
                             Object convertedValue = this.convert(paramTypes[0], genericTypes[0], value, method);
-                            method.invoke(object, new Object[] { convertedValue });
+                            method.invoke(object, new Object[]{convertedValue});
                         }
                     }
                 }
@@ -96,9 +95,9 @@ public class JSONPopulator {
 
     @SuppressWarnings("unchecked")
     public Object convert(Class clazz, Type type, Object value, Method method)
-        throws IllegalArgumentException, JSONException, IllegalAccessException,
-        InvocationTargetException, InstantiationException, NoSuchMethodException,
-        IntrospectionException {
+            throws IllegalArgumentException, JSONException, IllegalAccessException,
+            InvocationTargetException, InstantiationException, NoSuchMethodException,
+            IntrospectionException {
         if (isJSONPrimitive(clazz))
             return convertPrimitive(clazz, value, method);
         else if (value == null)
@@ -114,25 +113,25 @@ public class JSONPopulator {
             Object convertedValue = clazz.newInstance();
             this.populateObject(convertedValue, (Map) value);
             return convertedValue;
-        }  else
+        } else
             throw new JSONException("Incompatible types for property " + method.getName());
     }
 
     private static boolean isJSONPrimitive(Class clazz) {
         return clazz.isPrimitive() || clazz.equals(String.class) ||
-            clazz.equals(Date.class) || clazz.equals(Boolean.class) ||
-            clazz.equals(Byte.class) || clazz.equals(Character.class) ||
-            clazz.equals(Double.class) || clazz.equals(Float.class) ||
-            clazz.equals(Integer.class) || clazz.equals(Long.class) ||
-            clazz.equals(Short.class) || clazz.equals(Locale.class) ||
-            clazz.isEnum();
+                clazz.equals(Date.class) || clazz.equals(Boolean.class) ||
+                clazz.equals(Byte.class) || clazz.equals(Character.class) ||
+                clazz.equals(Double.class) || clazz.equals(Float.class) ||
+                clazz.equals(Integer.class) || clazz.equals(Long.class) ||
+                clazz.equals(Short.class) || clazz.equals(Locale.class) ||
+                clazz.isEnum();
     }
 
     @SuppressWarnings("unchecked")
     private Object convertToArray(Class clazz, Type type, Object value, Method accessor)
-        throws JSONException, IllegalArgumentException, IllegalAccessException,
-        InvocationTargetException, InstantiationException, NoSuchMethodException,
-        IntrospectionException {
+            throws JSONException, IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException, InstantiationException, NoSuchMethodException,
+            IntrospectionException {
         if (value == null)
             return null;
         else if (value instanceof List) {
@@ -150,7 +149,7 @@ public class JSONPopulator {
                 } else if (isJSONPrimitive(arrayType)) {
                     //primitive array
                     Array.set(newArray, j, this.convertPrimitive(arrayType, listValue,
-                        accessor));
+                            accessor));
                 } else if (listValue instanceof Map) {
                     //array of other class
                     Object newObject = null;
@@ -166,20 +165,20 @@ public class JSONPopulator {
                     Array.set(newArray, j, newObject);
                 } else
                     throw new JSONException("Incompatible types for property " +
-                        accessor.getName());
+                            accessor.getName());
             }
 
             return newArray;
         } else
             throw new JSONException("Incompatible types for property " +
-                accessor.getName());
+                    accessor.getName());
     }
 
     @SuppressWarnings("unchecked")
     private Object convertToCollection(Class clazz, Type type, Object value, Method accessor)
-        throws JSONException, IllegalArgumentException, IllegalAccessException,
-        InvocationTargetException, InstantiationException, NoSuchMethodException,
-        IntrospectionException {
+            throws JSONException, IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException, InstantiationException, NoSuchMethodException,
+            IntrospectionException {
         if (value == null)
             return null;
         else if (value instanceof List) {
@@ -218,7 +217,7 @@ public class JSONPopulator {
                 } else if (isJSONPrimitive(itemClass)) {
                     //primitive array
                     newCollection.add(this.convertPrimitive(itemClass, listValue,
-                        accessor));
+                            accessor));
                 } else if (Map.class.isAssignableFrom(itemClass)) {
                     Object newObject = convertToMap(itemClass, itemType, listValue, accessor);
                     newCollection.add(newObject);
@@ -232,20 +231,20 @@ public class JSONPopulator {
                     newCollection.add(newObject);
                 } else
                     throw new JSONException("Incompatible types for property " +
-                        accessor.getName());
+                            accessor.getName());
             }
 
             return newCollection;
         } else
             throw new JSONException("Incompatible types for property " +
-                accessor.getName());
+                    accessor.getName());
     }
 
     @SuppressWarnings("unchecked")
     private Object convertToMap(Class clazz, Type type, Object value, Method accessor)
-        throws JSONException, IllegalArgumentException, IllegalAccessException,
-        InvocationTargetException, InstantiationException, NoSuchMethodException,
-        IntrospectionException {
+            throws JSONException, IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException, InstantiationException, NoSuchMethodException,
+            IntrospectionException {
         if (value == null)
             return null;
         else if (value instanceof Map) {
@@ -274,8 +273,8 @@ public class JSONPopulator {
             Iterator iter = values.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
-                String key      = (String) entry.getKey();
-                Object v        = entry.getValue();
+                String key = (String) entry.getKey();
+                Object v = entry.getValue();
 
                 if (itemClass.equals(Object.class)) {
                     //String, Object
@@ -283,7 +282,7 @@ public class JSONPopulator {
                 } else if (isJSONPrimitive(itemClass)) {
                     //primitive map
                     newMap.put(key, this.convertPrimitive(itemClass, v,
-                        accessor));
+                            accessor));
                 } else if (Map.class.isAssignableFrom(itemClass)) {
                     Object newObject = convertToMap(itemClass, itemType, v, accessor);
                     newMap.put(key, newObject);
@@ -297,22 +296,23 @@ public class JSONPopulator {
                     newMap.put(key, newObject);
                 } else
                     throw new JSONException("Incompatible types for property " +
-                        accessor.getName());
+                            accessor.getName());
             }
 
             return newMap;
         } else
             throw new JSONException("Incompatible types for property " +
-                accessor.getName());
+                    accessor.getName());
     }
 
     /**
      * Converts numbers to the desired class, if possible
+     *
      * @throws JSONException
      */
     @SuppressWarnings("unchecked")
     private Object convertPrimitive(Class clazz, Object value, Method method)
-        throws JSONException {
+            throws JSONException {
         if (value == null) {
             if (Short.TYPE.equals(clazz) || Short.class.equals(clazz))
                 return (short) 0;
@@ -364,8 +364,8 @@ public class JSONPopulator {
                 JSON json = method.getAnnotation(JSON.class);
 
                 DateFormat formatter = new SimpleDateFormat(
-                    (json != null) && (json.format().length() > 0) ?
-                    json.format() : this.dateFormat);
+                        (json != null) && (json.format().length() > 0) ?
+                                json.format() : this.dateFormat);
                 return formatter.parse((String) value);
             } catch (ParseException e) {
                 log.error(e.getMessage(), e);
@@ -373,8 +373,8 @@ public class JSONPopulator {
             }
         } else if (clazz.isEnum()) {
             String sValue = (String) value;
-			return Enum.valueOf(clazz, sValue);
-		} else if (value instanceof String) {
+            return Enum.valueOf(clazz, sValue);
+        } else if (value instanceof String) {
             String sValue = (String) value;
             if (Boolean.TYPE.equals(clazz))
                 return Boolean.parseBoolean(sValue);

@@ -1,8 +1,7 @@
 package com.googlecode.jsonplugin;
 
 /**
- * A more complicated Enum with additional properties.  
- *
+ * A more complicated Enum with additional properties.
  */
 public enum AnEnumBean {
 

@@ -6,13 +6,14 @@ import java.util.Map;
 
 /**
  * Test serialization of an Enum in the two supported modes:
- *   - Enum as a name=value pair;
- *   - Enum as a bean
- *
+ * - Enum as a name=value pair;
+ * - Enum as a bean
  */
 public class JSONEnumTest extends TestCase {
 
-     /** Asserts that a bean can be serialized to JSON and restored as a map */
+    /**
+     * Asserts that a bean can be serialized to JSON and restored as a map
+     */
     public void testEnumAsNameValue() throws Exception {
         Bean bean1 = new Bean();
 
@@ -41,10 +42,11 @@ public class JSONEnumTest extends TestCase {
         assertEquals(AnEnumBean.Two, AnEnumBean.valueOf((String) result.get("enumBean")));  // note: this is a String
     }
 
-     /** Asserts that a bean can be serialized to JSON and restored as a map
-      *
-      * In this case, the name of the enum is in _name and the two properties of AnEnumBean are also serialized
-      * */
+    /**
+     * Asserts that a bean can be serialized to JSON and restored as a map
+     * <p/>
+     * In this case, the name of the enum is in _name and the two properties of AnEnumBean are also serialized
+     */
     public void testEnumAsBean() throws Exception {
         Bean bean1 = new Bean();
 

@@ -66,6 +66,6 @@ public class SMDMethod implements Comparable {
         if (name == null && toCompare.name == null)
             return true;
         return name != null && name.equals(toCompare.name) &&
-            parameters.size() == toCompare.parameters.size();
+                parameters.size() == toCompare.parameters.size();
     }
 }
