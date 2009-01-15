@@ -475,8 +475,8 @@ public class JSONInterceptorTest extends StrutsTestCase {
         this.response = new StrutsMockHttpServletResponse();
         this.response.setWriter(this.writer);
 
-        ValueStack stack = ValueStackFactory.getFactory().createValueStack();
-        ActionContext context = new ActionContext(stack.getContext());
+        ActionContext context = ActionContext.getContext();
+        ValueStack stack = (ValueStack) context.getValueStack();
 
         ActionContext.setContext(context);
         context.put(StrutsStatics.HTTP_REQUEST, this.request);

@@ -362,7 +362,6 @@ public class JSONResultTest extends StrutsTestCase {
         action.setBean(bean1);
         result.setRoot("bean");
 
-        ValueStack stack = ValueStackFactory.getFactory().createValueStack();
         stack.push(action);
         this.invocation.setStack(stack);
         this.invocation.setAction(action);
@@ -501,10 +500,10 @@ public class JSONResultTest extends StrutsTestCase {
         this.response.setWriter(this.writer);
         this.request = new StrutsMockHttpServletRequest();
         this.request.setRequestURI("http://sumeruri");
-        this.stack = ValueStackFactory.getFactory().createValueStack();
-        this.context = new ActionContext(this.stack.getContext());
+        this.context = ActionContext.getContext();
         this.context.put(StrutsStatics.HTTP_RESPONSE, this.response);
         this.context.put(StrutsStatics.HTTP_REQUEST, this.request);
+        this.stack = (ValueStack) context.getValueStack();
         this.servletContext = new StrutsMockServletContext();
         this.context.put(StrutsStatics.SERVLET_CONTEXT, this.servletContext);
         this.invocation = new MockActionInvocation();
