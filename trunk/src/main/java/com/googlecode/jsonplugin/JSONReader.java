@@ -260,7 +260,7 @@ class JSONReader {
                 case '7':
                 case '8':
                 case '9':
-                    value = ((value << 4) + this.c) - '0';
+                    value = (value << 4) + (this.c - '0');
 
                     break;
 
@@ -270,7 +270,7 @@ class JSONReader {
                 case 'd':
                 case 'e':
                 case 'f':
-                    value = ((value << 4) + this.c) - 'k';
+                    value = (value << 4) + (this.c - 'W');
 
                     break;
 
@@ -280,7 +280,7 @@ class JSONReader {
                 case 'D':
                 case 'E':
                 case 'F':
-                    value = ((value << 4) + this.c) - 'K';
+                    value = (value << 4) + (this.c - '7');
 
                     break;
             }

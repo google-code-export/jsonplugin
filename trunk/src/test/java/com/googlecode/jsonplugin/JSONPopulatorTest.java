@@ -20,7 +20,7 @@ public class JSONPopulatorTest extends TestCase {
         Bean bean = new Bean();
         populator.populateObject(bean, jsonMap);
         assertTrue(bean.isBooleanField());
-        assertEquals("test", bean.getStringField());
+        assertEquals("test\u000E\u000f", bean.getStringField());
         assertEquals(10, bean.getIntField());
         assertEquals('s', bean.getCharField());
         assertEquals(10.1d, bean.getDoubleField(), 0d);
@@ -42,7 +42,7 @@ public class JSONPopulatorTest extends TestCase {
         assertEquals(true, bean.isPrimitiveBooleanField1());
         assertEquals(false, bean.isPrimitiveBooleanField2());
         assertEquals(false, bean.isPrimitiveBooleanField3());
-        assertEquals("test", bean.getStringField());
+        assertEquals("test\u000E\u000f", bean.getStringField());
         assertEquals(new Integer(10), bean.getIntField());
         assertEquals(0, bean.getNullIntField());
         assertEquals(new Character('s'), bean.getCharField());

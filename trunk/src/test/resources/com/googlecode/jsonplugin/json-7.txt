@@ -5,7 +5,7 @@
         "primitiveBooleanField1": true,
         "primitiveBooleanField2": false,
         "primitiveBooleanField3": null,
-        "stringField" : "test",
+        "stringField" : "test\u000e\u000F",
         "intField" : 10,
         "nullIntField" : null,
         "charField": "s",
