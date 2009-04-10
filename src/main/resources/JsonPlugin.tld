@@ -12,6 +12,8 @@
 
     <short-name>json</short-name>
 
+    <uri>com.googlecode.jsonplugin</uri>
+
     <function>
         <name>serialize</name>
         <function-class>com.googlecode.jsonplugin.JSONUtil</function-class>
