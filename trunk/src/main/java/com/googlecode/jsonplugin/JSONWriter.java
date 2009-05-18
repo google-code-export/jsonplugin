@@ -335,7 +335,8 @@ class JSONWriter {
 
         Iterator it = map.entrySet().iterator();
 
-        boolean hasData = false;
+        boolean warnedNonString = false; // one report per map
+		boolean hasData = false;
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             Object key = entry.getKey();
@@ -358,7 +359,12 @@ class JSONWriter {
                 this.add(',');
             }
             hasData = true;
-            this.value(key, method);
+			if(!warnedNonString && ! (key instanceof String)) {
+				log.warn("JavaScript doesn't support non-String keys, using toString() on "
+						+ key.getClass().getName());
+				warnedNonString = true;
+			}
+            this.value(key.toString(), method);
             this.add(":");
             this.value(entry.getValue(), method);
             if (this.buildExpr) {
