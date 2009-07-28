@@ -99,10 +99,13 @@ public class JSONPopulator {
             throws IllegalArgumentException, JSONException, IllegalAccessException,
             InvocationTargetException, InstantiationException, NoSuchMethodException,
             IntrospectionException {
-        if (isJSONPrimitive(clazz))
+
+        if (value == null) {
+            //if it is a java primitive then get a default value, otherwise leave it as null
+            return clazz.isPrimitive() ? convertPrimitive(clazz, value, method) : null;
+        }
+        else if (isJSONPrimitive(clazz))
             return convertPrimitive(clazz, value, method);
-        else if (value == null)
-            return null;
         else if (Collection.class.isAssignableFrom(clazz))
             return convertToCollection(clazz, type, value, method);
         else if (Map.class.isAssignableFrom(clazz))
