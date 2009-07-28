@@ -162,49 +162,50 @@ public class JSONUtil {
         return deserialize(buffer.toString());
     }
 
-    //TODO: extract this megazillion parameters into some class
-    public static void writeJSONToResponse(HttpServletResponse response, String encoding,
-                                           boolean wrapWithComments, String serializedJSON,
-                                           boolean smd, boolean gzip, boolean noCache,
-                                           int statusCode, int errorCode, boolean prefix,
-                                           String contentType) throws IOException {
-        String json = serializedJSON == null ? "" : serializedJSON;
-        if (wrapWithComments) {
-            StringBuilder sb = new StringBuilder("/* ");
-            sb.append(json);
-            sb.append(" */");
-            json = sb.toString();
-        } else if (prefix) {
-            StringBuilder sb = new StringBuilder("{}&& ");
-            sb.append(json);
-            json = sb.toString();
-        }
+    public static void writeJSONToResponse(SerializationParams serializationParams) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (TextUtils.stringSet(serializationParams.getSerializedJSON()))
+            stringBuilder.append(serializationParams.getSerializedJSON());
+
+        if (TextUtils.stringSet(serializationParams.getWrapPrefix()))
+            stringBuilder.insert(0, serializationParams.getWrapPrefix());
+        else if (serializationParams.isWrapWithComments()) {
+            stringBuilder.insert(0, "/* ");
+            stringBuilder.append(" */");
+        } else if (serializationParams.isPrefix())
+            stringBuilder.insert(0, "{}&& ");
+
+        if (TextUtils.stringSet(serializationParams.getWrapSuffix()))
+            stringBuilder.append(serializationParams.getWrapSuffix());
+
+        String json = stringBuilder.toString();
 
         if (log.isDebugEnabled()) {
             log.debug("[JSON]" + json);
         }
 
+        HttpServletResponse response = serializationParams.getResponse();
+
         //status or error code
-        if (statusCode > 0)
-            response.setStatus(statusCode);
-        else if (errorCode > 0)
-            response.sendError(errorCode);
+        if (serializationParams.getStatusCode() > 0)
+            response.setStatus(serializationParams.getStatusCode());
+        else if (serializationParams.getErrorCode() > 0)
+            response.sendError(serializationParams.getErrorCode());
 
         //content type
-        if (smd)
-            response.setContentType("application/json-rpc;charset=" + encoding);
-        else {
-            contentType = TextUtils.noNull(contentType, "application/json");
-            response.setContentType(contentType + ";charset=" + encoding);
-        }
+        if (serializationParams.isSmd())
+            response.setContentType("application/json-rpc;charset=" + serializationParams.getEncoding());
+        else
+            response.setContentType(serializationParams.getContentType() + ";charset=" + serializationParams.getEncoding());
 
-        if (noCache) {
+
+        if (serializationParams.isNoCache()) {
             response.setHeader("Cache-Control", "no-cache");
             response.setHeader("Expires", "0");
             response.setHeader("Pragma", "No-cache");
         }
 
-        if (gzip) {
+        if (serializationParams.isGzip()) {
             response.addHeader("Content-Encoding", "gzip");
             GZIPOutputStream out = null;
             InputStream in = null;
@@ -226,7 +227,7 @@ public class JSONUtil {
             }
 
         } else {
-            response.setContentLength(json.getBytes(encoding).length);
+            response.setContentLength(json.getBytes(serializationParams.getEncoding()).length);
             PrintWriter out = response.getWriter();
             out.print(json);
         }

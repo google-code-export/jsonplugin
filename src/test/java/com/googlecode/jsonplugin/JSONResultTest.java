@@ -141,6 +141,52 @@ public class JSONResultTest extends StrutsTestCase {
         assertEquals(normalizedExpected, normalizedActual);
     }
 
+    public void testWrapPrefix() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setWrapPrefix("_prefix_");
+        TestAction2 action = new TestAction2();
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String out = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(out, true);
+        String normalizedExpected = "_prefix_{\"name\":\"name\"}";
+        assertEquals(normalizedExpected, normalizedActual);
+    }
+
+    public void testSuffix() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setWrapSuffix("_suffix_");
+        TestAction2 action = new TestAction2();
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String out = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(out, true);
+        String normalizedExpected = "{\"name\":\"name\"}_suffix_";
+        assertEquals(normalizedExpected, normalizedActual);
+    }
+
+    public void testPrefixAndSuffix() throws Exception {
+        JSONResult result = new JSONResult();
+        result.setWrapPrefix("_prefix_");
+        result.setWrapSuffix("_suffix_");
+        TestAction2 action = new TestAction2();
+
+        this.invocation.setAction(action);
+        result.execute(this.invocation);
+
+        String out = this.stringWriter.toString();
+
+        String normalizedActual = TestUtils.normalize(out, true);
+        String normalizedExpected = "_prefix_{\"name\":\"name\"}_suffix_";
+        assertEquals(normalizedExpected, normalizedActual);
+    }
+
     public void testPrefix() throws Exception {
         JSONResult result = new JSONResult();
         result.setExcludeNullProperties(true);
