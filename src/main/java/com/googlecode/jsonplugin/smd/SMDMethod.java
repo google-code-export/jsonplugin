@@ -52,11 +52,15 @@ public class SMDMethod implements Comparable {
             return 1;
         if (o == null)
             return 1;
-        if (name == null && ((SMDMethod) o).name == null)
+        SMDMethod other = (SMDMethod) o;
+        if (name == null && other.name == null)
             return 0;
         if (name == null)
             return -1;
-        return name.compareTo(((SMDMethod) o).name);
+        if (name.equals(other.name))
+            return parameters.size() - other.parameters.size();
+
+        return name.compareTo(other.name);
     }
 
     public boolean equals(Object obj) {
