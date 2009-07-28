@@ -126,8 +126,8 @@ public class JSONInterceptor implements Interceptor {
                 String json = JSONUtil.serialize(result, excludeProperties, includeProperties,
                         ignoreHierarchy, excludeNullProperties);
                 json = addCallbackIfApplicable(request, json);
-                JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                        this.wrapWithComments, json, true, false, noCache, -1, -1, prefix, contentType);
+                JSONUtil.writeJSONToResponse(
+                        new SerializationParams(response, this.defaultEncoding, this.wrapWithComments, json, true, false, noCache, -1, -1, prefix, contentType));
 
                 return Action.NONE;
             } else {
@@ -142,8 +142,8 @@ public class JSONInterceptor implements Interceptor {
             String json = JSONUtil.serialize(result, excludeProperties, includeProperties, ignoreHierarchy, excludeNullProperties);
             json = addCallbackIfApplicable(request, json);
             boolean writeGzip = enableGZIP && JSONUtil.isGzipInRequest(request);
-            JSONUtil.writeJSONToResponse(response, this.defaultEncoding,
-                    this.wrapWithComments, json, true, writeGzip, noCache, -1, -1, prefix, contentType);
+            JSONUtil.writeJSONToResponse(
+                    new SerializationParams(response, this.defaultEncoding, this.wrapWithComments, json, true, writeGzip, noCache, -1, -1, prefix, contentType));
 
             return Action.NONE;
         } else {

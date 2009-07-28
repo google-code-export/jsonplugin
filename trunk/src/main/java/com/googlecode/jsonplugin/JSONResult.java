@@ -69,6 +69,8 @@ public class JSONResult implements Result {
     private int errorCode;
     private String callbackParameter;
     private String contentType;
+    private String wrapPrefix;
+    private String wrapSuffix;
 
     @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
     public void setDefaultEncoding(String val) {
@@ -189,8 +191,9 @@ public class JSONResult implements Result {
 
     protected void writeToResponse(HttpServletResponse response,
                                    String json, boolean gzip) throws IOException {
-        JSONUtil.writeJSONToResponse(response, getEncoding(),
-                isWrapWithComments(), json, false, gzip, noCache, statusCode, errorCode, prefix, contentType);
+        JSONUtil.writeJSONToResponse(
+                new SerializationParams(response, getEncoding(), isWrapWithComments(), json, false,
+                        gzip, noCache, statusCode, errorCode, prefix, contentType, wrapPrefix, wrapSuffix));
     }
 
     @SuppressWarnings("unchecked")
@@ -473,5 +476,27 @@ public class JSONResult implements Result {
      */
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    public String getWrapPrefix() {
+        return wrapPrefix;
+    }
+
+    /**
+     * Text to be inserted at the begining of the response
+     */
+    public void setWrapPrefix(String wrapPrefix) {
+        this.wrapPrefix = wrapPrefix;
+    }
+
+    public String getWrapSuffix() {
+        return wrapSuffix;
+    }
+
+    /**
+     * Text to be inserted at the end of the response
+     */
+    public void setWrapSuffix(String wrapSuffix) {
+        this.wrapSuffix = wrapSuffix;
     }
 }
