@@ -260,7 +260,8 @@ class JSONWriter {
             throws SecurityException, NoSuchFieldException {
         String name = prop.getName();
 
-        if (name.equals("class") || name.equals("declaringClass")) {
+        if (name.equals("class") || name.equals("declaringClass")
+                || name.equals("cachedSuperClass") || name.equals("metaClass")) {
             return true;
         }
 
