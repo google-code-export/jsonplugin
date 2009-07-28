@@ -5,7 +5,7 @@
     <groupId>com.googlecode</groupId>
     <artifactId>jsonplugin</artifactId>
     <packaging>jar</packaging>
-    <version>0.33</version>
+    <version>0.34</version>
     <name>Struts 2 JSON Plugin</name>
     <url>http://code.google.com/p/jsonplugin/</url>
     <description>
